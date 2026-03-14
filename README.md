@@ -122,3 +122,4 @@ supabase/
 - **Labels/Tags:** JetBrains Mono (monospace)
 # ghorpad-2026
 # ghorpad-2026
+# ghorpad-2026
