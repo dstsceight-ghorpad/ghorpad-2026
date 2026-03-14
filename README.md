@@ -120,3 +120,4 @@ supabase/
 - **Headlines:** Playfair Display (serif)
 - **Body/UI:** Inter (sans-serif)
 - **Labels/Tags:** JetBrains Mono (monospace)
+# ghorpad-2026
