@@ -123,3 +123,4 @@ supabase/
 # ghorpad-2026
 # ghorpad-2026
 # ghorpad-2026
+# ghorpad-2026
