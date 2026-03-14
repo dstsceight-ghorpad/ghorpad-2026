@@ -121,3 +121,4 @@ supabase/
 - **Body/UI:** Inter (sans-serif)
 - **Labels/Tags:** JetBrains Mono (monospace)
 # ghorpad-2026
+# ghorpad-2026
