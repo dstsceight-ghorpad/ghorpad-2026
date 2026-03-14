@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GHORPAD 2026 &mdash; Go-Live Guide</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --fg: #f0f0f0;
+      --surface: #111;
+      --surface2: #1a1a1a;
+      --gold: #e8c84a;
+      --gold-dim: rgba(232,200,74,.15);
+      --red: #c0392b;
+      --green: #27ae60;
+      --blue: #3498db;
+      --muted: #888;
+      --border: rgba(255,255,255,.08);
+      --mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Inter', -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: var(--sans); line-height: 1.7; }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+
+    /* Header */
+    header { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); margin-bottom: 3rem; }
+    header h1 { font-family: var(--serif); font-size: 2.5rem; margin-bottom: .5rem; }
+    header .subtitle { font-family: var(--mono); font-size: .7rem; color: var(--gold); letter-spacing: .2em; }
+    header .meta { font-family: var(--mono); font-size: .65rem; color: var(--muted); margin-top: 1rem; }
+
+    /* TOC */
+    .toc { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; padding: 1.5rem 2rem; margin-bottom: 3rem; }
+    .toc h2 { font-family: var(--mono); font-size: .7rem; color: var(--gold); letter-spacing: .15em; margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { font-size: .9rem; margin-bottom: .4rem; }
+    .toc li a { color: var(--fg); }
+    .toc li a:hover { color: var(--gold); }
+
+    /* Sections */
+    .section { margin-bottom: 3.5rem; }
+    .section h2 { font-family: var(--serif); font-size: 1.6rem; margin-bottom: .25rem; }
+    .section .section-label { font-family: var(--mono); font-size: .65rem; color: var(--gold); letter-spacing: .15em; margin-bottom: 1.5rem; display: block; }
+    .section h3 { font-family: var(--serif); font-size: 1.15rem; margin: 1.5rem 0 .75rem; color: var(--fg); }
+    .section p { color: #ccc; margin-bottom: 1rem; font-size: .95rem; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .card-header { display: flex; align-items: center; gap: .75rem; margin-bottom: .75rem; }
+    .card-header .icon { width: 2.5rem; height: 2.5rem; border-radius: .5rem; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .card-header h4 { font-family: var(--serif); font-size: 1.05rem; }
+    .card p { color: #bbb; font-size: .88rem; margin-bottom: .5rem; }
+    .card .tag { font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; padding: .2rem .5rem; border-radius: .25rem; display: inline-block; }
+    .tag-free { background: rgba(39,174,96,.15); color: var(--green); }
+    .tag-paid { background: rgba(192,57,43,.15); color: var(--red); }
+    .tag-optional { background: rgba(52,152,219,.15); color: var(--blue); }
+
+    /* Verdict boxes */
+    .verdict { border-left: 3px solid var(--gold); padding: .75rem 1rem; background: var(--gold-dim); border-radius: 0 .5rem .5rem 0; margin: 1rem 0; font-size: .88rem; }
+    .verdict strong { color: var(--gold); }
+    .verdict-green { border-left-color: var(--green); background: rgba(39,174,96,.08); }
+    .verdict-green strong { color: var(--green); }
+    .verdict-red { border-left-color: var(--red); background: rgba(192,57,43,.08); }
+    .verdict-red strong { color: var(--red); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: .88rem; }
+    th { font-family: var(--mono); font-size: .65rem; color: var(--gold); letter-spacing: .1em; text-align: left; padding: .75rem; border-bottom: 1px solid var(--border); }
+    td { padding: .75rem; border-bottom: 1px solid var(--border); color: #ccc; vertical-align: top; }
+    tr:hover td { background: var(--surface2); }
+
+    /* Steps */
+    .step { display: flex; gap: 1.25rem; margin-bottom: 2rem; }
+    .step-num { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--gold); color: var(--bg); font-family: var(--mono); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: .9rem; }
+    .step-content { flex: 1; }
+    .step-content h4 { font-family: var(--serif); font-size: 1.1rem; margin-bottom: .5rem; }
+    .step-content p { color: #bbb; font-size: .88rem; margin-bottom: .5rem; }
+
+    /* Code blocks */
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: .5rem; padding: 1rem 1.25rem; overflow-x: auto; margin: .75rem 0 1rem; font-family: var(--mono); font-size: .8rem; color: #ccc; line-height: 1.6; }
+    code { font-family: var(--mono); font-size: .82rem; background: var(--surface2); padding: .15rem .4rem; border-radius: .25rem; color: var(--gold); }
+
+    /* Cost table */
+    .cost-row { display: flex; justify-content: space-between; padding: .6rem 0; border-bottom: 1px solid var(--border); font-size: .9rem; }
+    .cost-row:last-child { border-bottom: none; font-weight: 700; }
+    .cost-label { color: #ccc; }
+    .cost-value { font-family: var(--mono); color: var(--green); }
+    .cost-value.paid { color: var(--red); }
+
+    /* Alert */
+    .alert { background: var(--surface); border: 1px solid var(--border); border-radius: .75rem; padding: 1.25rem; margin: 1.5rem 0; }
+    .alert-title { font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; margin-bottom: .5rem; }
+    .alert-warn .alert-title { color: #f39c12; }
+    .alert-info .alert-title { color: var(--blue); }
+    .alert-ok .alert-title { color: var(--green); }
+    .alert p { color: #bbb; font-size: .85rem; }
+
+    /* Separator */
+    hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    /* Footer */
+    footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); margin-top: 3rem; }
+    footer p { font-family: var(--mono); font-size: .6rem; color: var(--muted); letter-spacing: .1em; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      header h1 { font-size: 1.8rem; }
+      .step { flex-direction: column; gap: .75rem; }
+      .container { padding: 1.5rem 1rem 4rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ═══ HEADER ═══ -->
+  <header>
+    <h1>GHORPAD 2026</h1>
+    <div class="subtitle">// GO-LIVE DEPLOYMENT GUIDE</div>
+    <div class="meta">Prepared for MILIT &middot; DSTSC 08 Editorial Team &middot; March 2026</div>
+  </header>
+
+  <!-- ═══ TABLE OF CONTENTS ═══ -->
+  <nav class="toc">
+    <h2>// CONTENTS</h2>
+    <ol>
+      <li><a href="#tldr">TL;DR &mdash; The Bottom Line</a></li>
+      <li><a href="#architecture">How This Website Works</a></li>
+      <li><a href="#vercel">Vercel &mdash; Frontend Hosting (Why &amp; Alternatives)</a></li>
+      <li><a href="#supabase">Supabase &mdash; Backend (Why &amp; Alternatives)</a></li>
+      <li><a href="#domain">Custom Domain (ghorpad.in)</a></li>
+      <li><a href="#costs">Complete Cost Breakdown</a></li>
+      <li><a href="#free-limits">Free Plan Limits &amp; Will You Hit Them?</a></li>
+      <li><a href="#steps">Step-by-Step Go-Live Procedure</a></li>
+      <li><a href="#env">Environment Variables Reference</a></li>
+      <li><a href="#post-launch">Post-Launch Checklist</a></li>
+      <li><a href="#faq">Frequently Asked Questions</a></li>
+    </ol>
+  </nav>
+
+  <!-- ═══ 1. TL;DR ═══ -->
+  <div class="section" id="tldr">
+    <span class="section-label">// 01 &mdash; EXECUTIVE SUMMARY</span>
+    <h2>TL;DR &mdash; The Bottom Line</h2>
+
+    <div class="card" style="border-color: var(--green);">
+      <table>
+        <tr>
+          <td style="width:40%"><strong>Total unavoidable cost</strong></td>
+          <td style="color:var(--green); font-family:var(--mono); font-weight:700; font-size:1.2rem;">&#8377;0 / month</td>
+        </tr>
+        <tr>
+          <td><strong>Optional cost (custom domain)</strong></td>
+          <td style="font-family:var(--mono);">&#8377;500&ndash;800 / year</td>
+        </tr>
+        <tr>
+          <td><strong>Services needed</strong></td>
+          <td>Vercel (free) + Supabase (free)</td>
+        </tr>
+        <tr>
+          <td><strong>Users supported on free plans</strong></td>
+          <td>Unlimited readers, up to 50,000 monthly active auth users</td>
+        </tr>
+        <tr>
+          <td><strong>Storage on free plans</strong></td>
+          <td>500 MB database + 1 GB file storage</td>
+        </tr>
+        <tr>
+          <td><strong>Time to go live</strong></td>
+          <td>~30 minutes (if you follow this guide)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="verdict verdict-green">
+      <strong>Verdict:</strong> You can run this entire magazine website for free. Both Vercel and Supabase offer generous free tiers that are more than sufficient for a college magazine with a small editorial team (3&ndash;10 editors) and a moderate readership (a few thousand visitors/month). A custom domain is the only possible expense, and even that is optional.
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 2. ARCHITECTURE ═══ -->
+  <div class="section" id="architecture">
+    <span class="section-label">// 02 &mdash; SYSTEM ARCHITECTURE</span>
+    <h2>How This Website Works</h2>
+
+    <p>GHORPAD 2026 is a <strong>two-part system</strong>: a public-facing magazine website that anyone can read, and an editorial portal where your team writes, reviews, and publishes articles.</p>
+
+    <pre>
+ VISITORS (browsers)
+       |
+       v
+ +-----------+        +------------------+
+ |  VERCEL   |  ---&gt;  |    SUPABASE      |
+ | (hosting) |        | (database, auth, |
+ | Next.js   |        |  file storage)   |
+ | server    |        +------------------+
+ +-----------+
+       |
+  Serves HTML/JS/CSS
+  to visitor browsers
+    </pre>
+
+    <h3>The Two Parts</h3>
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>What It Does</th>
+        <th>Service</th>
+      </tr>
+      <tr>
+        <td><strong>Frontend + Server</strong></td>
+        <td>Renders the website pages, handles routing, serves the editorial portal UI, runs middleware for auth protection</td>
+        <td>Vercel</td>
+      </tr>
+      <tr>
+        <td><strong>Backend</strong></td>
+        <td>Stores articles (PostgreSQL database), handles login/signup (authentication), stores uploaded images and media (file storage)</td>
+        <td>Supabase</td>
+      </tr>
+    </table>
+
+    <h3>Technology Stack</h3>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Cost</th></tr>
+      <tr><td>Framework</td><td>Next.js 16.1.6 (React 19)</td><td>Free / open-source</td></tr>
+      <tr><td>Language</td><td>TypeScript</td><td>Free / open-source</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS v4</td><td>Free / open-source</td></tr>
+      <tr><td>Animations</td><td>Framer Motion 12</td><td>Free / open-source</td></tr>
+      <tr><td>Rich Text Editor</td><td>TipTap v3</td><td>Free / open-source</td></tr>
+      <tr><td>Icons</td><td>Lucide React</td><td>Free / open-source</td></tr>
+      <tr><td>Fonts</td><td>Google Fonts (Playfair, Inter, JetBrains Mono)</td><td>Free</td></tr>
+    </table>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 3. VERCEL ═══ -->
+  <div class="section" id="vercel">
+    <span class="section-label">// 03 &mdash; FRONTEND HOSTING</span>
+    <h2>Vercel &mdash; Is It Required?</h2>
+
+    <h3>What Vercel does for this project</h3>
+    <p>Vercel hosts the Next.js application. It runs the Node.js server that renders pages, handles the authentication middleware, and serves static assets (CSS, JavaScript, images) to visitors.</p>
+
+    <h3>Why Vercel is recommended</h3>
+    <div class="card">
+      <p><strong>1. Zero-config deployment.</strong> Vercel is built by the same company that created Next.js. You connect your GitHub repo, and it automatically detects the framework, installs dependencies, builds, and deploys. No server setup, no Docker, no DevOps knowledge needed.</p>
+      <p><strong>2. This site needs a Node.js server.</strong> GHORPAD uses middleware (for auth protection on editorial routes) and dynamic server-rendered pages (article pages with <code>[slug]</code>). This means it cannot be exported as a plain static HTML site. It needs a server running Node.js.</p>
+      <p><strong>3. Free tier is generous.</strong> 100 GB bandwidth/month, automatic HTTPS, global CDN, preview deployments on every git push &mdash; all free.</p>
+    </div>
+
+    <h3>Can you deploy WITHOUT Vercel?</h3>
+    <div class="verdict">
+      <strong>Yes, but it takes significantly more effort.</strong> Vercel is not a hard technical requirement. You can deploy on any platform that runs Node.js. Here are the alternatives:
+    </div>
+
+    <table>
+      <tr>
+        <th>Alternative</th>
+        <th>Free Tier?</th>
+        <th>Effort</th>
+        <th>Tradeoffs</th>
+      </tr>
+      <tr>
+        <td><strong>Netlify</strong></td>
+        <td>Yes (limited)</td>
+        <td>Medium</td>
+        <td>Next.js support is second-class. Middleware and SSR may behave differently. Some features may not work correctly.</td>
+      </tr>
+      <tr>
+        <td><strong>Railway.app</strong></td>
+        <td>$5 credit/mo</td>
+        <td>Medium</td>
+        <td>Good Node.js support, but the free tier runs out quickly with continuous uptime. Site may sleep after inactivity.</td>
+      </tr>
+      <tr>
+        <td><strong>Render.com</strong></td>
+        <td>Yes (limited)</td>
+        <td>Medium</td>
+        <td>Free web services spin down after 15 min of inactivity. First visit after sleep takes 30&ndash;60 seconds. Not ideal for a live site.</td>
+      </tr>
+      <tr>
+        <td><strong>Your own VPS</strong><br>(DigitalOcean, AWS EC2)</td>
+        <td>No ($5&ndash;12/mo)</td>
+        <td>High</td>
+        <td>Full control, but you must set up Node.js, Nginx reverse proxy, SSL certificates, process manager (PM2), and handle updates manually.</td>
+      </tr>
+      <tr>
+        <td><strong>College server</strong></td>
+        <td>Free (if available)</td>
+        <td>High</td>
+        <td>Requires IT department cooperation, Node.js 18+ on the server, a public IP or domain pointing to it, and someone to maintain it.</td>
+      </tr>
+    </table>
+
+    <div class="verdict verdict-green">
+      <strong>Recommendation:</strong> Use Vercel free tier. It is the path of least resistance &mdash; one-click deploy, zero maintenance, zero cost, and guaranteed compatibility since Vercel created Next.js.
+    </div>
+
+    <h3>Vercel Free Tier Limits</h3>
+    <table>
+      <tr><th>Resource</th><th>Free Limit</th><th>Will you hit it?</th></tr>
+      <tr><td>Bandwidth</td><td>100 GB / month</td><td>No. A text-heavy magazine site with placeholder images uses maybe 1&ndash;5 GB/month.</td></tr>
+      <tr><td>Serverless function executions</td><td>100,000 / month</td><td>No. Each page view is roughly 1 invocation. You would need 100K page views.</td></tr>
+      <tr><td>Build minutes</td><td>6,000 min / month</td><td>No. Each build takes ~30 seconds. Even deploying 100 times uses 50 minutes.</td></tr>
+      <tr><td>Team members</td><td>1 (Hobby plan)</td><td>Only 1 person can manage deploys. Others use the editorial portal to manage content &mdash; that is not a Vercel limitation.</td></tr>
+      <tr><td>Custom domains</td><td>Unlimited</td><td>You can add ghorpad.in for free on Vercel.</td></tr>
+    </table>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 4. SUPABASE ═══ -->
+  <div class="section" id="supabase">
+    <span class="section-label">// 04 &mdash; BACKEND / DATABASE</span>
+    <h2>Supabase &mdash; Is It Required?</h2>
+
+    <h3>What Supabase does for this project</h3>
+    <p>Supabase provides three services that the editorial system uses:</p>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:rgba(52,152,219,.15); color:var(--blue);">&#128274;</div>
+        <h4>1. Authentication (Login System)</h4>
+      </div>
+      <p>Editors log in with email/password. Supabase handles password hashing, session tokens, and cookie management. Three roles are supported: <code>super_editor</code>, <code>editor</code>, <code>contributor</code>.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:rgba(39,174,96,.15); color:var(--green);">&#128451;</div>
+        <h4>2. PostgreSQL Database (3 tables)</h4>
+      </div>
+      <table>
+        <tr><th>Table</th><th>Purpose</th><th>Expected Rows</th></tr>
+        <tr><td><code>profiles</code></td><td>User accounts and roles</td><td>3&ndash;10 editors</td></tr>
+        <tr><td><code>articles</code></td><td>Article content, drafts, metadata</td><td>20&ndash;100 articles</td></tr>
+        <tr><td><code>media</code></td><td>Uploaded file metadata (URL, size, type)</td><td>50&ndash;200 records</td></tr>
+      </table>
+      <p>Row-Level Security (RLS) ensures editors can only edit their own drafts, while super_editors can manage everything.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="icon" style="background:rgba(232,200,74,.15); color:var(--gold);">&#128206;</div>
+        <h4>3. File Storage (2 buckets)</h4>
+      </div>
+      <table>
+        <tr><th>Bucket</th><th>Purpose</th><th>Expected Usage</th></tr>
+        <tr><td><code>article-covers</code></td><td>Cover images for articles</td><td>20&ndash;100 images (~50&ndash;200 MB)</td></tr>
+        <tr><td><code>media</code></td><td>General photos, videos uploaded by editors</td><td>50&ndash;500 files (~200&ndash;800 MB)</td></tr>
+      </table>
+    </div>
+
+    <h3>Can you deploy WITHOUT Supabase?</h3>
+    <div class="verdict">
+      <strong>Partially.</strong> The website has a built-in "demo mode" that activates when Supabase is not configured. Here is exactly what works and what does not:
+    </div>
+
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Without Supabase</th>
+        <th>With Supabase</th>
+      </tr>
+      <tr>
+        <td>Public homepage (all sections)</td>
+        <td style="color:var(--green);">&#10003; Works (sample data)</td>
+        <td style="color:var(--green);">&#10003; Works (live data)</td>
+      </tr>
+      <tr>
+        <td>Photo Gallery, Alumni, Campus Map</td>
+        <td style="color:var(--green);">&#10003; Works (sample data)</td>
+        <td style="color:var(--green);">&#10003; Works</td>
+      </tr>
+      <tr>
+        <td>Magazine reader (flip-book)</td>
+        <td style="color:var(--green);">&#10003; Works (sample data)</td>
+        <td style="color:var(--green);">&#10003; Works</td>
+      </tr>
+      <tr>
+        <td>Editorial login</td>
+        <td style="color:#f39c12;">&#9888; Demo only (hardcoded credentials)</td>
+        <td style="color:var(--green);">&#10003; Real email/password</td>
+      </tr>
+      <tr>
+        <td>Write &amp; save articles</td>
+        <td style="color:var(--red);">&#10007; Not saved (lost on refresh)</td>
+        <td style="color:var(--green);">&#10003; Saved to database</td>
+      </tr>
+      <tr>
+        <td>Upload photos / media</td>
+        <td style="color:var(--red);">&#10007; Not stored</td>
+        <td style="color:var(--green);">&#10003; Stored in cloud</td>
+      </tr>
+      <tr>
+        <td>Publish articles to public site</td>
+        <td style="color:var(--red);">&#10007; Cannot publish</td>
+        <td style="color:var(--green);">&#10003; Publish &amp; goes live</td>
+      </tr>
+      <tr>
+        <td>Review workflow &amp; team management</td>
+        <td style="color:#f39c12;">&#9888; Demo only (localStorage)</td>
+        <td style="color:var(--green);">&#10003; Fully functional</td>
+      </tr>
+      <tr>
+        <td>Public submission portal</td>
+        <td style="color:#f39c12;">&#9888; Form works but data not saved</td>
+        <td style="color:var(--green);">&#10003; Submissions saved</td>
+      </tr>
+    </table>
+
+    <div class="verdict verdict-red">
+      <strong>Bottom line:</strong> Without Supabase, the site is a <em>read-only showcase</em> displaying sample/placeholder data. You cannot write, publish, or manage real content. For a functioning magazine, <strong>Supabase is required</strong>.
+    </div>
+
+    <h3>Could you use a different backend instead of Supabase?</h3>
+    <table>
+      <tr>
+        <th>Alternative</th>
+        <th>Free?</th>
+        <th>Effort to switch</th>
+        <th>Notes</th>
+      </tr>
+      <tr>
+        <td><strong>Firebase</strong> (Google)</td>
+        <td>Yes (Spark plan)</td>
+        <td>Very High (full rewrite)</td>
+        <td>Different API, NoSQL instead of PostgreSQL. Would require rewriting every database call, auth flow, and storage integration.</td>
+      </tr>
+      <tr>
+        <td><strong>PocketBase</strong></td>
+        <td>Yes (self-hosted)</td>
+        <td>Very High + self-host</td>
+        <td>Single Go binary. Great, but requires rewriting all backend code and hosting your own server.</td>
+      </tr>
+      <tr>
+        <td><strong>Neon</strong> (PostgreSQL only)</td>
+        <td>Yes</td>
+        <td>High</td>
+        <td>Free PostgreSQL, but no auth or file storage. You would need to add a separate auth solution and file hosting.</td>
+      </tr>
+    </table>
+
+    <div class="verdict verdict-green">
+      <strong>Recommendation:</strong> Use Supabase free tier. The entire codebase is built around it. Switching would require weeks of rewriting. The free plan gives you everything you need.
+    </div>
+
+    <h3>Supabase Free Tier Limits</h3>
+    <table>
+      <tr><th>Resource</th><th>Free Limit</th><th>Your Usage Estimate</th><th>Will you hit it?</th></tr>
+      <tr><td>Database size</td><td>500 MB</td><td>~5&ndash;20 MB (text articles are tiny)</td><td>No &mdash; you could store thousands of articles</td></tr>
+      <tr><td>File storage</td><td>1 GB</td><td>~200&ndash;500 MB (cover images + media)</td><td>Unlikely, but possible if uploading many large photos. Compress images before uploading.</td></tr>
+      <tr><td>Bandwidth</td><td>5 GB / month</td><td>~1&ndash;3 GB (depends on images served)</td><td>Monitor this. If serving many images, could get close.</td></tr>
+      <tr><td>Monthly active users (auth)</td><td>50,000</td><td>3&ndash;10 editors</td><td>Not even close</td></tr>
+      <tr><td>Edge function invocations</td><td>500,000 / month</td><td>Not used</td><td>N/A</td></tr>
+      <tr><td>Realtime connections</td><td>200 concurrent</td><td>Not used</td><td>N/A</td></tr>
+      <tr><td>Project pausing</td><td>Pauses after 1 week of inactivity</td><td>Log in at least weekly</td><td><strong>Important:</strong> Visit the Supabase dashboard or have the site used at least once a week to prevent auto-pause</td></tr>
+    </table>
+
+    <div class="alert alert-warn">
+      <div class="alert-title">&#9888; WARNING: FREE TIER PROJECT PAUSING</div>
+      <p>Supabase free projects are <strong>paused after 1 week of inactivity</strong> (no database queries). When paused, your site&rsquo;s editorial features will stop working until you manually un-pause it from the Supabase dashboard. To prevent this, ensure at least one editor logs into the editorial portal weekly.</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 5. DOMAIN ═══ -->
+  <div class="section" id="domain">
+    <span class="section-label">// 05 &mdash; CUSTOM DOMAIN</span>
+    <h2>Custom Domain (e.g. ghorpad.in)</h2>
+
+    <h3>Do you need a custom domain?</h3>
+    <p>No. Vercel gives you a free subdomain like <code>ghorpad-2026.vercel.app</code> that works immediately. A custom domain like <code>ghorpad.in</code> simply makes the URL look more professional.</p>
+
+    <h3>Cost of a custom domain</h3>
+    <table>
+      <tr><th>Domain Extension</th><th>Annual Cost</th><th>Registrar</th></tr>
+      <tr><td><code>.in</code></td><td>&#8377;500&ndash;800 / year</td><td>GoDaddy, Namecheap, Hostinger</td></tr>
+      <tr><td><code>.com</code></td><td>&#8377;800&ndash;1,200 / year</td><td>GoDaddy, Namecheap, Cloudflare</td></tr>
+      <tr><td><code>.co.in</code></td><td>&#8377;200&ndash;400 / year</td><td>GoDaddy, BigRock</td></tr>
+      <tr><td><code>.vercel.app</code> (subdomain)</td><td>Free forever</td><td>Vercel (automatic)</td></tr>
+    </table>
+
+    <div class="verdict verdict-green">
+      <strong>Verdict:</strong> A domain is <em>nice to have</em>, not required. Use the free <code>.vercel.app</code> subdomain if budget is zero. If you want a domain, <code>.co.in</code> is cheapest at ~&#8377;200/year.
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 6. COST BREAKDOWN ═══ -->
+  <div class="section" id="costs">
+    <span class="section-label">// 06 &mdash; FINANCES</span>
+    <h2>Complete Cost Breakdown</h2>
+
+    <div class="card" style="border-color: var(--gold);">
+      <h4 style="font-family:var(--mono); font-size:.7rem; color:var(--gold); letter-spacing:.1em; margin-bottom:1rem;">MONTHLY OPERATING COSTS</h4>
+      <div class="cost-row">
+        <span class="cost-label">Vercel Hosting (Hobby plan)</span>
+        <span class="cost-value">&#8377;0</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Supabase Backend (Free plan)</span>
+        <span class="cost-value">&#8377;0</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">SSL Certificate (HTTPS)</span>
+        <span class="cost-value">&#8377;0 (included by Vercel)</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">CDN (Content Delivery Network)</span>
+        <span class="cost-value">&#8377;0 (included by Vercel)</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Google Fonts</span>
+        <span class="cost-value">&#8377;0</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">All open-source libraries</span>
+        <span class="cost-value">&#8377;0</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label"><strong>Total Monthly Cost</strong></span>
+        <span class="cost-value"><strong>&#8377;0 / month</strong></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h4 style="font-family:var(--mono); font-size:.7rem; color:var(--muted); letter-spacing:.1em; margin-bottom:1rem;">OPTIONAL ONE-TIME / ANNUAL COSTS</h4>
+      <div class="cost-row">
+        <span class="cost-label">Custom domain (.in)</span>
+        <span class="cost-value paid">&#8377;500&ndash;800 / year</span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Custom domain (.co.in &mdash; cheapest)</span>
+        <span class="cost-value paid">&#8377;200&ndash;400 / year</span>
+      </div>
+    </div>
+
+    <div class="alert alert-ok">
+      <div class="alert-title">&#10003; ZERO UNAVOIDABLE EXPENSES</div>
+      <p>Every service used by this website offers a free tier that is sufficient for a college magazine. The only possible expense is a custom domain name, which is entirely optional since Vercel provides a free <code>.vercel.app</code> subdomain.</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 7. FREE LIMITS ═══ -->
+  <div class="section" id="free-limits">
+    <span class="section-label">// 07 &mdash; CAPACITY PLANNING</span>
+    <h2>Free Plan Limits &mdash; Will You Hit Them?</h2>
+
+    <p>Based on a typical college magazine scenario: ~5 editors, ~50 articles, ~200 media files, and ~2,000&ndash;5,000 monthly visitors.</p>
+
+    <table>
+      <tr>
+        <th>Resource</th>
+        <th>Free Limit</th>
+        <th>Your Estimated Usage</th>
+        <th>Headroom</th>
+      </tr>
+      <tr>
+        <td>Vercel bandwidth</td>
+        <td>100 GB/mo</td>
+        <td>~2&ndash;5 GB/mo</td>
+        <td style="color:var(--green);">20x&ndash;50x margin</td>
+      </tr>
+      <tr>
+        <td>Vercel serverless invocations</td>
+        <td>100K/mo</td>
+        <td>~5K&ndash;15K/mo</td>
+        <td style="color:var(--green);">7x&ndash;20x margin</td>
+      </tr>
+      <tr>
+        <td>Vercel build minutes</td>
+        <td>6,000 min/mo</td>
+        <td>~10&ndash;30 min/mo</td>
+        <td style="color:var(--green);">200x+ margin</td>
+      </tr>
+      <tr>
+        <td>Supabase database</td>
+        <td>500 MB</td>
+        <td>~5&ndash;20 MB</td>
+        <td style="color:var(--green);">25x&ndash;100x margin</td>
+      </tr>
+      <tr>
+        <td>Supabase file storage</td>
+        <td>1 GB</td>
+        <td>~200&ndash;500 MB</td>
+        <td style="color:#f39c12;">2x&ndash;5x margin (watch this)</td>
+      </tr>
+      <tr>
+        <td>Supabase bandwidth</td>
+        <td>5 GB/mo</td>
+        <td>~1&ndash;3 GB/mo</td>
+        <td style="color:#f39c12;">2x&ndash;5x margin (watch this)</td>
+      </tr>
+      <tr>
+        <td>Supabase auth users</td>
+        <td>50,000 MAU</td>
+        <td>5&ndash;10 users</td>
+        <td style="color:var(--green);">5,000x+ margin</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-info">
+      <div class="alert-title">&#8505; TIP: KEEP FILE STORAGE LEAN</div>
+      <p>The tightest limit is Supabase file storage at 1 GB. To stay within it: compress images before uploading (the site has built-in auto-resize), avoid uploading raw camera photos (10&ndash;20 MB each), and prefer JPEG/WebP over PNG for photographs. The built-in image optimizer already resizes cover images to reasonable dimensions.</p>
+    </div>
+
+    <h3>When would you need a paid plan?</h3>
+    <table>
+      <tr><th>Scenario</th><th>Which plan?</th><th>Cost</th></tr>
+      <tr>
+        <td>You upload more than 1 GB of images/videos to Supabase Storage</td>
+        <td>Supabase Pro</td>
+        <td>$25/mo (~&#8377;2,100/mo)</td>
+      </tr>
+      <tr>
+        <td>Your site gets more than 100 GB of bandwidth/month on Vercel (~50,000+ heavy page views)</td>
+        <td>Vercel Pro</td>
+        <td>$20/mo (~&#8377;1,700/mo)</td>
+      </tr>
+      <tr>
+        <td>Multiple people need to manage Vercel deployments (not content &mdash; just DevOps)</td>
+        <td>Vercel Pro</td>
+        <td>$20/mo per seat</td>
+      </tr>
+    </table>
+
+    <div class="verdict verdict-green">
+      <strong>Realistic assessment:</strong> A college magazine will not hit these limits. Free plans are sufficient unless you plan to host hundreds of high-resolution photos or expect viral traffic exceeding 50,000 visitors/month.
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 8. STEPS ═══ -->
+  <div class="section" id="steps">
+    <span class="section-label">// 08 &mdash; DEPLOYMENT PROCEDURE</span>
+    <h2>Step-by-Step Go-Live Procedure</h2>
+
+    <p>Follow these steps in order. Estimated total time: <strong>30&ndash;45 minutes</strong>.</p>
+
+    <!-- Step 1 -->
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Push Code to GitHub</h4>
+        <p>If not already done, push the project to a GitHub repository (public or private &mdash; both work).</p>
+        <pre>cd ghorpad-2026
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin https://github.com/YOUR_USERNAME/ghorpad-2026.git
+git push -u origin main</pre>
+        <p><strong>Time:</strong> 5 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Create a Supabase Project</h4>
+        <p>1. Go to <a href="https://supabase.com" target="_blank">supabase.com</a> and sign up (free).<br>
+           2. Click <strong>New Project</strong>.<br>
+           3. Name it <code>ghorpad-2026</code>.<br>
+           4. Choose a strong database password (save it somewhere safe).<br>
+           5. Select the region closest to your users (e.g., <code>South Asia (Mumbai)</code> if available, else <code>Southeast Asia (Singapore)</code>).<br>
+           6. Click <strong>Create new project</strong> and wait ~2 minutes for it to initialize.</p>
+        <p><strong>Time:</strong> 5 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Set Up the Database Schema</h4>
+        <p>1. In the Supabase dashboard, go to <strong>SQL Editor</strong>.<br>
+           2. Open the file <code>supabase/schema.sql</code> from your project.<br>
+           3. Paste the entire contents into the SQL editor.<br>
+           4. Click <strong>Run</strong>.</p>
+        <p>This creates the 3 tables (<code>profiles</code>, <code>articles</code>, <code>media</code>), sets up Row-Level Security policies, creates the storage buckets, and adds the trigger for auto-creating user profiles.</p>
+        <pre>-- You should see output like:
+-- SUCCESS: Created table "profiles"
+-- SUCCESS: Created table "articles"
+-- SUCCESS: Created table "media"
+-- SUCCESS: Created 2 storage buckets</pre>
+        <p><strong>Time:</strong> 5 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Copy Supabase Credentials</h4>
+        <p>1. In the Supabase dashboard, go to <strong>Settings &rarr; API</strong>.<br>
+           2. Copy three values:</p>
+        <table>
+          <tr><th>Setting</th><th>Where to Find</th></tr>
+          <tr><td><code>Project URL</code></td><td>Under "Project URL" &mdash; looks like <code>https://xxxx.supabase.co</code></td></tr>
+          <tr><td><code>anon public</code> key</td><td>Under "Project API keys" &rarr; <code>anon</code> <code>public</code></td></tr>
+          <tr><td><code>service_role</code> key</td><td>Under "Project API keys" &rarr; <code>service_role</code> (click "Reveal")</td></tr>
+        </table>
+        <p><strong>Time:</strong> 2 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 5 -->
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>Create Your First Editor Account</h4>
+        <p>1. In the Supabase dashboard, go to <strong>Authentication &rarr; Users</strong>.<br>
+           2. Click <strong>Add user &rarr; Create new user</strong>.<br>
+           3. Enter the email and password for the super editor (chief editor).<br>
+           4. The trigger will auto-create a profile with <code>role = contributor</code>.<br>
+           5. Go to <strong>Table Editor &rarr; profiles</strong>, find the new row, and change the <code>role</code> to <code>super_editor</code>.<br>
+           6. Optionally set the <code>full_name</code> field.</p>
+        <p><strong>Time:</strong> 3 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>Deploy to Vercel</h4>
+        <p>1. Go to <a href="https://vercel.com" target="_blank">vercel.com</a> and sign up with your GitHub account.<br>
+           2. Click <strong>Add New &rarr; Project</strong>.<br>
+           3. Import your <code>ghorpad-2026</code> GitHub repository.<br>
+           4. Before clicking Deploy, expand <strong>Environment Variables</strong> and add these three:</p>
+        <pre>NEXT_PUBLIC_SUPABASE_URL       = https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY  = eyJhb...your_anon_key
+SUPABASE_SERVICE_ROLE_KEY      = eyJhb...your_service_role_key</pre>
+        <p>5. Click <strong>Deploy</strong>.<br>
+           6. Wait ~60 seconds for the build to complete.<br>
+           7. Your site is now live at <code>ghorpad-2026.vercel.app</code>!</p>
+        <p><strong>Time:</strong> 5 minutes</p>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h4>Add Custom Domain (Optional)</h4>
+        <p>1. In the Vercel dashboard, go to your project &rarr; <strong>Settings &rarr; Domains</strong>.<br>
+           2. Type your domain (e.g., <code>ghorpad.in</code>) and click <strong>Add</strong>.<br>
+           3. Vercel will show you DNS records to add at your domain registrar.<br>
+           4. Log into your registrar (GoDaddy, Namecheap, etc.) and add those DNS records.<br>
+           5. Wait 5&ndash;30 minutes for DNS propagation.<br>
+           6. Vercel automatically provisions an SSL certificate.</p>
+        <p><strong>Time:</strong> 10&ndash;30 minutes (mostly waiting for DNS)</p>
+      </div>
+    </div>
+
+    <!-- Step 8 -->
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <h4>Verify Everything Works</h4>
+        <p>Run through this checklist:</p>
+        <table>
+          <tr><th>Check</th><th>How to Test</th></tr>
+          <tr><td>Public site loads</td><td>Visit the URL &mdash; homepage should show all sections</td></tr>
+          <tr><td>Editorial login works</td><td>Go to <code>/editorial/login</code>, log in with the editor account</td></tr>
+          <tr><td>Article creation works</td><td>Create a draft article, save it, verify it persists after refresh</td></tr>
+          <tr><td>Media upload works</td><td>Upload an image in the Media Library</td></tr>
+          <tr><td>Publishing works</td><td>Publish an article, verify it appears on the public site</td></tr>
+          <tr><td>HTTPS works</td><td>Check that the padlock icon appears in the browser address bar</td></tr>
+        </table>
+        <p><strong>Time:</strong> 5 minutes</p>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 9. ENV VARS ═══ -->
+  <div class="section" id="env">
+    <span class="section-label">// 09 &mdash; CONFIGURATION</span>
+    <h2>Environment Variables Reference</h2>
+
+    <table>
+      <tr>
+        <th>Variable</th>
+        <th>Where to Set</th>
+        <th>Public?</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_SUPABASE_URL</code></td>
+        <td>Vercel Dashboard &rarr; Environment Variables</td>
+        <td>Yes (safe in browser)</td>
+        <td>Tells the website where your Supabase project lives</td>
+      </tr>
+      <tr>
+        <td><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></td>
+        <td>Vercel Dashboard &rarr; Environment Variables</td>
+        <td>Yes (safe in browser, restricted by RLS)</td>
+        <td>Allows the browser to talk to Supabase. Row-Level Security ensures users can only access what they are allowed to.</td>
+      </tr>
+      <tr>
+        <td><code>SUPABASE_SERVICE_ROLE_KEY</code></td>
+        <td>Vercel Dashboard &rarr; Environment Variables</td>
+        <td><strong>No &mdash; SECRET</strong></td>
+        <td>Server-side only key for admin operations. Never expose this in client-side code. Vercel keeps it secure.</td>
+      </tr>
+    </table>
+
+    <div class="alert alert-warn">
+      <div class="alert-title">&#9888; SECURITY NOTE</div>
+      <p>The <code>SUPABASE_SERVICE_ROLE_KEY</code> bypasses all Row-Level Security. Never commit it to git, never put it in <code>.env.local</code> that gets pushed, and never include it in client-side code. In Vercel, it is automatically kept on the server side.</p>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 10. POST-LAUNCH ═══ -->
+  <div class="section" id="post-launch">
+    <span class="section-label">// 10 &mdash; POST-LAUNCH</span>
+    <h2>Post-Launch Checklist</h2>
+
+    <table>
+      <tr><th>Task</th><th>Why</th><th>When</th></tr>
+      <tr>
+        <td>Create accounts for all editors</td>
+        <td>So the team can log in and contribute</td>
+        <td>Day 1</td>
+      </tr>
+      <tr>
+        <td>Set correct roles (<code>super_editor</code>, <code>editor</code>, <code>contributor</code>)</td>
+        <td>Controls who can publish vs. only draft</td>
+        <td>Day 1</td>
+      </tr>
+      <tr>
+        <td>Replace sample articles with real content</td>
+        <td>Sample data is placeholder; remove or unpublish it</td>
+        <td>Week 1</td>
+      </tr>
+      <tr>
+        <td>Upload real personnel photos</td>
+        <td>The Who-Is-Who section shows placeholder icons without photos</td>
+        <td>Week 1&ndash;2</td>
+      </tr>
+      <tr>
+        <td>Log into editorial portal at least once a week</td>
+        <td>Prevents Supabase free project from auto-pausing</td>
+        <td>Ongoing (weekly)</td>
+      </tr>
+      <tr>
+        <td>Monitor Supabase storage usage</td>
+        <td>Stay under 1 GB file storage limit</td>
+        <td>Monthly</td>
+      </tr>
+      <tr>
+        <td>Set up Vercel deployment notifications</td>
+        <td>Get notified if a deployment fails</td>
+        <td>Day 1</td>
+      </tr>
+    </table>
+  </div>
+
+  <hr />
+
+  <!-- ═══ 11. FAQ ═══ -->
+  <div class="section" id="faq">
+    <span class="section-label">// 11 &mdash; FAQ</span>
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="card">
+      <h4>Q: What happens if the site goes viral and gets 100,000 visitors?</h4>
+      <p>Vercel will handle the traffic without issues (100 GB bandwidth is a lot). If Supabase bandwidth exceeds 5 GB, the database calls may be throttled. In practice, public pages load fast from Vercel's CDN and make minimal database calls &mdash; most traffic is served from cache.</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: Can I deploy this on the college's own server?</h4>
+      <p>Yes, if the college server runs Node.js 18+ and has a public IP. You would need to: install Node.js, clone the repo, run <code>npm install && npm run build && npm start</code>, set up a reverse proxy (Nginx), and configure SSL. You would still need Supabase (cloud) for the database, or set up your own PostgreSQL server.</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: Can I add Google Analytics?</h4>
+      <p>Yes. Add the GA tracking script to <code>app/layout.tsx</code>. It is free and does not affect hosting costs. Alternatively, use <a href="https://plausible.io" target="_blank">Plausible</a> or <a href="https://umami.is" target="_blank">Umami</a> for privacy-friendly analytics (both have free self-hosted options).</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: How do I update the site after it is live?</h4>
+      <p>Just push code changes to the GitHub <code>main</code> branch. Vercel automatically detects the push, rebuilds, and deploys within ~60 seconds. Zero downtime.</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: What if Supabase or Vercel discontinues free plans?</h4>
+      <p>Both companies have maintained free tiers for years and are well-funded. If they ever remove free plans, you would need to migrate. The code is portable &mdash; Next.js can run on any Node.js host, and the database is standard PostgreSQL that can be exported and imported anywhere.</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: I am only getting the demo/sample data on the public site. Why?</h4>
+      <p>The public homepage currently always displays sample data from <code>lib/sample-data.ts</code>, regardless of Supabase configuration. This is by design during development. To show live database articles instead, the components need to be updated to fetch from Supabase when not in demo mode. The editorial system already uses real Supabase data.</p>
+    </div>
+
+    <div class="card">
+      <h4>Q: Who should be the Vercel account holder?</h4>
+      <p>Ideally, an institutional account or a senior team member who will be available long-term. The Vercel account holder controls deployments and environment variables. Content management (writing and publishing articles) is handled through the editorial portal and does not need Vercel access.</p>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer>
+    <p>&copy; 2026 GHORPAD &middot; MILIT - DSTSC 08 &middot; GO-LIVE GUIDE &middot; v1.0</p>
+  </footer>
+
+</div>
+</body>
+</html>
