@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { saveDemoSubmission } from "@/lib/submissions";
+import { saveSubmission } from "@/lib/submissions";
 import type { SubmissionType, Submission } from "@/types";
 
 const submissionTypes = [
@@ -63,7 +63,7 @@ export default function SubmitPage() {
       created_at: new Date().toISOString(),
     };
 
-    saveDemoSubmission(submission);
+    saveSubmission(submission);
     setSubmissionId(id);
     setSubmitted(true);
   };

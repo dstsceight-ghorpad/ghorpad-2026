@@ -6,12 +6,10 @@ import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
 import { getRoleBadgeColor, getRoleLabel } from "@/lib/auth";
 import { formatDateShort, cn } from "@/lib/utils";
-import { isDemoMode, DEMO_PROFILES } from "@/lib/demo";
 import type { Profile, Role } from "@/types";
 
 export default function TeamPage() {
   const { profile } = useUser();
-  const demoMode = isDemoMode();
   const [members, setMembers] = useState<Profile[]>([]);
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
@@ -19,11 +17,6 @@ export default function TeamPage() {
   const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
-    if (demoMode) {
-      setMembers(DEMO_PROFILES);
-      return;
-    }
-
     async function fetchMembers() {
       const supabase = createBrowserSupabaseClient();
       const { data } = await supabase

@@ -5,7 +5,7 @@ const PROFILE_DISMISSED_KEY = "ghorpad_profile_dismissed";
 
 type ProfileStore = Record<string, AuthorProfile>;
 
-export function loadDemoAuthorProfile(userId: string): AuthorProfile | null {
+export function loadAuthorProfile(userId: string): AuthorProfile | null {
   if (typeof window === "undefined") return null;
   const raw = localStorage.getItem(AUTHOR_PROFILES_KEY);
   if (!raw) return null;
@@ -17,7 +17,7 @@ export function loadDemoAuthorProfile(userId: string): AuthorProfile | null {
   }
 }
 
-export function saveDemoAuthorProfile(profile: AuthorProfile): void {
+export function saveAuthorProfile(profile: AuthorProfile): void {
   if (typeof window === "undefined") return;
   const raw = localStorage.getItem(AUTHOR_PROFILES_KEY);
   const store: ProfileStore = raw ? JSON.parse(raw) : {};
@@ -27,7 +27,7 @@ export function saveDemoAuthorProfile(profile: AuthorProfile): void {
 
 export function hasCompletedProfile(userId: string): boolean {
   if (typeof window === "undefined") return true;
-  const profile = loadDemoAuthorProfile(userId);
+  const profile = loadAuthorProfile(userId);
   return profile !== null && profile.display_name.length > 0;
 }
 

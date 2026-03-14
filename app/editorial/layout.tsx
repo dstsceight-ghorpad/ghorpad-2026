@@ -21,12 +21,6 @@ import {
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { getRoleBadgeColor, getRoleLabel } from "@/lib/auth";
 import { cn } from "@/lib/utils";
-import {
-  isDemoMode,
-  DEMO_PROFILE,
-  hasDemoSession,
-  clearDemoSession,
-} from "@/lib/demo";
 import type { Profile } from "@/types";
 
 interface UserContextType {
@@ -65,7 +59,6 @@ export default function EditorialLayout({
   const pathname = usePathname();
   const router = useRouter();
   const isLoginPage = pathname === "/editorial/login";
-  const demoMode = isDemoMode();
 
   useEffect(() => {
     if (isLoginPage) {
@@ -73,48 +66,35 @@ export default function EditorialLayout({
       return;
     }
 
-    // Demo mode — use mock profile
-    if (demoMode) {
-      if (!hasDemoSession()) {
-        router.push("/editorial/login");
-        return;
-      }
-      setProfile(DEMO_PROFILE);
-      setLoading(false);
-      return;
-    }
-
-    // Real Supabase profile fetch
     async function fetchProfile() {
       const supabase = createBrowserSupabaseClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (user) {
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
+      if (!user) {
+        router.push("/editorial/login");
+        return;
+      }
 
-        if (data) {
-          setProfile(data as Profile);
-        }
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (data) {
+        setProfile(data as Profile);
       }
       setLoading(false);
     }
 
     fetchProfile();
-  }, [isLoginPage, demoMode, router]);
+  }, [isLoginPage, router]);
 
   const handleLogout = async () => {
-    if (demoMode) {
-      clearDemoSession();
-    } else {
-      const supabase = createBrowserSupabaseClient();
-      await supabase.auth.signOut();
-    }
+    const supabase = createBrowserSupabaseClient();
+    await supabase.auth.signOut();
     router.push("/editorial/login");
   };
 
@@ -136,11 +116,6 @@ export default function EditorialLayout({
                 HQ
               </span>
             </Link>
-            {demoMode && (
-              <span className="font-mono text-[9px] text-gold/60 mt-1 block">
-                DEMO MODE
-              </span>
-            )}
           </div>
 
           {/* User info */}

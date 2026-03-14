@@ -6,29 +6,16 @@ import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
 import { canDeleteMedia } from "@/lib/auth";
 import { formatFileSize, formatDateShort } from "@/lib/utils";
-import { isDemoMode } from "@/lib/demo";
 import type { Media } from "@/types";
-
-const DEMO_MEDIA: Media[] = [
-  { id: "media-1", filename: "campus-aerial-view.jpg", url: "#", type: "image", size_bytes: 2450000, uploaded_by: "demo-user-001", created_at: "2026-03-10T09:00:00Z" },
-  { id: "media-2", filename: "parade-ground-ceremony.jpg", url: "#", type: "image", size_bytes: 1870000, uploaded_by: "demo-user-001", created_at: "2026-03-08T14:30:00Z" },
-  { id: "media-3", filename: "sports-day-highlights.mp4", url: "#", type: "video", size_bytes: 45200000, uploaded_by: "demo-user-002", created_at: "2026-03-05T11:15:00Z" },
-  { id: "media-4", filename: "library-interior.jpg", url: "#", type: "image", size_bytes: 1230000, uploaded_by: "demo-user-001", created_at: "2026-03-03T16:00:00Z" },
-  { id: "media-5", filename: "mess-night-formal.jpg", url: "#", type: "image", size_bytes: 980000, uploaded_by: "demo-user-003", created_at: "2026-02-28T20:00:00Z" },
-  { id: "media-6", filename: "firing-range-practice.jpg", url: "#", type: "image", size_bytes: 1560000, uploaded_by: "demo-user-002", created_at: "2026-02-25T08:30:00Z" },
-];
 
 export default function MediaLibraryPage() {
   const { profile } = useUser();
-  const demoMode = isDemoMode();
-  const [media, setMedia] = useState<Media[]>(demoMode ? DEMO_MEDIA : []);
+  const [media, setMedia] = useState<Media[]>([]);
   const [uploading, setUploading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
 
   const fetchMedia = useCallback(async () => {
-    if (demoMode) return; // Use demo data
-
     const supabase = createBrowserSupabaseClient();
     const { data } = await supabase
       .from("media")
@@ -36,7 +23,7 @@ export default function MediaLibraryPage() {
       .order("created_at", { ascending: false });
 
     if (data) setMedia(data as unknown as Media[]);
-  }, [demoMode]);
+  }, []);
 
   useEffect(() => {
     fetchMedia();
@@ -45,22 +32,6 @@ export default function MediaLibraryPage() {
   const handleUpload = async (files: FileList | null) => {
     if (!files || !profile) return;
     setUploading(true);
-
-    if (demoMode) {
-      // In demo mode, just add mock entries
-      const newItems: Media[] = Array.from(files).map((file, i) => ({
-        id: `media-demo-${Date.now()}-${i}`,
-        filename: file.name,
-        url: "#",
-        type: file.type.startsWith("video/") ? "video" as const : "image" as const,
-        size_bytes: file.size,
-        uploaded_by: profile.id,
-        created_at: new Date().toISOString(),
-      }));
-      setMedia((prev) => [...newItems, ...prev]);
-      setUploading(false);
-      return;
-    }
 
     const supabase = createBrowserSupabaseClient();
 
@@ -92,11 +63,6 @@ export default function MediaLibraryPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (demoMode) {
-      setMedia((prev) => prev.filter((m) => m.id !== id));
-      return;
-    }
-
     const supabase = createBrowserSupabaseClient();
     await supabase.from("media").delete().eq("id", id);
     setMedia((prev) => prev.filter((m) => m.id !== id));

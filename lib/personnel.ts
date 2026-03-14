@@ -7,7 +7,7 @@ type PersonnelEdits = Record<string, Partial<Personnel>>;
 
 // ─── Load personnel with localStorage edits merged ───────────────────────────
 
-export function loadDemoPersonnel(): Personnel[] {
+export function loadPersonnel(): Personnel[] {
   if (typeof window === "undefined") return samplePersonnel;
   const raw = localStorage.getItem(PERSONNEL_EDITS_KEY);
   if (!raw) return samplePersonnel;
@@ -23,7 +23,7 @@ export function loadDemoPersonnel(): Personnel[] {
 
 // ─── Save a single personnel edit to localStorage ────────────────────────────
 
-export function saveDemoPersonnelEdit(
+export function savePersonnelEdit(
   id: string,
   updates: Partial<Personnel>
 ): void {

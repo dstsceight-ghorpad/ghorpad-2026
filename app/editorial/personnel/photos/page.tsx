@@ -13,8 +13,8 @@ import {
 import { useUser } from "../../layout";
 import { canPublish } from "@/lib/auth";
 import {
-  loadDemoPersonnel,
-  saveDemoPersonnelEdit,
+  loadPersonnel,
+  savePersonnelEdit,
 } from "@/lib/personnel";
 import { getPhotoStatus, getNextWithoutPhoto } from "@/lib/photo-campaign";
 import { optimizeImage, AVATAR_PRESET } from "@/lib/image-optimize";
@@ -37,7 +37,7 @@ export default function PhotoCampaignPage() {
   const canEdit = profile?.role ? canPublish(profile.role) : false;
 
   const loadData = useCallback(() => {
-    setPersonnel(loadDemoPersonnel());
+    setPersonnel(loadPersonnel());
   }, []);
 
   useEffect(() => {
@@ -75,11 +75,11 @@ export default function PhotoCampaignPage() {
     setUploading(true);
     try {
       const result = await optimizeImage(file, AVATAR_PRESET);
-      saveDemoPersonnelEdit(currentPerson.id, { avatar_url: result.dataUrl });
+      savePersonnelEdit(currentPerson.id, { avatar_url: result.dataUrl });
       loadData();
 
       // Auto-advance to next
-      const updated = loadDemoPersonnel();
+      const updated = loadPersonnel();
       const next = getNextWithoutPhoto(updated, currentPerson.id);
       if (next) {
         setCurrentPerson(next);

@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { UserCircle, Upload, Save, Check, Loader2, Twitter, Linkedin, Instagram } from "lucide-react";
 import { useUser } from "../layout";
 import {
-  loadDemoAuthorProfile,
-  saveDemoAuthorProfile,
+  loadAuthorProfile,
+  saveAuthorProfile,
 } from "@/lib/author-profile";
 import { optimizeImage, AVATAR_PRESET } from "@/lib/image-optimize";
 import { DIVISIONS } from "@/types";
@@ -31,7 +31,7 @@ export default function ProfilePage() {
   // Load existing profile
   useEffect(() => {
     if (!profile?.id) return;
-    const existing = loadDemoAuthorProfile(profile.id);
+    const existing = loadAuthorProfile(profile.id);
     if (existing) {
       setDisplayName(existing.display_name);
       setShortBio(existing.short_bio);
@@ -82,7 +82,7 @@ export default function ProfilePage() {
       updated_at: new Date().toISOString(),
     };
 
-    saveDemoAuthorProfile(authorProfile);
+    saveAuthorProfile(authorProfile);
 
     setTimeout(() => {
       setSaving(false);

@@ -19,8 +19,8 @@ import {
 import { useUser } from "../layout";
 import { canPublish } from "@/lib/auth";
 import {
-  loadDemoPersonnel,
-  saveDemoPersonnelEdit,
+  loadPersonnel,
+  savePersonnelEdit,
   resizeAndConvertToBase64,
 } from "@/lib/personnel";
 import type { Personnel, PersonnelRole } from "@/types";
@@ -355,17 +355,17 @@ export default function PersonnelPage() {
   const canEdit = profile?.role ? canPublish(profile.role) : false;
 
   // Load personnel on mount
-  const loadPersonnel = useCallback(() => {
-    setPersonnel(loadDemoPersonnel());
+  const refreshPersonnel = useCallback(() => {
+    setPersonnel(loadPersonnel());
   }, []);
 
   useEffect(() => {
-    loadPersonnel();
-  }, [loadPersonnel]);
+    refreshPersonnel();
+  }, [refreshPersonnel]);
 
   const handleSave = (id: string, updates: Partial<Personnel>) => {
-    saveDemoPersonnelEdit(id, updates);
-    loadPersonnel();
+    savePersonnelEdit(id, updates);
+    refreshPersonnel();
   };
 
   // Filter + search

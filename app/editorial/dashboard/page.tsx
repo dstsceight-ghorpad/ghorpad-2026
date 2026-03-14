@@ -7,38 +7,26 @@ import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
 import { canManageTeam } from "@/lib/auth";
 import { formatDateShort } from "@/lib/utils";
-import { isDemoMode } from "@/lib/demo";
-import { getReviewQueueCount } from "@/lib/review";
-import { getDemoSubmissionCount } from "@/lib/submissions";
 
 interface DashboardStats {
   totalArticles: number;
   published: number;
   drafts: number;
   mediaFiles: number;
+  inReview: number;
 }
-
-const DEMO_STATS: DashboardStats = {
-  totalArticles: 24,
-  published: 18,
-  drafts: 6,
-  mediaFiles: 37,
-};
 
 export default function DashboardPage() {
   const { profile } = useUser();
-  const demoMode = isDemoMode();
   const [stats, setStats] = useState<DashboardStats>(
-    demoMode ? DEMO_STATS : { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0 }
+    { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0, inReview: 0 }
   );
 
   useEffect(() => {
-    if (demoMode) return; // Use demo stats
-
     async function fetchStats() {
       const supabase = createBrowserSupabaseClient();
 
-      const [articlesRes, publishedRes, draftsRes, mediaRes] =
+      const [articlesRes, publishedRes, draftsRes, mediaRes, reviewRes] =
         await Promise.all([
           supabase
             .from("articles")
@@ -54,6 +42,10 @@ export default function DashboardPage() {
           supabase
             .from("media")
             .select("id", { count: "exact", head: true }),
+          supabase
+            .from("articles")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "review"),
         ]);
 
       setStats({
@@ -61,11 +53,12 @@ export default function DashboardPage() {
         published: publishedRes.count || 0,
         drafts: draftsRes.count || 0,
         mediaFiles: mediaRes.count || 0,
+        inReview: reviewRes.count || 0,
       });
     }
 
     fetchStats();
-  }, [demoMode]);
+  }, []);
 
   const statCards = [
     {
@@ -98,17 +91,10 @@ export default function DashboardPage() {
     },
     {
       label: "In Review",
-      value: getReviewQueueCount(),
+      value: stats.inReview,
       icon: ClipboardCheck,
       color: "text-orange-400",
       bg: "bg-orange-400/10",
-    },
-    {
-      label: "Submissions",
-      value: getDemoSubmissionCount().pending,
-      icon: Inbox,
-      color: "text-cyan-400",
-      bg: "bg-cyan-400/10",
     },
   ];
 
@@ -127,7 +113,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (

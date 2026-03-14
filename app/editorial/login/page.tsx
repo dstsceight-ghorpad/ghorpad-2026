@@ -3,11 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
-import {
-  isDemoMode,
-  DEMO_CREDENTIALS,
-  setDemoSession,
-} from "@/lib/demo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,31 +10,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const demoMode = isDemoMode();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Demo mode — check against hardcoded credentials
-    if (demoMode) {
-      if (
-        email === DEMO_CREDENTIALS.email &&
-        password === DEMO_CREDENTIALS.password
-      ) {
-        setDemoSession();
-        router.push("/editorial/dashboard");
-      } else {
-        setError(
-          `Demo mode: Use ${DEMO_CREDENTIALS.email} / ${DEMO_CREDENTIALS.password}`
-        );
-      }
-      setLoading(false);
-      return;
-    }
-
-    // Real Supabase auth
     try {
       const supabase = createBrowserSupabaseClient();
       const { error: authError } = await supabase.auth.signInWithPassword({
@@ -81,18 +57,6 @@ export default function LoginPage() {
             EDITORIAL HQ
           </p>
         </div>
-
-        {/* Demo mode banner */}
-        {demoMode && (
-          <div className="bg-gold/10 border border-gold/30 rounded-lg px-4 py-3 mb-4 text-center">
-            <p className="font-mono text-xs text-gold mb-1">DEMO MODE ACTIVE</p>
-            <p className="font-mono text-[10px] text-muted">
-              Email: <span className="text-foreground">{DEMO_CREDENTIALS.email}</span>
-              {" · "}
-              Password: <span className="text-foreground">{DEMO_CREDENTIALS.password}</span>
-            </p>
-          </div>
-        )}
 
         {/* Login card */}
         <div className="glass border border-border-subtle rounded-xl p-8">
@@ -145,9 +109,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center font-mono text-[10px] text-muted mt-6">
-            {demoMode
-              ? "Supabase not configured. Running in demo mode."
-              : "Access restricted to editorial team members only."}
+            Access restricted to editorial team members only.
           </p>
         </div>
       </div>

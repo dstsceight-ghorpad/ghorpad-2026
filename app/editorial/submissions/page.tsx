@@ -12,8 +12,8 @@ import {
   X,
 } from "lucide-react";
 import {
-  loadDemoSubmissions,
-  updateDemoSubmissionStatus,
+  loadSubmissions,
+  updateSubmissionStatus,
 } from "@/lib/submissions";
 import { formatDateShort } from "@/lib/utils";
 import type { Submission, SubmissionStatus } from "@/types";
@@ -38,7 +38,7 @@ export default function SubmissionsPage() {
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
 
   const loadData = () => {
-    setSubmissions(loadDemoSubmissions());
+    setSubmissions(loadSubmissions());
   };
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export default function SubmissionsPage() {
   }, []);
 
   const handleUpdateStatus = (id: string, status: SubmissionStatus, notes?: string) => {
-    updateDemoSubmissionStatus(id, status, notes);
+    updateSubmissionStatus(id, status, notes);
     loadData();
     setSelectedSubmission(null);
   };

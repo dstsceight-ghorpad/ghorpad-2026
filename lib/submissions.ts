@@ -2,7 +2,7 @@ import type { Submission, SubmissionStatus } from "@/types";
 
 const SUBMISSIONS_KEY = "ghorpad_submissions";
 
-export function loadDemoSubmissions(): Submission[] {
+export function loadSubmissions(): Submission[] {
   if (typeof window === "undefined") return [];
   const raw = localStorage.getItem(SUBMISSIONS_KEY);
   if (!raw) return [];
@@ -13,20 +13,20 @@ export function loadDemoSubmissions(): Submission[] {
   }
 }
 
-export function saveDemoSubmission(submission: Submission): void {
+export function saveSubmission(submission: Submission): void {
   if (typeof window === "undefined") return;
-  const all = loadDemoSubmissions();
+  const all = loadSubmissions();
   all.push(submission);
   localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(all));
 }
 
-export function updateDemoSubmissionStatus(
+export function updateSubmissionStatus(
   id: string,
   status: SubmissionStatus,
   notes?: string
 ): void {
   if (typeof window === "undefined") return;
-  const all = loadDemoSubmissions();
+  const all = loadSubmissions();
   const updated = all.map((s) =>
     s.id === id
       ? {
@@ -40,11 +40,11 @@ export function updateDemoSubmissionStatus(
   localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(updated));
 }
 
-export function getDemoSubmissionCount(): {
+export function getSubmissionCount(): {
   pending: number;
   total: number;
 } {
-  const all = loadDemoSubmissions();
+  const all = loadSubmissions();
   return {
     pending: all.filter((s) => s.status === "pending").length,
     total: all.length,

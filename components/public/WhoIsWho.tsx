@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import type { Personnel, Division } from "@/types";
 import { DIVISIONS } from "@/types";
-import { loadDemoPersonnel } from "@/lib/personnel";
+import { loadPersonnel } from "@/lib/personnel";
 import PersonnelDetailOverlay from "./PersonnelDetailOverlay";
 import { RevealText, RevealLine } from "@/components/ui/RevealText";
 
@@ -441,7 +441,7 @@ export default function WhoIsWho({ personnel }: WhoIsWhoProps) {
 
   // Merge localStorage edits on client mount
   useEffect(() => {
-    const merged = loadDemoPersonnel();
+    const merged = loadPersonnel();
     setMergedPersonnel(merged);
   }, []);
 
