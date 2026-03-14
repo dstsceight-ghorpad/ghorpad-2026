@@ -28,8 +28,9 @@ export default function LoginPage() {
       } else {
         router.push("/editorial/dashboard");
       }
-    } catch {
-      setError("An unexpected error occurred. Please try again.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      setError(message);
     } finally {
       setLoading(false);
     }
