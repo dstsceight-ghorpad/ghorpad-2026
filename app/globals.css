@@ -249,3 +249,27 @@ body {
 /* Hide scrollbar utility */
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ─── Magazine Reader — Cream theme (scoped) ──────────────── */
+.magazine-theme {
+  --background: #FDF5E6;
+  --foreground: #2C1810;
+  --surface: #F5ECD7;
+  --surface-light: #EDE3CC;
+  --accent-gold: #8B6914;
+  --accent-red: #8B2500;
+  --text-muted: #6B5B4F;
+  --border-subtle: rgba(44, 24, 16, 0.12);
+  --glass-bg: rgba(253, 245, 230, 0.95);
+  --prose-body: #3D2B1F;
+  --scrollbar-thumb: #C4B59A;
+  --scrollbar-track: #FDF5E6;
+  --selection-text: #FDF5E6;
+}
+.magazine-theme,
+.magazine-theme * {
+  cursor: auto !important;
+}
+.magazine-theme p {
+  line-height: 1.85;
+}

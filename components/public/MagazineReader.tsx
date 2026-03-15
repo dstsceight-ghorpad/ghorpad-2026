@@ -1,19 +1,36 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   ChevronLeft,
   ChevronRight,
-  SkipBack,
   Hash,
   User,
   Play,
   Image as ImageIcon,
+  Camera,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Quote,
+  Cake,
+  Heart,
+  CalendarDays,
+  Phone,
+  Mail,
 } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
-import type { Article, Personnel, TocEntry, Division } from "@/types";
+import type {
+  Article,
+  Personnel,
+  TocEntry,
+  Division,
+  Alumni,
+  GalleryItem,
+  CampusLocation,
+} from "@/types";
 import { DIVISIONS } from "@/types";
 import { getCategoryBadgeClasses, getCategoryColor } from "@/lib/category-colors";
 
@@ -27,6 +44,10 @@ type PageType =
   | "student-division"
   | "article"
   | "media"
+  | "gallery"
+  | "alumni"
+  | "alumni-feature"
+  | "campus-map"
   | "back-cover";
 
 interface MagazinePage {
@@ -39,6 +60,9 @@ interface MagazineReaderProps {
   articles: Article[];
   personnel: Personnel[];
   tocEntries: TocEntry[];
+  alumni: Alumni[];
+  galleryItems: GalleryItem[];
+  campusLocations: CampusLocation[];
   onClose: () => void;
 }
 
@@ -47,7 +71,10 @@ interface MagazineReaderProps {
 function compilePages(
   articles: Article[],
   personnel: Personnel[],
-  tocEntries: TocEntry[]
+  tocEntries: TocEntry[],
+  alumni: Alumni[],
+  galleryItems: GalleryItem[],
+  campusLocations: CampusLocation[]
 ): MagazinePage[] {
   const pages: MagazinePage[] = [];
 
@@ -113,13 +140,247 @@ function compilePages(
     pages.push({ type: "article", title: article.title, data: article });
   }
 
-  // 8. Media Vault
+  // 8. Photo Gallery — paginate at 9 items per page
+  const GALLERY_PAGE_SIZE = 9;
+  const totalGalleryPages = Math.ceil(galleryItems.length / GALLERY_PAGE_SIZE);
+  for (let i = 0; i < galleryItems.length; i += GALLERY_PAGE_SIZE) {
+    const chunk = galleryItems.slice(i, i + GALLERY_PAGE_SIZE);
+    const pageNum = Math.floor(i / GALLERY_PAGE_SIZE) + 1;
+    pages.push({
+      type: "gallery",
+      title:
+        totalGalleryPages > 1
+          ? `Photo Gallery (${pageNum}/${totalGalleryPages})`
+          : "Photo Gallery",
+      data: chunk,
+    });
+  }
+
+  // 9. Alumni
+  const featuredAlumni = alumni.find((a) => a.is_featured);
+  if (featuredAlumni) {
+    pages.push({
+      type: "alumni-feature",
+      title: `Alumni: ${featuredAlumni.name}`,
+      data: featuredAlumni,
+    });
+  }
+  const otherAlumni = alumni.filter((a) => !a.is_featured);
+  if (otherAlumni.length > 0) {
+    pages.push({
+      type: "alumni",
+      title: "Alumni Spotlight",
+      data: otherAlumni,
+    });
+  }
+
+  // 10. Campus Map
+  if (campusLocations.length > 0) {
+    pages.push({
+      type: "campus-map",
+      title: "Campus Map",
+      data: campusLocations,
+    });
+  }
+
+  // 11. Media Vault
   pages.push({ type: "media", title: "Media Vault" });
 
-  // 9. Back Cover
+  // 12. Back Cover
   pages.push({ type: "back-cover", title: "Back Cover" });
 
   return pages;
+}
+
+// ─── Detail Row Helper ───────────────────────────────────────────────────────
+
+function DetailRow({
+  icon: Icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 py-2.5">
+      <Icon size={16} className="text-gold mt-0.5 shrink-0" />
+      <div className="min-w-0">
+        <span className="font-mono text-[9px] text-muted block tracking-wider">
+          {label}
+        </span>
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-interactive
+            className="text-sm text-gold hover:text-gold/80 transition-colors break-all"
+          >
+            {value}
+          </a>
+        ) : (
+          <span className="text-sm text-foreground">{value}</span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Student Officer Detail Overlay ──────────────────────────────────────────
+
+function MagazinePersonnelDetail({
+  person,
+  onClose,
+}: {
+  person: Personnel;
+  onClose: () => void;
+}) {
+  const hasExtendedInfo =
+    person.birthday ||
+    person.spouse_name ||
+    person.spouse_birthday ||
+    person.anniversary ||
+    person.whatsapp_no ||
+    person.email;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="absolute inset-0 z-30 overflow-y-auto"
+      style={{ backgroundColor: "var(--background)" }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        {/* Back button */}
+        <button
+          onClick={onClose}
+          data-interactive="true"
+          className="mb-6 flex items-center gap-2 text-muted hover:text-foreground transition-colors"
+        >
+          <ChevronLeft size={16} />
+          <span className="font-mono text-xs tracking-wider">
+            BACK TO DIVISION
+          </span>
+        </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Photo */}
+          <div className="aspect-[3/4] bg-surface rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
+            {person.avatar_url ? (
+              <img
+                src={person.avatar_url}
+                alt={person.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <User size={56} className="text-gold/20" />
+                <span className="font-mono text-[10px] text-muted">PHOTO</span>
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="md:col-span-2">
+            <span className="font-mono text-[10px] tracking-widest text-gold mb-2 block">
+              // STUDENT OFFICER
+            </span>
+            <h3 className="font-serif text-2xl font-bold mb-1">
+              {person.name}
+            </h3>
+            <p className="font-mono text-sm text-muted mb-1">
+              {person.rank} &middot; {person.designation}
+            </p>
+            {person.unit_or_regiment && (
+              <p className="font-mono text-xs text-gold/60 mb-2">
+                {person.unit_or_regiment}
+              </p>
+            )}
+            {person.division && (
+              <p className="font-mono text-[10px] text-muted tracking-wider mb-5">
+                {person.division.toUpperCase()} DIVISION
+              </p>
+            )}
+
+            {/* Extended info */}
+            {hasExtendedInfo && (
+              <div className="border-t border-border-subtle pt-3 space-y-0">
+                {person.birthday && (
+                  <DetailRow
+                    icon={Cake}
+                    label="BIRTHDAY"
+                    value={person.birthday}
+                  />
+                )}
+                {person.spouse_name && (
+                  <DetailRow
+                    icon={Heart}
+                    label="SPOUSE"
+                    value={
+                      person.spouse_birthday
+                        ? `${person.spouse_name} (${person.spouse_birthday})`
+                        : person.spouse_name
+                    }
+                  />
+                )}
+                {person.anniversary && (
+                  <DetailRow
+                    icon={CalendarDays}
+                    label="ANNIVERSARY"
+                    value={person.anniversary}
+                  />
+                )}
+                {person.whatsapp_no && (
+                  <DetailRow
+                    icon={Phone}
+                    label="WHATSAPP"
+                    value={person.whatsapp_no}
+                    href={`https://wa.me/${person.whatsapp_no.replace(/[^0-9]/g, "")}`}
+                  />
+                )}
+                {person.email && (
+                  <DetailRow
+                    icon={Mail}
+                    label="EMAIL"
+                    value={person.email}
+                    href={`mailto:${person.email}`}
+                  />
+                )}
+              </div>
+            )}
+
+            {person.bio && (
+              <div className="border-t border-border-subtle pt-4 mt-3">
+                <span className="font-mono text-[10px] tracking-widest text-gold mb-3 block">
+                  // ABOUT
+                </span>
+                <p className="text-muted text-sm leading-relaxed">
+                  {person.bio}
+                </p>
+              </div>
+            )}
+
+            {!person.bio && !hasExtendedInfo && (
+              <div className="border-t border-border-subtle pt-4 mt-3">
+                <p className="text-muted/50 text-sm font-mono italic">
+                  Profile details will be updated soon.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
 }
 
 // ─── Page Renderers ──────────────────────────────────────────────────────────
@@ -147,12 +408,14 @@ function CoverPage() {
       <p className="font-mono text-[10px] text-muted mt-4 tracking-widest">
         MILITARY INSTITUTE OF TECHNOLOGY
       </p>
+      <p className="font-mono text-[9px] text-muted/50 mt-8 animate-pulse">
+        Click right side to begin &rarr;
+      </p>
     </div>
   );
 }
 
 function TocPage({ entries }: { entries: TocEntry[] }) {
-  // Group by category
   const groups: Record<string, TocEntry[]> = {};
   for (const entry of entries) {
     if (!groups[entry.category]) groups[entry.category] = [];
@@ -173,33 +436,36 @@ function TocPage({ entries }: { entries: TocEntry[] }) {
         {Object.entries(groups).map(([category, items]) => {
           const catColor = getCategoryColor(category);
           return (
-          <div key={category}>
-            <h4
-              className="font-serif text-sm font-semibold mb-3 border-b pb-1.5"
-              style={{ color: catColor.hex, borderColor: `${catColor.hex}33` }}
-            >
-              {category}
-            </h4>
-            <div className="space-y-2">
-              {items.map((entry) => (
-                <div key={entry.id} className="flex items-baseline gap-2">
-                  <span
-                    className="font-mono text-xs shrink-0 w-6"
-                    style={{ color: catColor.hex }}
-                  >
-                    {entry.page_label}
-                  </span>
-                  <span className="font-serif text-sm text-foreground truncate">
-                    {entry.title}
-                  </span>
-                  <span className="flex-1 border-b border-dotted border-border-subtle min-w-[12px]" />
-                  <span className="font-mono text-[10px] text-muted shrink-0 uppercase">
-                    {entry.type}
-                  </span>
-                </div>
-              ))}
+            <div key={category}>
+              <h4
+                className="font-serif text-sm font-semibold mb-3 border-b pb-1.5"
+                style={{
+                  color: catColor.hex,
+                  borderColor: `${catColor.hex}33`,
+                }}
+              >
+                {category}
+              </h4>
+              <div className="space-y-2">
+                {items.map((entry) => (
+                  <div key={entry.id} className="flex items-baseline gap-2">
+                    <span
+                      className="font-mono text-xs shrink-0 w-6"
+                      style={{ color: catColor.hex }}
+                    >
+                      {entry.page_label}
+                    </span>
+                    <span className="font-serif text-sm text-foreground truncate">
+                      {entry.title}
+                    </span>
+                    <span className="flex-1 border-b border-dotted border-border-subtle min-w-[12px]" />
+                    <span className="font-mono text-[10px] text-muted shrink-0 uppercase">
+                      {entry.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
           );
         })}
       </div>
@@ -211,7 +477,8 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
   return (
     <div>
       <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // {person.personnel_role === "commandant"
+        //{" "}
+        {person.personnel_role === "commandant"
           ? "COMMANDANT"
           : "DEPUTY COMMANDANT"}
       </h2>
@@ -219,7 +486,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Photo area */}
-        <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center">
+        <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
           {person.avatar_url ? (
             <img
               src={person.avatar_url}
@@ -311,9 +578,11 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
 function StudentDivisionPage({
   division,
   students,
+  onSelectPerson,
 }: {
   division: Division;
   students: Personnel[];
+  onSelectPerson: (person: Personnel) => void;
 }) {
   return (
     <div>
@@ -321,25 +590,38 @@ function StudentDivisionPage({
         // STUDENT OFFICERS
       </h2>
       <div className="w-12 h-0.5 bg-gold mb-4" />
-      <h3 className="font-serif text-xl sm:text-2xl font-bold mb-6">
+      <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
         {division} Division
         <span className="font-mono text-xs text-muted ml-3">
           ({students.length} officers)
         </span>
       </h3>
+      <p className="font-mono text-[10px] text-muted mb-6">
+        Click on any officer to view their profile
+      </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {students.map((student) => (
           <div
             key={student.id}
-            className="bg-surface border border-border-subtle rounded p-2.5"
+            role="button"
+            tabIndex={0}
+            data-interactive="true"
+            onClick={() => onSelectPerson(student)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onSelectPerson(student);
+              }
+            }}
+            className="bg-surface border border-border-subtle rounded p-2.5 cursor-pointer hover:border-gold/40 hover:bg-surface-light/50 transition-all group"
           >
             <div className="flex items-center gap-2 mb-1">
               <span className="font-mono text-[8px] bg-gold text-background px-1 py-0.5 rounded shrink-0">
                 {student.rank.toUpperCase().slice(0, 4)}
               </span>
             </div>
-            <p className="font-serif text-[11px] font-semibold leading-tight">
+            <p className="font-serif text-[11px] font-semibold leading-tight group-hover:text-gold transition-colors">
               {student.name}
             </p>
             {student.unit_or_regiment && (
@@ -357,7 +639,9 @@ function StudentDivisionPage({
 function ArticlePage({ article }: { article: Article }) {
   return (
     <div>
-      <span className={`font-mono text-[10px] px-2 py-0.5 rounded ${getCategoryBadgeClasses(article.category)}`}>
+      <span
+        className={`font-mono text-[10px] px-2 py-0.5 rounded ${getCategoryBadgeClasses(article.category)}`}
+      >
         {article.category.toUpperCase()}
       </span>
 
@@ -400,8 +684,9 @@ function ArticlePage({ article }: { article: Article }) {
       {/* Content or placeholder */}
       {article.content ? (
         <div className="prose-editorial text-sm leading-relaxed text-muted">
-          {/* TipTap content would be rendered here — for now show a note */}
-          <p className="text-muted">Full article content available in the editor.</p>
+          <p className="text-muted">
+            Full article content available in the editor.
+          </p>
         </div>
       ) : (
         <div className="space-y-3 text-sm text-muted leading-relaxed">
@@ -422,6 +707,242 @@ function ArticlePage({ article }: { article: Article }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function GalleryPage({ items }: { items: GalleryItem[] }) {
+  const aspectClass = (ratio: string) => {
+    switch (ratio) {
+      case "portrait":
+        return "aspect-[3/4]";
+      case "landscape":
+        return "aspect-video";
+      case "square":
+      default:
+        return "aspect-square";
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
+        // PHOTO GALLERY
+      </h2>
+      <div className="w-12 h-0.5 bg-gold mb-8" />
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
+        Through the Lens
+      </h3>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="rounded-lg overflow-hidden border border-border-subtle bg-surface"
+          >
+            <div
+              className={`relative bg-surface-light flex items-center justify-center ${aspectClass(item.aspect_ratio)}`}
+            >
+              {item.type === "video" ? (
+                <div className="w-10 h-10 rounded-full bg-red-accent/80 flex items-center justify-center">
+                  <Play size={16} className="text-white ml-0.5" />
+                </div>
+              ) : (
+                <Camera size={20} className="text-muted/30" />
+              )}
+              <div className="absolute top-2 right-2">
+                <span className="font-mono text-[8px] bg-gold/80 text-background px-1.5 py-0.5 rounded">
+                  {item.category.toUpperCase()}
+                </span>
+              </div>
+            </div>
+            <div className="p-2.5">
+              <p className="font-serif text-xs font-semibold truncate">
+                {item.title}
+              </p>
+              {item.description && (
+                <p className="font-mono text-[8px] text-muted mt-0.5 line-clamp-1">
+                  {item.description}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AlumniFeaturePage({ person }: { person: Alumni }) {
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
+        // ALUMNI SPOTLIGHT
+      </h2>
+      <div className="w-12 h-0.5 bg-gold mb-8" />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Photo */}
+        <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
+          {person.avatar_url ? (
+            <img
+              src={person.avatar_url}
+              alt={person.name}
+              className="w-full h-full object-cover rounded-lg"
+            />
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <GraduationCap size={56} className="text-gold/30" />
+              <span className="font-mono text-[10px] text-muted">ALUMNI</span>
+            </div>
+          )}
+        </div>
+
+        {/* Details */}
+        <div className="md:col-span-2 flex flex-col justify-center">
+          <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
+            {person.name}
+          </h3>
+          <p className="font-mono text-sm text-muted mb-1">
+            Batch of {person.batch_year}
+          </p>
+          <p className="font-mono text-xs text-gold/60 mb-2">
+            {person.current_role}
+          </p>
+          <p className="font-mono text-xs text-muted mb-6">
+            <Briefcase size={12} className="inline mr-1" />
+            {person.organization} &middot;{" "}
+            <MapPin size={12} className="inline mr-1" />
+            {person.location}
+          </p>
+
+          {/* Quote */}
+          <div className="bg-surface rounded-lg p-4 mb-6 border border-border-subtle">
+            <Quote size={16} className="text-gold/40 mb-2" />
+            <p className="font-serif text-sm italic text-foreground/80">
+              {person.quote}
+            </p>
+          </div>
+
+          <p className="text-muted text-sm leading-relaxed">{person.bio}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AlumniPage({ alumni }: { alumni: Alumni[] }) {
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
+        // ALUMNI SPOTLIGHT
+      </h2>
+      <div className="w-12 h-0.5 bg-gold mb-8" />
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
+        Where Are They Now
+      </h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {alumni.map((person) => (
+          <div
+            key={person.id}
+            className="bg-surface border border-border-subtle rounded-lg p-4"
+          >
+            <div className="flex items-start gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-surface-light flex items-center justify-center shrink-0">
+                {person.avatar_url ? (
+                  <img
+                    src={person.avatar_url}
+                    alt={person.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                ) : (
+                  <GraduationCap size={16} className="text-gold/40" />
+                )}
+              </div>
+              <div>
+                <h4 className="font-serif text-sm font-semibold">
+                  {person.name}
+                </h4>
+                <p className="font-mono text-[10px] text-muted">
+                  Batch of {person.batch_year}
+                </p>
+              </div>
+            </div>
+            <p className="font-mono text-[10px] text-gold/70 mb-2">
+              {person.current_role} &middot; {person.organization}
+            </p>
+            <p className="font-serif text-xs italic text-muted line-clamp-2">
+              &ldquo;{person.quote}&rdquo;
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const LOCATION_COLORS: Record<string, string> = {
+  building: "#8B6914",
+  field: "#2E7D32",
+  residential: "#5C6BC0",
+  recreation: "#E65100",
+  gate: "#6D4C41",
+  medical: "#C62828",
+};
+
+function CampusMapPage({ locations }: { locations: CampusLocation[] }) {
+  return (
+    <div>
+      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
+        // CAMPUS MAP
+      </h2>
+      <div className="w-12 h-0.5 bg-gold mb-8" />
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
+        Navigate the Grounds
+      </h3>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-4 mb-6">
+        {Object.entries(LOCATION_COLORS).map(([type, color]) => (
+          <div key={type} className="flex items-center gap-1.5">
+            <div
+              className="w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: color }}
+            />
+            <span className="font-mono text-[9px] text-muted capitalize">
+              {type}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* Location directory */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {locations.map((loc) => (
+          <div
+            key={loc.id}
+            className="flex items-start gap-3 bg-surface rounded-lg p-3 border border-border-subtle"
+          >
+            <div
+              className="w-3 h-3 rounded-full mt-1 shrink-0"
+              style={{
+                backgroundColor:
+                  LOCATION_COLORS[loc.icon_type] || LOCATION_COLORS.building,
+              }}
+            />
+            <div className="min-w-0">
+              <p className="font-serif text-sm font-semibold">{loc.name}</p>
+              <p className="text-[11px] text-muted mt-0.5">{loc.description}</p>
+              {loc.fun_fact && (
+                <p className="text-[10px] text-gold/60 mt-1 italic">
+                  {loc.fun_fact}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -505,7 +1026,13 @@ function BackCoverPage() {
 
 // ─── Page Renderer Switch ────────────────────────────────────────────────────
 
-function PageRenderer({ page }: { page: MagazinePage }) {
+function PageRenderer({
+  page,
+  onSelectPerson,
+}: {
+  page: MagazinePage;
+  onSelectPerson: (person: Personnel) => void;
+}) {
   switch (page.type) {
     case "cover":
       return <CoverPage />;
@@ -518,11 +1045,23 @@ function PageRenderer({ page }: { page: MagazinePage }) {
     case "student-division": {
       const d = page.data as { division: Division; students: Personnel[] };
       return (
-        <StudentDivisionPage division={d.division} students={d.students} />
+        <StudentDivisionPage
+          division={d.division}
+          students={d.students}
+          onSelectPerson={onSelectPerson}
+        />
       );
     }
     case "article":
       return <ArticlePage article={page.data as Article} />;
+    case "gallery":
+      return <GalleryPage items={page.data as GalleryItem[]} />;
+    case "alumni-feature":
+      return <AlumniFeaturePage person={page.data as Alumni} />;
+    case "alumni":
+      return <AlumniPage alumni={page.data as Alumni[]} />;
+    case "campus-map":
+      return <CampusMapPage locations={page.data as CampusLocation[]} />;
     case "media":
       return <MediaPage />;
     case "back-cover":
@@ -538,14 +1077,32 @@ export default function MagazineReader({
   articles,
   personnel,
   tocEntries,
+  alumni,
+  galleryItems,
+  campusLocations,
   onClose,
 }: MagazineReaderProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showGoTo, setShowGoTo] = useState(false);
   const [goToValue, setGoToValue] = useState("");
+  const [selectedPerson, setSelectedPerson] = useState<Personnel | null>(null);
 
-  const pages = compilePages(articles, personnel, tocEntries);
+  // Touch gesture tracking
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const pages = useMemo(
+    () =>
+      compilePages(
+        articles,
+        personnel,
+        tocEntries,
+        alumni,
+        galleryItems,
+        campusLocations
+      ),
+    [articles, personnel, tocEntries, alumni, galleryItems, campusLocations]
+  );
   const totalPages = pages.length;
 
   // Lock body scroll when reader is open
@@ -562,6 +1119,7 @@ export default function MagazineReader({
       const target = Math.max(0, Math.min(pageNum, totalPages - 1));
       setDirection(target > currentPage ? 1 : -1);
       setCurrentPage(target);
+      setSelectedPerson(null);
     },
     [currentPage, totalPages]
   );
@@ -570,6 +1128,7 @@ export default function MagazineReader({
     if (currentPage < totalPages - 1) {
       setDirection(1);
       setCurrentPage((p) => p + 1);
+      setSelectedPerson(null);
     }
   }, [currentPage, totalPages]);
 
@@ -577,12 +1136,14 @@ export default function MagazineReader({
     if (currentPage > 0) {
       setDirection(-1);
       setCurrentPage((p) => p - 1);
+      setSelectedPerson(null);
     }
   }, [currentPage]);
 
   const goToStart = useCallback(() => {
     setDirection(-1);
     setCurrentPage(0);
+    setSelectedPerson(null);
   }, []);
 
   const handleGoToSubmit = useCallback(
@@ -598,25 +1159,86 @@ export default function MagazineReader({
     [goToValue, goToPage, totalPages]
   );
 
+  // Half-page click navigation
+  const handleContentClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      // Skip when detail overlay is open
+      if (selectedPerson) return;
+
+      // Don't intercept clicks on interactive elements
+      const target = e.target as HTMLElement;
+      if (
+        target.closest(
+          "[data-interactive], button, a, input, select, textarea, [role='button']"
+        )
+      ) {
+        return;
+      }
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+
+      if (clickX > rect.width / 2) {
+        goNext();
+      } else {
+        goPrev();
+      }
+    },
+    [selectedPerson, goNext, goPrev]
+  );
+
+  // Touch swipe gesture
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!touchStartRef.current || selectedPerson) return;
+      const diffX =
+        touchStartRef.current.x - e.changedTouches[0].clientX;
+      const diffY =
+        touchStartRef.current.y - e.changedTouches[0].clientY;
+
+      // Only trigger on primarily horizontal swipes
+      if (Math.abs(diffX) > 50 && Math.abs(diffX) > Math.abs(diffY)) {
+        if (diffX > 0) goNext(); // swiped left → next
+        else goPrev(); // swiped right → prev
+      }
+      touchStartRef.current = null;
+    },
+    [selectedPerson, goNext, goPrev]
+  );
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
         case "ArrowRight":
         case "ArrowDown":
+          if (selectedPerson) return;
           e.preventDefault();
           goNext();
           break;
         case "ArrowLeft":
         case "ArrowUp":
+          if (selectedPerson) return;
           e.preventDefault();
           goPrev();
           break;
         case "Escape":
           e.preventDefault();
-          onClose();
+          if (selectedPerson) {
+            setSelectedPerson(null);
+          } else {
+            onClose();
+          }
           break;
         case "Home":
+          if (selectedPerson) return;
           e.preventDefault();
           goToStart();
           break;
@@ -624,10 +1246,13 @@ export default function MagazineReader({
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [goNext, goPrev, onClose, goToStart]);
+  }, [goNext, goPrev, onClose, goToStart, selectedPerson]);
+
+  // Progress percentage
+  const progressPercent = ((currentPage + 1) / totalPages) * 100;
 
   return (
-    <div className="fixed inset-0 z-[90] bg-background flex flex-col">
+    <div className="magazine-theme fixed inset-0 z-[90] bg-background flex flex-col">
       {/* ─── Top Bar ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface shrink-0">
         <div className="flex items-center gap-3">
@@ -648,6 +1273,7 @@ export default function MagazineReader({
 
         <button
           onClick={onClose}
+          data-interactive="true"
           className="p-2 text-muted hover:text-foreground hover:bg-surface-light rounded transition-colors"
           aria-label="Close reader"
         >
@@ -656,7 +1282,27 @@ export default function MagazineReader({
       </div>
 
       {/* ─── Page Content ────────────────────────────────────────────── */}
-      <div className="flex-1 relative overflow-hidden">
+      <div
+        className="flex-1 relative overflow-hidden"
+        onClick={handleContentClick}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Left hover hint */}
+        <div className="absolute inset-y-0 left-0 w-16 z-20 pointer-events-none flex items-center justify-start pl-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <ChevronLeft
+            size={28}
+            className="text-foreground/10"
+          />
+        </div>
+        {/* Right hover hint */}
+        <div className="absolute inset-y-0 right-0 w-16 z-20 pointer-events-none flex items-center justify-end pr-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <ChevronRight
+            size={28}
+            className="text-foreground/10"
+          />
+        </div>
+
         <motion.div
           key={currentPage}
           initial={{ opacity: 0, x: direction >= 0 ? 200 : -200 }}
@@ -665,86 +1311,107 @@ export default function MagazineReader({
           className="absolute inset-0 overflow-y-auto"
         >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative">
-            <PageRenderer page={pages[currentPage]} />
+            <PageRenderer
+              page={pages[currentPage]}
+              onSelectPerson={setSelectedPerson}
+            />
           </div>
         </motion.div>
+
+        {/* Student officer detail overlay */}
+        <AnimatePresence>
+          {selectedPerson && (
+            <MagazinePersonnelDetail
+              person={selectedPerson}
+              onClose={() => setSelectedPerson(null)}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* ─── Bottom Toolbar ──────────────────────────────────────────── */}
-      <div className="flex items-center justify-center gap-2 sm:gap-4 px-4 sm:px-6 py-3 border-t border-border-subtle bg-surface shrink-0">
-        {/* Skip to start */}
-        <button
-          onClick={goToStart}
-          disabled={currentPage === 0}
-          className="p-2 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
-          aria-label="Go to first page"
-        >
-          <SkipBack size={16} />
-        </button>
-
-        {/* Previous */}
-        <button
-          onClick={goPrev}
-          disabled={currentPage === 0}
-          className="p-2 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
-          aria-label="Previous page"
-        >
-          <ChevronLeft size={18} />
-        </button>
-
-        {/* Page counter */}
-        <span className="font-mono text-xs text-muted min-w-[90px] text-center">
-          Page {currentPage + 1} of {totalPages}
-        </span>
-
-        {/* Go to page toggle */}
-        <div className="relative">
-          <button
-            onClick={() => {
-              setShowGoTo(!showGoTo);
-              setGoToValue("");
-            }}
-            className="p-2 text-muted hover:text-gold transition-colors"
-            aria-label="Go to page"
-          >
-            <Hash size={16} />
-          </button>
-
-          {/* Go to page popover */}
-          {showGoTo && (
-            <form
-              onSubmit={handleGoToSubmit}
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex items-center gap-2 bg-surface border border-border-subtle rounded-lg p-2 shadow-lg"
-            >
-              <input
-                type="number"
-                min={1}
-                max={totalPages}
-                value={goToValue}
-                onChange={(e) => setGoToValue(e.target.value)}
-                placeholder={`1-${totalPages}`}
-                className="w-16 bg-surface-light border border-border-subtle rounded px-2 py-1 text-xs font-mono text-center focus:outline-none focus:border-gold"
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="font-mono text-[10px] bg-gold text-background px-2 py-1 rounded hover:bg-gold/90 transition-colors"
-              >
-                GO
-              </button>
-            </form>
-          )}
+      <div className="shrink-0 border-t border-border-subtle bg-surface">
+        {/* Progress bar */}
+        <div className="h-0.5 bg-surface-light">
+          <div
+            className="h-full bg-gold transition-all duration-500 ease-out"
+            style={{ width: `${progressPercent}%` }}
+            role="progressbar"
+            aria-valuenow={currentPage + 1}
+            aria-valuemax={totalPages}
+          />
         </div>
 
-        {/* Next */}
-        <button
-          onClick={goNext}
-          disabled={currentPage === totalPages - 1}
-          className="p-2 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
-          aria-label="Next page"
-        >
-          <ChevronRight size={18} />
-        </button>
+        <div className="flex items-center justify-center gap-2 sm:gap-4 px-4 sm:px-6 py-2.5">
+          {/* Previous */}
+          <button
+            onClick={goPrev}
+            disabled={currentPage === 0}
+            data-interactive="true"
+            className="p-1.5 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
+            aria-label="Previous page"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {/* Page counter */}
+          <span className="font-mono text-xs text-muted min-w-[90px] text-center select-none">
+            {currentPage + 1} / {totalPages}
+          </span>
+
+          {/* Go to page toggle */}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setShowGoTo(!showGoTo);
+                setGoToValue("");
+              }}
+              data-interactive="true"
+              className="p-1.5 text-muted hover:text-gold transition-colors"
+              aria-label="Go to page"
+            >
+              <Hash size={14} />
+            </button>
+
+            {showGoTo && (
+              <form
+                onSubmit={handleGoToSubmit}
+                data-interactive="true"
+                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex items-center gap-2 bg-surface border border-border-subtle rounded-lg p-2 shadow-lg"
+              >
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={goToValue}
+                  onChange={(e) => setGoToValue(e.target.value)}
+                  placeholder={`1-${totalPages}`}
+                  data-interactive="true"
+                  className="w-16 bg-surface-light border border-border-subtle rounded px-2 py-1 text-xs font-mono text-center focus:outline-none focus:border-gold text-foreground"
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  data-interactive="true"
+                  className="font-mono text-[10px] bg-gold text-background px-2 py-1 rounded hover:bg-gold/90 transition-colors"
+                >
+                  GO
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Next */}
+          <button
+            onClick={goNext}
+            disabled={currentPage === totalPages - 1}
+            data-interactive="true"
+            className="p-1.5 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
+            aria-label="Next page"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
       </div>
     </div>
   );

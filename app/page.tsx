@@ -47,6 +47,9 @@ export default function HomePage() {
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={sampleTocEntries}
+          alumni={sampleAlumni}
+          galleryItems={sampleGalleryItems}
+          campusLocations={sampleCampusLocations}
         />
       </main>
     </>
