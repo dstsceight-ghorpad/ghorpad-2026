@@ -20,7 +20,7 @@ export default function AnimatedLogo({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = Math.max(window.devicePixelRatio || 1, 2); // minimum 2x for crisp text
+    const dpr = Math.max(window.devicePixelRatio || 1, 2);
     const w = size;
     const h = size;
     canvas.width = w * dpr;
@@ -76,7 +76,7 @@ export default function AnimatedLogo({
       ctx.arc(cx, cy, (outerR + innerR) / 2, 0, Math.PI * 2);
       ctx.stroke();
 
-      // === INNER DARK CIRCLE (drawn before ring text so flame doesn't cover text) ===
+      // === INNER DARK CIRCLE ===
       const innerGrad = ctx.createRadialGradient(
         cx,
         cy - innerR * 0.15,
@@ -100,17 +100,52 @@ export default function AnimatedLogo({
       ctx.arc(cx, cy, innerR - 1, 0, Math.PI * 2);
       ctx.stroke();
 
-      // === ANIMATED FLAME (top, above rings — drawn before text) ===
+      // === PEN BARREL (drawn behind rings and flame) ===
+      const penGlow = 0.5 + 0.5 * Math.sin(t * 1.5);
+      const barrelTop = cy - innerR * 0.48;
+      const barrelBottom = cy + innerR * 0.12;
+      const barrelW = w * 0.022;
+
+      // Barrel gradient (metallic gold sheen)
+      const barrelGrad = ctx.createLinearGradient(
+        cx - barrelW,
+        barrelTop,
+        cx + barrelW,
+        barrelTop
+      );
+      barrelGrad.addColorStop(0, `rgba(160,130,30,${0.45 + penGlow * 0.2})`);
+      barrelGrad.addColorStop(
+        0.3,
+        `rgba(210,180,60,${0.55 + penGlow * 0.3})`
+      );
+      barrelGrad.addColorStop(
+        0.5,
+        `rgba(240,210,80,${0.65 + penGlow * 0.3})`
+      );
+      barrelGrad.addColorStop(
+        0.7,
+        `rgba(210,180,60,${0.55 + penGlow * 0.3})`
+      );
+      barrelGrad.addColorStop(1, `rgba(160,130,30,${0.45 + penGlow * 0.2})`);
+      ctx.fillStyle = barrelGrad;
+      ctx.fillRect(cx - barrelW / 2, barrelTop, barrelW, barrelBottom - barrelTop);
+
+      // Barrel highlight line
+      ctx.strokeStyle = `rgba(255,240,120,${0.15 + penGlow * 0.1})`;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, barrelTop);
+      ctx.lineTo(cx, barrelBottom);
+      ctx.stroke();
+
+      // === ANIMATED FLAME (emanating from the pen top) ===
       drawAnimatedFlame(ctx, cx, cy - innerR * 0.42, w * 0.14, t);
 
-      // === TEXT around the ring (drawn AFTER flame so text is always visible) ===
-      // Both texts centered on the exact middle of the gold band
+      // === TEXT around the ring ===
       const textR = (outerR + innerR) / 2;
-
-      // Both arcs use ±0.47π so gaps at 3 o'clock and 9 o'clock are equal
       const arcHalf = Math.PI * 0.47;
 
-      // Top arc: Institute name — centered at top
+      // Top arc: Institute name
       drawCurvedText(
         ctx,
         "MILITARY INSTITUTE OF TECHNOLOGY",
@@ -123,7 +158,7 @@ export default function AnimatedLogo({
         true
       );
 
-      // Bottom arc: Motto — centered at bottom, same radius
+      // Bottom arc: Motto
       drawCurvedText(
         ctx,
         "Victory through Technology",
@@ -137,13 +172,12 @@ export default function AnimatedLogo({
         false
       );
 
-      // Separator stars at exactly 3 o'clock and 9 o'clock,
-      // symmetrically centered in the gap between the two text arcs
+      // Separator stars at 3 o'clock and 9 o'clock
       ctx.fillStyle = "rgba(45,35,10,0.85)";
       drawSmallStar(ctx, cx - textR, cy, w * 0.01);
       drawSmallStar(ctx, cx + textR, cy, w * 0.01);
 
-      // === INTERLOCKING OLYMPIC-STYLE RINGS ===
+      // === INTERLOCKING RINGS (red, blue, gold — faithful to original) ===
       const ringR = w * 0.085;
       const ringY = cy + w * 0.02;
       const ringSpacing = ringR * 1.25;
@@ -154,15 +188,15 @@ export default function AnimatedLogo({
       ctx.shadowColor = `rgba(232,200,74,${ringGlow * 0.4})`;
       ctx.shadowBlur = 6 + lightningGlow * 8;
 
-      // Draw rings with proper interlocking
-      drawRing(ctx, cx - ringSpacing, ringY, ringR, "#c0392b", 2.2);
-      drawRing(ctx, cx, ringY - ringR * 0.18, ringR, "#2980b9", 2.2);
+      // Draw rings with original colours
+      drawRing(ctx, cx - ringSpacing, ringY, ringR, "#c0392b", 2.2); // Red
+      drawRing(ctx, cx, ringY - ringR * 0.18, ringR, "#2980b9", 2.2); // Blue
       drawRing(
         ctx,
         cx + ringSpacing,
         ringY,
         ringR,
-        `rgba(232,200,74,${0.65 + lightningGlow * 0.35})`,
+        `rgba(232,200,74,${0.65 + lightningGlow * 0.35})`, // Gold
         2.2
       );
 
@@ -194,48 +228,8 @@ export default function AnimatedLogo({
       ctx.arc(cx + innerR * 0.55, starY, w * 0.005, 0, Math.PI * 2);
       ctx.fill();
 
-      // === SWORD / DAGGER ===
-      const swordTop = ringY + ringR * 0.75;
-      const swordBottom = cy + innerR * 0.62;
-      const swordGlow = 0.5 + 0.5 * Math.sin(t * 1.5);
-
-      // Sword handle (pommel)
-      ctx.fillStyle = `rgba(200,170,50,${0.6 + swordGlow * 0.4})`;
-      ctx.beginPath();
-      ctx.arc(cx, swordTop - 1, w * 0.012, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Guard (horizontal cross-piece)
-      ctx.strokeStyle = `rgba(200,170,50,${0.7 + swordGlow * 0.3})`;
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.moveTo(cx - w * 0.05, swordTop + 3);
-      ctx.lineTo(cx + w * 0.05, swordTop + 3);
-      ctx.stroke();
-
-      // Blade (tapered)
-      const bladeGrad = ctx.createLinearGradient(cx, swordTop + 3, cx, swordBottom);
-      bladeGrad.addColorStop(0, `rgba(220,200,80,${0.7 + swordGlow * 0.3})`);
-      bladeGrad.addColorStop(0.5, `rgba(200,180,60,${0.6 + swordGlow * 0.4})`);
-      bladeGrad.addColorStop(1, `rgba(180,160,40,${0.4 + swordGlow * 0.3})`);
-      ctx.fillStyle = bladeGrad;
-      ctx.beginPath();
-      ctx.moveTo(cx - 2.5, swordTop + 3);
-      ctx.lineTo(cx + 2.5, swordTop + 3);
-      ctx.lineTo(cx + 0.5, swordBottom);
-      ctx.lineTo(cx - 0.5, swordBottom);
-      ctx.closePath();
-      ctx.fill();
-
-      // Blade center line (fuller)
-      ctx.strokeStyle = `rgba(255,240,120,${0.2 + swordGlow * 0.2})`;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(cx, swordTop + 6);
-      ctx.lineTo(cx, swordBottom - 2);
-      ctx.stroke();
-
-      // (EST. 2008 removed)
+      // === FOUNTAIN PEN NIB (faithful to the institute crest) ===
+      drawFountainPenNib(ctx, cx, cy, ringY, ringR, innerR, w, t, penGlow);
 
       animFrameRef.current = requestAnimationFrame(drawFrame);
     }
@@ -254,6 +248,107 @@ export default function AnimatedLogo({
       style={{ width: size, height: size }}
     />
   );
+}
+
+// === FOUNTAIN PEN NIB ===
+
+function drawFountainPenNib(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  centerY: number,
+  ringY: number,
+  ringR: number,
+  innerR: number,
+  w: number,
+  t: number,
+  penGlow: number
+) {
+  // Position: starts just below the rings, tapers to a point
+  const nibTopY = ringY + ringR * 0.5;
+  const nibBottomY = centerY + innerR * 0.82;
+  const nibHeight = nibBottomY - nibTopY;
+  const nibMaxW = w * 0.07; // max width at shoulders
+
+  // Nib fill — metallic gold gradient
+  const nibGrad = ctx.createLinearGradient(cx, nibTopY, cx, nibBottomY);
+  nibGrad.addColorStop(0, `rgba(220,195,70,${0.75 + penGlow * 0.25})`);
+  nibGrad.addColorStop(0.3, `rgba(210,185,60,${0.7 + penGlow * 0.3})`);
+  nibGrad.addColorStop(0.6, `rgba(195,170,50,${0.6 + penGlow * 0.3})`);
+  nibGrad.addColorStop(1, `rgba(170,145,35,${0.5 + penGlow * 0.25})`);
+  ctx.fillStyle = nibGrad;
+
+  // Draw the classic fountain pen nib shape:
+  // Wide shoulders at top, smooth curves tapering to a fine writing point
+  ctx.beginPath();
+  ctx.moveTo(cx - nibMaxW, nibTopY);
+  ctx.lineTo(cx + nibMaxW, nibTopY);
+  // Right curve — shoulder to tip
+  ctx.bezierCurveTo(
+    cx + nibMaxW * 0.9,
+    nibTopY + nibHeight * 0.2,
+    cx + nibMaxW * 0.35,
+    nibTopY + nibHeight * 0.55,
+    cx,
+    nibBottomY
+  );
+  // Left curve — tip back to shoulder
+  ctx.bezierCurveTo(
+    cx - nibMaxW * 0.35,
+    nibTopY + nibHeight * 0.55,
+    cx - nibMaxW * 0.9,
+    nibTopY + nibHeight * 0.2,
+    cx - nibMaxW,
+    nibTopY
+  );
+  ctx.closePath();
+  ctx.fill();
+
+  // Nib edge outline for definition
+  ctx.strokeStyle = `rgba(180,155,40,${0.4 + penGlow * 0.2})`;
+  ctx.lineWidth = 0.8;
+  ctx.stroke();
+
+  // Metallic highlight on left edge of nib
+  ctx.strokeStyle = `rgba(255,240,130,${0.12 + penGlow * 0.08})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - nibMaxW * 0.9, nibTopY + nibHeight * 0.05);
+  ctx.bezierCurveTo(
+    cx - nibMaxW * 0.85,
+    nibTopY + nibHeight * 0.15,
+    cx - nibMaxW * 0.4,
+    nibTopY + nibHeight * 0.35,
+    cx - nibMaxW * 0.15,
+    nibTopY + nibHeight * 0.5
+  );
+  ctx.stroke();
+
+  // Breather hole — small circular cut-out near the top of the nib
+  const holeY = nibTopY + nibHeight * 0.18;
+  const holeR = nibMaxW * 0.16;
+  ctx.fillStyle = `rgba(20,18,5,${0.75 + penGlow * 0.15})`;
+  ctx.beginPath();
+  ctx.arc(cx, holeY, holeR, 0, Math.PI * 2);
+  ctx.fill();
+  // Hole highlight ring
+  ctx.strokeStyle = `rgba(180,155,40,${0.3 + penGlow * 0.15})`;
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // Center slit — line running from breather hole to the writing tip
+  ctx.strokeStyle = `rgba(30,25,5,${0.6 + penGlow * 0.25})`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx, holeY + holeR + 1);
+  ctx.lineTo(cx, nibBottomY - 1);
+  ctx.stroke();
+
+  // Ink drop glow at the very tip (subtle animated effect)
+  const inkGlow = 0.3 + 0.7 * Math.abs(Math.sin(t * 2 + 0.5));
+  ctx.fillStyle = `rgba(232,200,74,${inkGlow * 0.4})`;
+  ctx.beginPath();
+  ctx.arc(cx, nibBottomY + 1, w * 0.005, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 // === HELPER DRAWING FUNCTIONS ===
@@ -441,14 +536,10 @@ function drawCurvedText(
   for (let i = 0; i < text.length; i++) {
     let charAngle: number;
     if (isTop) {
-      // Top: first char on the left, going clockwise to the right
       charAngle = -Math.PI / 2 + startAngle + anglePerChar * (i + 1);
     } else if (rightToLeft) {
-      // Bottom right-to-left: first char on RIGHT side, going clockwise to LEFT
-      // Reading right-to-left across the bottom gives the text in order
       charAngle = Math.PI / 2 + startAngle + anglePerChar * (i + 1);
     } else {
-      // Bottom left-to-right: first char on right, going counter-clockwise
       charAngle = Math.PI / 2 + endAngle - anglePerChar * (i + 1);
     }
 
@@ -463,7 +554,7 @@ function drawCurvedText(
     ctx.fillStyle = "rgba(30,25,5,0.9)";
     ctx.fillText(text[i], 0.5, 0.5);
 
-    // Main text in bright cream/white
+    // Main text
     ctx.fillStyle = "rgba(45,35,10,0.95)";
     ctx.fillText(text[i], 0, 0);
 

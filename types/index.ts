@@ -62,6 +62,9 @@ export const CATEGORIES = [
   "Sports",
   "Tech",
   "Achievements",
+  "Ladies Corner",
+  "International Perspectives",
+  "Poems",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];
@@ -247,5 +250,6 @@ export interface TocEntry {
   page_label: string;
   category: string;
   slug?: string;
-  type: "article" | "section" | "feature";
+  type: "article" | "section" | "feature" | "poem";
+  author?: string;
 }

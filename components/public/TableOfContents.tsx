@@ -47,21 +47,29 @@ export default function TableOfContents({ entries }: TableOfContentsProps) {
               <div className="space-y-3">
                 {items.map((entry) => {
                   const inner = (
-                    <div className="flex items-baseline gap-2 group cursor-pointer">
-                      {/* Page number */}
-                      <span className="font-mono text-xs text-gold shrink-0 w-6">
-                        {entry.page_label}
-                      </span>
-                      {/* Title */}
-                      <span className="font-serif text-sm sm:text-base text-foreground group-hover:text-gold transition-colors truncate">
-                        {entry.title}
-                      </span>
-                      {/* Dot leader */}
-                      <span className="flex-1 border-b border-dotted border-border-subtle min-w-[20px]" />
-                      {/* Type badge */}
-                      <span className="font-mono text-[10px] text-muted shrink-0 uppercase">
-                        {entry.type}
-                      </span>
+                    <div className="group cursor-pointer">
+                      <div className="flex items-baseline gap-2">
+                        {/* Page number */}
+                        <span className="font-mono text-xs text-gold shrink-0 w-6">
+                          {entry.page_label}
+                        </span>
+                        {/* Title */}
+                        <span className="font-serif text-sm sm:text-base text-foreground group-hover:text-gold transition-colors truncate">
+                          {entry.title}
+                        </span>
+                        {/* Dot leader */}
+                        <span className="flex-1 border-b border-dotted border-border-subtle min-w-[20px]" />
+                        {/* Type badge */}
+                        <span className="font-mono text-[10px] text-muted shrink-0 uppercase">
+                          {entry.type}
+                        </span>
+                      </div>
+                      {/* Author name */}
+                      {entry.author && (
+                        <p className="font-mono text-[10px] text-muted/70 mt-0.5 ml-8 tracking-wide">
+                          — {entry.author}
+                        </p>
+                      )}
                     </div>
                   );
 
