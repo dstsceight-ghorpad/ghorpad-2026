@@ -29,7 +29,7 @@ export default function CustomCursor() {
 
   const updatePosition = useCallback(() => {
     if (cursorRef.current) {
-      cursorRef.current.style.transform = `translate(${posRef.current.x}px, ${posRef.current.y}px) translate(-30%, -50%)`;
+      cursorRef.current.style.transform = `translate(${posRef.current.x}px, ${posRef.current.y}px) translate(-50%, -50%)`;
     }
     rafRef.current = requestAnimationFrame(updatePosition);
   }, []);
@@ -81,13 +81,17 @@ export default function CustomCursor() {
     >
       <svg
         width="56"
-        height="32"
-        viewBox="-14 0 58 32"
+        height="56"
+        viewBox="-20 -10 72 52"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ filter: isDark ? "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" : "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
+        style={{
+          filter: isDark ? "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" : "drop-shadow(0 1px 2px rgba(0,0,0,0.3))",
+          transform: "rotate(210deg)",
+          transformOrigin: "center center",
+        }}
       >
-        {/* Horizontal lizard — head pointing RIGHT, tail to LEFT */}
+        {/* Horizontal lizard rotated to 300° heading (upper-left) */}
 
         {/* Tongue — flicks out on click (extends right from head) */}
         <g
