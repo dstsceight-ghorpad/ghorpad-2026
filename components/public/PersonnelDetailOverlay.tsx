@@ -153,10 +153,7 @@ export default function PersonnelDetailOverlay({
           className="h-[60vh] lg:h-full overflow-y-auto bg-background"
         >
           <div className="p-8 sm:p-10 lg:p-14 lg:pt-20 max-w-xl">
-            {/* Role label */}
-            <span className="font-mono text-xs tracking-[0.2em] text-gold mb-4 block">
-              // {getRoleLabel(person.personnel_role)}
-            </span>
+            {/* Role label removed */}
 
             {/* Name */}
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 leading-tight">
