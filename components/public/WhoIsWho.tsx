@@ -113,9 +113,7 @@ function CommandantCard({
 
         {/* Content area — 3 of 5 columns */}
         <div className="lg:col-span-3 p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
-          <span className="font-mono text-xs tracking-widest text-gold mb-3">
-            // COMMANDANT
-          </span>
+          {/* Role label removed */}
           <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
             {getDisplayName(person)}
           </h3>
@@ -179,9 +177,7 @@ function DeputyCommandantCard({
 
         {/* Content — 2 columns */}
         <div className="md:col-span-2 p-6 sm:p-8 flex flex-col justify-center">
-          <span className="font-mono text-xs tracking-widest text-gold mb-3">
-            <RevealText>// DEPUTY COMMANDANT</RevealText>
-          </span>
+          {/* Role label removed */}
           <h3 className="font-serif text-xl sm:text-2xl font-bold mb-1">
             {getDisplayName(person)}
           </h3>
@@ -249,9 +245,7 @@ function StaffOfficersCarousel({
     <div className="mb-16">
       {/* Sub-section header with scroll controls */}
       <div className="flex items-center justify-between mb-6">
-        <span className="font-mono text-xs tracking-widest text-gold">
-          <RevealText>// STAFF OFFICERS</RevealText>
-        </span>
+        {/* Role label removed */}
         <div className="flex gap-2">
           <button
             onClick={() => scroll("left")}
@@ -342,9 +336,7 @@ function StudentOfficersDivisions({
     <div>
       {/* Sub-section header */}
       <div className="mb-6">
-        <span className="font-mono text-xs tracking-widest text-gold">
-          <RevealText>// STUDENT OFFICERS</RevealText>
-        </span>
+        {/* Role label removed */}
       </div>
 
       {/* Division tabs */}

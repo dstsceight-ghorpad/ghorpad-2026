@@ -288,9 +288,7 @@ function MagazinePersonnelDetail({
 
           {/* Info */}
           <div className="md:col-span-2">
-            <span className="font-mono text-[10px] tracking-widest text-gold mb-2 block">
-              // STUDENT OFFICER
-            </span>
+            {/* Role label removed */}
             <h3 className="font-serif text-2xl font-bold mb-1">
               {getDisplayName(person)}
             </h3>
@@ -473,12 +471,7 @@ function TocPage({ entries }: { entries: TocEntry[] }) {
 function PersonnelFeaturePage({ person }: { person: Personnel }) {
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        //{" "}
-        {person.personnel_role === "commandant"
-          ? "COMMANDANT"
-          : "DEPUTY COMMANDANT"}
-      </h2>
+      {/* Role label removed */}
       <div className="w-12 h-0.5 bg-gold mb-8" />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -520,9 +513,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
 function StaffPage({ officers }: { officers: Personnel[] }) {
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // STAFF OFFICERS
-      </h2>
+      {/* Role label removed */}
       <div className="w-12 h-0.5 bg-gold mb-8" />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -571,9 +562,7 @@ function StudentDivisionPage({
 }) {
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // STUDENT OFFICERS
-      </h2>
+      {/* Role label removed */}
       <div className="w-12 h-0.5 bg-gold mb-4" />
       <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
         {division} Division
