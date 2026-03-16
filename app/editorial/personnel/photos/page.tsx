@@ -75,7 +75,26 @@ export default function PhotoCampaignPage() {
     setUploading(true);
     try {
       const result = await optimizeImage(file, AVATAR_PRESET);
-      savePersonnelEdit(currentPerson.id, { avatar_url: result.dataUrl });
+      // Upload to Supabase storage for persistence
+      let avatarUrl = result.dataUrl;
+      try {
+        const res = await fetch("/api/upload-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            personnelId: currentPerson.id,
+            imageData: result.dataUrl,
+            editorial: true,
+          }),
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          avatarUrl = url;
+        }
+      } catch {
+        // Fallback to localStorage-only
+      }
+      savePersonnelEdit(currentPerson.id, { avatar_url: avatarUrl });
       loadData();
 
       // Auto-advance to next

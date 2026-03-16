@@ -16,26 +16,57 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { token, personnelId, imageData } = body as {
-      token: string;
+    const { token, personnelId, imageData, editorial } = body as {
+      token?: string;
       personnelId: string;
       imageData: string; // base64 data URL
+      editorial?: boolean;
     };
 
-    // Validate token
-    if (!token || !personnelId || !imageData) {
+    if (!personnelId || !imageData) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const tokenResult = validateUploadToken(token);
-    if (!tokenResult.valid) {
-      return NextResponse.json(
-        { error: tokenResult.expired ? "Link has expired" : "Invalid link" },
-        { status: 403 }
+    // Editorial uploads: validate via Supabase auth session
+    if (editorial) {
+      const { createServerClient } = await import("@supabase/ssr");
+      const supabaseAuth = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            getAll() {
+              return request.cookies.getAll();
+            },
+            setAll() {},
+          },
+        }
       );
+      const { data: { user } } = await supabaseAuth.auth.getUser();
+      if (!user) {
+        return NextResponse.json(
+          { error: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+    } else {
+      // Public upload: validate token
+      if (!token) {
+        return NextResponse.json(
+          { error: "Missing token" },
+          { status: 400 }
+        );
+      }
+      const tokenResult = validateUploadToken(token);
+      if (!tokenResult.valid) {
+        return NextResponse.json(
+          { error: tokenResult.expired ? "Link has expired" : "Invalid link" },
+          { status: 403 }
+        );
+      }
     }
 
     // Validate personnel ID format

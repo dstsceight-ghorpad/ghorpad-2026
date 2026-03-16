@@ -363,7 +363,28 @@ export default function PersonnelPage() {
     refreshPersonnel();
   }, [refreshPersonnel]);
 
-  const handleSave = (id: string, updates: Partial<Personnel>) => {
+  const handleSave = async (id: string, updates: Partial<Personnel>) => {
+    // If a photo was uploaded (base64), also push it to Supabase storage
+    if (updates.avatar_url && updates.avatar_url.startsWith("data:image")) {
+      try {
+        const res = await fetch("/api/upload-photo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            personnelId: id,
+            imageData: updates.avatar_url,
+            editorial: true, // bypass token check for authenticated editors
+          }),
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          // Replace base64 with the persistent Supabase URL
+          updates.avatar_url = url;
+        }
+      } catch {
+        // Fallback: keep base64 in localStorage
+      }
+    }
     savePersonnelEdit(id, updates);
     refreshPersonnel();
   };
