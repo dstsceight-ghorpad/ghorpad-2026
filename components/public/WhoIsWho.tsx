@@ -41,7 +41,7 @@ function PersonnelCard({
         <PersonnelAvatar
           src={person.avatar_url}
           alt={getDisplayName(person)}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
           iconSize={32}
         />
         {/* Rank is shown in display name */}
@@ -103,7 +103,7 @@ function CommandantCard({
           <PersonnelAvatar
             src={person.avatar_url}
             alt={getDisplayName(person)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             iconSize={64}
             iconLabel="PHOTO"
           />
@@ -169,7 +169,7 @@ function DeputyCommandantCard({
           <PersonnelAvatar
             src={person.avatar_url}
             alt={getDisplayName(person)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             iconSize={48}
             iconLabel="PHOTO"
           />

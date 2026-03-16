@@ -18,7 +18,7 @@ interface PersonnelAvatarProps {
 export default function PersonnelAvatar({
   src,
   alt,
-  className = "w-full h-full object-cover",
+  className = "w-full h-full object-cover object-top",
   iconSize = 32,
   iconLabel,
 }: PersonnelAvatarProps) {

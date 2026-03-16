@@ -258,7 +258,7 @@ function MagazinePersonnelDetail({
             <PersonnelAvatar
               src={person.avatar_url}
               alt={getDisplayName(person)}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-top"
               iconSize={56}
               iconLabel="PHOTO"
             />
@@ -458,7 +458,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
           <PersonnelAvatar
             src={person.avatar_url}
             alt={getDisplayName(person)}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-cover object-top rounded-lg"
             iconSize={56}
             iconLabel="PHOTO"
           />
@@ -504,7 +504,7 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
               <PersonnelAvatar
                 src={officer.avatar_url}
                 alt={getDisplayName(officer)}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
                 iconSize={28}
               />
               {/* Rank is shown in display name */}

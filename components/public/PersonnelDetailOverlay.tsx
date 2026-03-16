@@ -131,7 +131,7 @@ export default function PersonnelDetailOverlay({
           <PersonnelAvatar
             src={person.avatar_url}
             alt={getDisplayName(person)}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
             iconSize={120}
             iconLabel="PHOTO"
           />
