@@ -44,12 +44,7 @@ function PersonnelCard({
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           iconSize={32}
         />
-        {/* Rank badge */}
-        <div className="absolute top-3 left-3">
-          <span className="font-mono text-[10px] bg-gold text-background px-2 py-0.5 rounded">
-            {person.rank.toUpperCase()}
-          </span>
-        </div>
+        {/* Rank is shown in display name */}
       </div>
 
       {/* Details */}
@@ -125,7 +120,7 @@ function CommandantCard({
             {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
-            {person.rank} &middot; {person.designation}
+            {person.designation}
           </p>
           {person.unit_or_regiment && (
             <p className="font-mono text-xs text-gold/60 mb-4">
@@ -191,7 +186,7 @@ function DeputyCommandantCard({
             {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
-            {person.rank} &middot; {person.designation}
+            {person.designation}
           </p>
           {person.unit_or_regiment && (
             <p className="font-mono text-xs text-gold/60 mb-4">

@@ -136,12 +136,7 @@ export default function PersonnelDetailOverlay({
             iconLabel="PHOTO"
           />
 
-          {/* Rank badge */}
-          <div className="absolute top-5 left-5">
-            <span className="font-mono text-xs bg-gold text-background px-4 py-1.5 rounded font-medium tracking-wider">
-              {person.rank.toUpperCase()}
-            </span>
-          </div>
+          {/* Rank is shown in display name */}
 
           {/* Bottom gradient overlay for text legibility on mobile */}
           <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background/60 to-transparent lg:hidden" />
@@ -168,9 +163,9 @@ export default function PersonnelDetailOverlay({
               {getDisplayName(person)}
             </h2>
 
-            {/* Rank + Designation */}
+            {/* Designation */}
             <p className="font-mono text-sm text-muted mb-1">
-              {person.rank} &middot; {person.designation}
+              {person.designation}
             </p>
 
             {/* Regiment */}

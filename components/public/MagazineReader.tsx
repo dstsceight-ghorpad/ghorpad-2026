@@ -295,7 +295,7 @@ function MagazinePersonnelDetail({
               {getDisplayName(person)}
             </h3>
             <p className="font-mono text-sm text-muted mb-1">
-              {person.rank} &middot; {person.designation}
+              {person.designation}
             </p>
             {person.unit_or_regiment && (
               <p className="font-mono text-xs text-gold/60 mb-2">
@@ -499,7 +499,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
             {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
-            {person.rank} &middot; {person.designation}
+            {person.designation}
           </p>
           {person.unit_or_regiment && (
             <p className="font-mono text-xs text-gold/60 mb-6">
@@ -538,11 +538,7 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
                 className="w-full h-full object-cover"
                 iconSize={28}
               />
-              <div className="absolute top-2 left-2">
-                <span className="font-mono text-[9px] bg-gold text-background px-1.5 py-0.5 rounded">
-                  {officer.rank.toUpperCase()}
-                </span>
-              </div>
+              {/* Rank is shown in display name */}
             </div>
             <div className="p-3">
               <h4 className="font-serif text-xs font-semibold leading-snug mb-0.5">
@@ -605,13 +601,8 @@ function StudentDivisionPage({
             }}
             className="bg-surface border border-border-subtle rounded p-2.5 cursor-pointer hover:border-gold/40 hover:bg-surface-light/50 transition-all group"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <span className="font-mono text-[8px] bg-gold text-background px-1 py-0.5 rounded shrink-0">
-                {student.rank.toUpperCase().slice(0, 4)}
-              </span>
-            </div>
             <p className="font-serif text-[11px] font-semibold leading-tight group-hover:text-gold transition-colors">
-              {student.name}
+              {getDisplayName(student)}
             </p>
             {student.unit_or_regiment && (
               <p className="font-mono text-[8px] text-gold/50 mt-0.5 truncate">
