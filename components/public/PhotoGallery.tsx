@@ -103,7 +103,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                     ) : (
                       <Camera
                         size={24}
-                        className="text-muted/20 group-hover:text-gold/30 transition-colors"
+                        className="text-muted/40 group-hover:text-gold/50 transition-colors"
                       />
                     )}
                   </div>

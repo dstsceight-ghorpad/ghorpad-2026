@@ -371,7 +371,7 @@ function CoverPage() {
       <p className="font-mono text-xs tracking-[0.4em] text-muted mt-6">
         DSTSC-08 PRESENTS
       </p>
-      <h1 className="font-serif text-5xl sm:text-6xl font-bold mt-4 tracking-wide">
+      <h1 className="font-serif text-5xl sm:text-6xl font-bold mt-4 tracking-wide text-foreground">
         GHORPAD
       </h1>
       <p className="font-mono text-sm tracking-[0.3em] text-gold mt-2">
@@ -381,7 +381,7 @@ function CoverPage() {
       <p className="font-mono text-[10px] text-muted mt-4 tracking-widest">
         MILITARY INSTITUTE OF TECHNOLOGY
       </p>
-      <p className="font-mono text-[9px] text-muted/50 mt-8 animate-pulse">
+      <p className="font-mono text-[10px] text-muted mt-8 animate-pulse">
         Click right side to begin &rarr;
       </p>
     </div>
@@ -572,7 +572,7 @@ function StudentDivisionPage({
               {getDisplayName(student)}
             </p>
             {student.unit_or_regiment && (
-              <p className="font-mono text-[8px] text-gold/50 mt-0.5 truncate">
+              <p className="font-mono text-[9px] text-gold/70 mt-0.5 truncate">
                 {student.unit_or_regiment}
               </p>
             )}
@@ -695,10 +695,10 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
                   <Play size={16} className="text-white ml-0.5" />
                 </div>
               ) : (
-                <Camera size={20} className="text-muted/30" />
+                <Camera size={20} className="text-muted/50" />
               )}
               <div className="absolute top-2 right-2">
-                <span className="font-mono text-[8px] bg-gold/80 text-background px-1.5 py-0.5 rounded">
+                <span className="font-mono text-[9px] bg-gold text-background px-1.5 py-0.5 rounded">
                   {item.category.toUpperCase()}
                 </span>
               </div>
@@ -708,7 +708,7 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
                 {item.title}
               </p>
               {item.description && (
-                <p className="font-mono text-[8px] text-muted mt-0.5 line-clamp-1">
+                <p className="font-mono text-[9px] text-muted mt-0.5 line-clamp-1">
                   {item.description}
                 </p>
               )}
@@ -841,22 +841,22 @@ function BackCoverPage() {
 
       <AnimatedLogo size={100} />
 
-      <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-6 tracking-wide text-foreground/20">
+      <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-6 tracking-wide text-foreground/40">
         GHORPAD
       </h2>
-      <p className="font-mono text-xs tracking-[0.3em] text-gold/40 mt-2">
+      <p className="font-mono text-xs tracking-[0.3em] text-gold/60 mt-2">
         2025-26
       </p>
 
-      <div className="w-16 h-0.5 bg-gold/20 mt-8 mb-8" />
+      <div className="w-16 h-0.5 bg-gold/30 mt-8 mb-8" />
 
-      <p className="font-serif text-lg text-foreground/60 mb-2">
+      <p className="font-serif text-lg text-foreground/70 mb-2">
         Thank you for reading
       </p>
       <p className="font-mono text-[10px] text-muted tracking-widest mt-4">
         PUBLISHED BY MILIT &mdash; DSTSC 08
       </p>
-      <p className="font-mono text-[10px] text-muted/50 mt-1">
+      <p className="font-mono text-[10px] text-muted/70 mt-1">
         MILITARY INSTITUTE OF TECHNOLOGY
       </p>
     </div>
@@ -1125,14 +1125,14 @@ export default function MagazineReader({
         <div className="absolute inset-y-0 left-0 w-16 z-20 pointer-events-none flex items-center justify-start pl-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
           <ChevronLeft
             size={28}
-            className="text-foreground/10"
+            className="text-foreground/30"
           />
         </div>
         {/* Right hover hint */}
         <div className="absolute inset-y-0 right-0 w-16 z-20 pointer-events-none flex items-center justify-end pr-3 opacity-0 hover:opacity-100 transition-opacity duration-300">
           <ChevronRight
             size={28}
-            className="text-foreground/10"
+            className="text-foreground/30"
           />
         </div>
 
@@ -1181,7 +1181,7 @@ export default function MagazineReader({
             onClick={goPrev}
             disabled={currentPage === 0}
             data-interactive="true"
-            className="p-1.5 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
+            className="p-1.5 text-muted hover:text-gold disabled:text-muted/50 transition-colors"
             aria-label="Previous page"
           >
             <ChevronLeft size={18} />
@@ -1239,7 +1239,7 @@ export default function MagazineReader({
             onClick={goNext}
             disabled={currentPage === totalPages - 1}
             data-interactive="true"
-            className="p-1.5 text-muted hover:text-gold disabled:text-muted/30 transition-colors"
+            className="p-1.5 text-muted hover:text-gold disabled:text-muted/50 transition-colors"
             aria-label="Next page"
           >
             <ChevronRight size={18} />
