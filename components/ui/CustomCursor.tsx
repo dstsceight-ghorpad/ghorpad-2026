@@ -133,21 +133,23 @@ export default function CustomCursor() {
         <circle cx="28.5" cy="24" r="0.6" fill="#a08520" />
         <circle cx="29" cy="25.5" r="0.6" fill="#a08520" />
 
-        {/* Tail — long, tapering downward */}
-        <path
-          d="M16 27 Q14 32 15 35 Q16 38 16.5 40"
-          stroke="#b89428"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          fill="none"
-        />
-        <path
-          d="M16.5 40 Q17 42 16.8 44"
-          stroke="#a08520"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          fill="none"
-        />
+        {/* Tail — long, tapering downward with wiggle animation */}
+        <g style={{ transformOrigin: "16px 27px" }} className="animate-tail-wiggle">
+          <path
+            d="M16 27 Q14 32 15 35 Q16 38 16.5 40"
+            stroke="#b89428"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d="M16.5 40 Q17 42 16.8 44"
+            stroke="#a08520"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </g>
       </svg>
     </div>
   );
