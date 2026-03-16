@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { useTheme } from "@/components/ThemeProvider";
 
 /**
- * Custom cursor — monitor lizard (ghorpad) silhouette.
- * - Vertical lizard follows cursor with zero lag (direct transform)
- * - Tongue flicks out on every click
+ * Custom cursor — horizontal monitor lizard (ghorpad) crawling right.
+ * - Head points right (toward movement direction)
+ * - Tongue flicks out on click
+ * - Tail wiggles continuously
+ * - Dark theme: natural earthy brown/olive
+ * - Light theme: contrasting dark charcoal/slate
  * - Hidden on touch devices
  */
 export default function CustomCursor() {
@@ -15,10 +19,17 @@ export default function CustomCursor() {
   const isTouchDevice = useRef(false);
   const posRef = useRef({ x: -100, y: -100 });
   const rafRef = useRef<number>(0);
+  const { theme } = useTheme();
+
+  // Color palettes
+  const isDark = theme === "dark";
+  const colors = isDark
+    ? { body: "#6b7a3a", bodyDark: "#556230", belly: "#8a9a50", toes: "#4a5528", eyes: "#1a1a1a", eyeShine: "#ffffff" }
+    : { body: "#3a3f4a", bodyDark: "#2d313a", belly: "#505660", toes: "#22252c", eyes: "#ffffff", eyeShine: "#3a3f4a" };
 
   const updatePosition = useCallback(() => {
     if (cursorRef.current) {
-      cursorRef.current.style.transform = `translate(${posRef.current.x}px, ${posRef.current.y}px) translate(-50%, -40%)`;
+      cursorRef.current.style.transform = `translate(${posRef.current.x}px, ${posRef.current.y}px) translate(-30%, -50%)`;
     }
     rafRef.current = requestAnimationFrame(updatePosition);
   }, []);
@@ -69,82 +80,79 @@ export default function CustomCursor() {
       }}
     >
       <svg
-        width="32"
-        height="56"
-        viewBox="0 -14 32 58"
+        width="56"
+        height="32"
+        viewBox="-14 0 58 32"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))" }}
+        style={{ filter: isDark ? "drop-shadow(0 1px 3px rgba(0,0,0,0.6))" : "drop-shadow(0 1px 2px rgba(0,0,0,0.3))" }}
       >
-        {/* Lizard body — vertical, head at top */}
+        {/* Horizontal lizard — head pointing RIGHT, tail to LEFT */}
 
-        {/* Tongue — flicks out on click */}
+        {/* Tongue — flicks out on click (extends right from head) */}
         <g
           style={{
             opacity: clicking ? 1 : 0,
             transition: "opacity 0.05s ease",
           }}
         >
-          {/* Forked tongue — long and visible */}
-          <line x1="16" y1="2" x2="16" y2="-8" stroke="#dd2222" strokeWidth="1.2" strokeLinecap="round" />
-          <line x1="16" y1="-8" x2="13.5" y2="-13" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
-          <line x1="16" y1="-8" x2="18.5" y2="-13" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
+          <line x1="30" y1="16" x2="40" y2="16" stroke="#dd2222" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="40" y1="16" x2="45" y2="13" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
+          <line x1="40" y1="16" x2="45" y2="19" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
         </g>
 
-        {/* Head */}
-        <ellipse cx="16" cy="6" rx="4.5" ry="5" fill="#c5a030" />
-        {/* Eyes */}
-        <circle cx="13.5" cy="5" r="1.2" fill="#1a1a1a" />
-        <circle cx="18.5" cy="5" r="1.2" fill="#1a1a1a" />
-        <circle cx="13.8" cy="4.7" r="0.4" fill="#ffffff" />
-        <circle cx="18.8" cy="4.7" r="0.4" fill="#ffffff" />
+        {/* Head — right side */}
+        <ellipse cx="26" cy="16" rx="5" ry="4.5" fill={colors.body} />
         {/* Snout */}
-        <ellipse cx="16" cy="3" rx="2.5" ry="2" fill="#b89428" />
+        <ellipse cx="29" cy="16" rx="2" ry="2.5" fill={colors.bodyDark} />
+        {/* Eyes */}
+        <circle cx="27" cy="13.5" r="1.2" fill={colors.eyes} />
+        <circle cx="27" cy="18.5" r="1.2" fill={colors.eyes} />
+        <circle cx="27.3" cy="13.8" r="0.4" fill={colors.eyeShine} />
+        <circle cx="27.3" cy="18.8" r="0.4" fill={colors.eyeShine} />
 
         {/* Neck */}
-        <rect x="13" y="10" width="6" height="3" rx="1" fill="#b89428" />
+        <rect x="19" y="13" width="3" height="6" rx="1" fill={colors.bodyDark} />
 
-        {/* Body */}
-        <ellipse cx="16" cy="19" rx="6" ry="8" fill="#c5a030" />
-        {/* Body texture — scale pattern */}
-        <ellipse cx="16" cy="16" rx="4" ry="2" fill="#b89428" opacity="0.5" />
-        <ellipse cx="16" cy="20" rx="4.5" ry="2" fill="#b89428" opacity="0.4" />
-        <ellipse cx="16" cy="24" rx="3.5" ry="1.5" fill="#b89428" opacity="0.3" />
+        {/* Body — central oval */}
+        <ellipse cx="13" cy="16" rx="8" ry="6" fill={colors.body} />
+        {/* Body texture — scale bands */}
+        <ellipse cx="16" cy="16" rx="2" ry="4" fill={colors.bodyDark} opacity="0.5" />
+        <ellipse cx="12" cy="16" rx="2" ry="4.5" fill={colors.bodyDark} opacity="0.4" />
+        <ellipse cx="8" cy="16" rx="1.5" ry="3.5" fill={colors.bodyDark} opacity="0.3" />
 
-        {/* Front left leg */}
-        <path d="M11 14 L6 11 L4 13" stroke="#b89428" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        {/* Front left toes */}
-        <circle cx="3.5" cy="12" r="0.6" fill="#a08520" />
-        <circle cx="3" cy="13.5" r="0.6" fill="#a08520" />
+        {/* Front top leg (near head, upward) */}
+        <path d="M18 11 L21 6 L19 4" stroke={colors.bodyDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <circle cx="20" cy="3.5" r="0.6" fill={colors.toes} />
+        <circle cx="18.5" cy="3" r="0.6" fill={colors.toes} />
 
-        {/* Front right leg */}
-        <path d="M21 14 L26 11 L28 13" stroke="#b89428" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        {/* Front right toes */}
-        <circle cx="28.5" cy="12" r="0.6" fill="#a08520" />
-        <circle cx="29" cy="13.5" r="0.6" fill="#a08520" />
+        {/* Front bottom leg (near head, downward) */}
+        <path d="M18 21 L21 26 L19 28" stroke={colors.bodyDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <circle cx="20" cy="28.5" r="0.6" fill={colors.toes} />
+        <circle cx="18.5" cy="29" r="0.6" fill={colors.toes} />
 
-        {/* Back left leg */}
-        <path d="M11 24 L6 27 L4 25" stroke="#b89428" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <circle cx="3.5" cy="24" r="0.6" fill="#a08520" />
-        <circle cx="3" cy="25.5" r="0.6" fill="#a08520" />
+        {/* Back top leg (near tail, upward) */}
+        <path d="M8 11 L5 6 L7 4" stroke={colors.bodyDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <circle cx="6" cy="3.5" r="0.6" fill={colors.toes} />
+        <circle cx="7.5" cy="3" r="0.6" fill={colors.toes} />
 
-        {/* Back right leg */}
-        <path d="M21 24 L26 27 L28 25" stroke="#b89428" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <circle cx="28.5" cy="24" r="0.6" fill="#a08520" />
-        <circle cx="29" cy="25.5" r="0.6" fill="#a08520" />
+        {/* Back bottom leg (near tail, downward) */}
+        <path d="M8 21 L5 26 L7 28" stroke={colors.bodyDark} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        <circle cx="6" cy="28.5" r="0.6" fill={colors.toes} />
+        <circle cx="7.5" cy="29" r="0.6" fill={colors.toes} />
 
-        {/* Tail — long, tapering downward with wiggle animation */}
-        <g style={{ transformOrigin: "16px 27px" }} className="animate-tail-wiggle">
+        {/* Tail — extends LEFT with wiggle animation */}
+        <g style={{ transformOrigin: "5px 16px" }} className="animate-tail-wiggle">
           <path
-            d="M16 27 Q14 32 15 35 Q16 38 16.5 40"
-            stroke="#b89428"
+            d="M5 16 Q0 14 -3 15 Q-6 16 -8 15.5"
+            stroke={colors.bodyDark}
             strokeWidth="2.5"
             strokeLinecap="round"
             fill="none"
           />
           <path
-            d="M16.5 40 Q17 42 16.8 44"
-            stroke="#a08520"
+            d="M-8 15.5 Q-10 15 -12 15.8"
+            stroke={colors.toes}
             strokeWidth="1.5"
             strokeLinecap="round"
             fill="none"
