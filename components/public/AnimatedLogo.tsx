@@ -16,7 +16,7 @@ export default function AnimatedLogo({
       width={size}
       height={size}
       draggable={false}
-      className={`${className} object-contain`}
+      className={`${className} object-cover rounded-full`}
       style={{ width: size, height: size }}
     />
   );
