@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel, Division } from "@/types";
 import { DIVISIONS } from "@/types";
 import { loadPersonnel } from "@/lib/personnel";
@@ -37,18 +38,12 @@ function PersonnelCard({
     >
       {/* Avatar placeholder */}
       <div className="aspect-square bg-surface-light relative flex items-center justify-center overflow-hidden">
-        {person.avatar_url ? (
-          <img
-            src={person.avatar_url}
-            alt={person.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <User
-            size={32}
-            className="text-muted/30 group-hover:text-gold/30 transition-colors"
-          />
-        )}
+        <PersonnelAvatar
+          src={person.avatar_url}
+          alt={person.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          iconSize={32}
+        />
         {/* Rank badge */}
         <div className="absolute top-3 left-3">
           <span className="font-mono text-[10px] bg-gold text-background px-2 py-0.5 rounded">
@@ -110,18 +105,13 @@ function CommandantCard({
       >
         {/* Photo area — 2 of 5 columns on desktop */}
         <div className="lg:col-span-2 aspect-[3/4] lg:aspect-auto bg-surface-light relative flex items-center justify-center min-h-[280px]">
-          {person.avatar_url ? (
-            <img
-              src={person.avatar_url}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <User size={64} className="text-gold/30" />
-              <span className="font-mono text-[10px] text-muted">PHOTO</span>
-            </div>
-          )}
+          <PersonnelAvatar
+            src={person.avatar_url}
+            alt={person.name}
+            className="w-full h-full object-cover"
+            iconSize={64}
+            iconLabel="PHOTO"
+          />
           {/* Gold accent bar */}
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gold to-gold/30" />
         </div>
@@ -183,18 +173,13 @@ function DeputyCommandantCard({
       >
         {/* Photo — 1 column */}
         <div className="aspect-[3/4] md:aspect-auto bg-surface-light relative flex items-center justify-center min-h-[240px]">
-          {person.avatar_url ? (
-            <img
-              src={person.avatar_url}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <User size={48} className="text-gold/30" />
-              <span className="font-mono text-[10px] text-muted">PHOTO</span>
-            </div>
-          )}
+          <PersonnelAvatar
+            src={person.avatar_url}
+            alt={person.name}
+            className="w-full h-full object-cover"
+            iconSize={48}
+            iconLabel="PHOTO"
+          />
         </div>
 
         {/* Content — 2 columns */}

@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, User, Cake, Heart, CalendarDays, Phone, Mail } from "lucide-react";
+import { X, Cake, Heart, CalendarDays, Phone, Mail } from "lucide-react";
+import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel } from "@/types";
 
 interface PersonnelDetailOverlayProps {
@@ -126,20 +127,13 @@ export default function PersonnelDetailOverlay({
           transition={{ duration: 0.4, delay: 0.1 }}
           className="relative bg-surface-light flex items-center justify-center overflow-hidden h-[40vh] lg:h-full"
         >
-          {person.avatar_url ? (
-            <img
-              src={person.avatar_url}
-              alt={person.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-4">
-              <User size={120} className="text-gold/15" />
-              <span className="font-mono text-xs text-muted/30 tracking-widest">
-                PHOTO
-              </span>
-            </div>
-          )}
+          <PersonnelAvatar
+            src={person.avatar_url}
+            alt={person.name}
+            className="w-full h-full object-cover"
+            iconSize={120}
+            iconLabel="PHOTO"
+          />
 
           {/* Rank badge */}
           <div className="absolute top-5 left-5">

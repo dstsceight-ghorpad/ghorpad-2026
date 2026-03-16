@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { User, MapPin, Briefcase, GraduationCap, Quote } from "lucide-react";
+import { MapPin, Briefcase, GraduationCap, Quote } from "lucide-react";
+import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Alumni, CareerDomain } from "@/types";
 import {
   getCareerDomainColor,
@@ -50,22 +51,13 @@ export default function AlumniSpotlight({ alumni }: AlumniSpotlightProps) {
             <div className="grid md:grid-cols-5 gap-6 bg-surface rounded-xl border border-border-subtle overflow-hidden">
               {/* Avatar area */}
               <div className="md:col-span-2 relative bg-surface-light flex items-center justify-center min-h-[280px]">
-                {featured.avatar_url ? (
-                  <img
-                    src={featured.avatar_url}
-                    alt={featured.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-24 h-24 rounded-full bg-background/50 flex items-center justify-center">
-                      <User size={40} className="text-muted/40" />
-                    </div>
-                    <span className="font-mono text-[10px] text-muted tracking-widest">
-                      FEATURED ALUMNI
-                    </span>
-                  </div>
-                )}
+                <PersonnelAvatar
+                  src={featured.avatar_url}
+                  alt={featured.name}
+                  className="w-full h-full object-cover"
+                  iconSize={40}
+                  iconLabel="FEATURED ALUMNI"
+                />
                 {/* Career domain badge */}
                 <div
                   className="absolute top-4 left-4 px-3 py-1 rounded-full text-[10px] font-mono tracking-wider text-white"
@@ -168,19 +160,12 @@ export default function AlumniSpotlight({ alumni }: AlumniSpotlightProps) {
                   <div className="group bg-surface rounded-lg border border-border-subtle overflow-hidden hover:border-gold/20 transition-all duration-300">
                     {/* Avatar placeholder */}
                     <div className="relative h-48 bg-surface-light flex items-center justify-center overflow-hidden">
-                      {person.avatar_url ? (
-                        <img
-                          src={person.avatar_url}
-                          alt={person.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <div className="w-16 h-16 rounded-full bg-background/40 flex items-center justify-center">
-                            <User size={28} className="text-muted/30" />
-                          </div>
-                        </div>
-                      )}
+                      <PersonnelAvatar
+                        src={person.avatar_url}
+                        alt={person.name}
+                        className="w-full h-full object-cover"
+                        iconSize={28}
+                      />
 
                       {/* Batch badge */}
                       <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-background/70 backdrop-blur-sm">

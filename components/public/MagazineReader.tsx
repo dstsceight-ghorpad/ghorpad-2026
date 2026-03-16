@@ -22,6 +22,7 @@ import {
   Mail,
 } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
+import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type {
   Article,
   Personnel,
@@ -275,18 +276,13 @@ function MagazinePersonnelDetail({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Photo */}
           <div className="aspect-[3/4] bg-surface rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
-            {person.avatar_url ? (
-              <img
-                src={person.avatar_url}
-                alt={person.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <User size={56} className="text-gold/20" />
-                <span className="font-mono text-[10px] text-muted">PHOTO</span>
-              </div>
-            )}
+            <PersonnelAvatar
+              src={person.avatar_url}
+              alt={person.name}
+              className="w-full h-full object-cover"
+              iconSize={56}
+              iconLabel="PHOTO"
+            />
           </div>
 
           {/* Info */}
@@ -487,18 +483,13 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Photo area */}
         <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
-          {person.avatar_url ? (
-            <img
-              src={person.avatar_url}
-              alt={person.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <User size={56} className="text-gold/30" />
-              <span className="font-mono text-[10px] text-muted">PHOTO</span>
-            </div>
-          )}
+          <PersonnelAvatar
+            src={person.avatar_url}
+            alt={person.name}
+            className="w-full h-full object-cover rounded-lg"
+            iconSize={56}
+            iconLabel="PHOTO"
+          />
         </div>
 
         {/* Details */}
@@ -540,15 +531,12 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
             className="bg-surface border border-border-subtle rounded-lg overflow-hidden"
           >
             <div className="aspect-square bg-surface-light flex items-center justify-center relative">
-              {officer.avatar_url ? (
-                <img
-                  src={officer.avatar_url}
-                  alt={officer.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User size={28} className="text-muted/30" />
-              )}
+              <PersonnelAvatar
+                src={officer.avatar_url}
+                alt={officer.name}
+                className="w-full h-full object-cover"
+                iconSize={28}
+              />
               <div className="absolute top-2 left-2">
                 <span className="font-mono text-[9px] bg-gold text-background px-1.5 py-0.5 rounded">
                   {officer.rank.toUpperCase()}
@@ -784,18 +772,13 @@ function AlumniFeaturePage({ person }: { person: Alumni }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Photo */}
         <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
-          {person.avatar_url ? (
-            <img
-              src={person.avatar_url}
-              alt={person.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <GraduationCap size={56} className="text-gold/30" />
-              <span className="font-mono text-[10px] text-muted">ALUMNI</span>
-            </div>
-          )}
+          <PersonnelAvatar
+            src={person.avatar_url}
+            alt={person.name}
+            className="w-full h-full object-cover rounded-lg"
+            iconSize={56}
+            iconLabel="ALUMNI"
+          />
         </div>
 
         {/* Details */}
@@ -850,15 +833,12 @@ function AlumniPage({ alumni }: { alumni: Alumni[] }) {
           >
             <div className="flex items-start gap-3 mb-3">
               <div className="w-10 h-10 rounded-full bg-surface-light flex items-center justify-center shrink-0">
-                {person.avatar_url ? (
-                  <img
-                    src={person.avatar_url}
-                    alt={person.name}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                ) : (
-                  <GraduationCap size={16} className="text-gold/40" />
-                )}
+                <PersonnelAvatar
+                  src={person.avatar_url}
+                  alt={person.name}
+                  className="w-full h-full object-cover rounded-full"
+                  iconSize={16}
+                />
               </div>
               <div>
                 <h4 className="font-serif text-sm font-semibold">

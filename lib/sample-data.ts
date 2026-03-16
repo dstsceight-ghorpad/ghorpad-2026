@@ -1,5 +1,11 @@
 import type { Article, Profile, Personnel, TocEntry, Division, Alumni, CampusLocation, GalleryItem } from "@/types";
 
+// --- Personnel Photo URL Helper ---
+export function getPersonnelPhotoUrl(personnelId: string): string {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  return `${supabaseUrl}/storage/v1/object/public/personnel-photos/${personnelId}.jpg`;
+}
+
 // --- Student Officer Generator ---
 
 const soFirstNames = [
@@ -117,14 +123,16 @@ interface SOProfile {
   anniversary?: string;
 }
 function buildSOExt(division: Division, prefix: string, data: SOProfile[]): Personnel[] {
-  return data.map((d, i) => ({
-    id: `pers-${prefix}-${i + 1}`,
+  return data.map((d, i) => {
+    const id = `pers-${prefix}-${i + 1}`;
+    return {
+    id,
     name: d.name,
     rank: d.rank,
     designation: "Student Officer",
     personnel_role: "student_officer" as const,
     division,
-    avatar_url: null,
+    avatar_url: getPersonnelPhotoUrl(id),
     unit_or_regiment: d.unit,
     order: i + 1,
     ...(d.bio && { bio: d.bio }),
@@ -132,7 +140,7 @@ function buildSOExt(division: Division, prefix: string, data: SOProfile[]): Pers
     ...(d.spouse_name && { spouse_name: d.spouse_name }),
     ...(d.spouse_birthday && { spouse_birthday: d.spouse_birthday }),
     ...(d.anniversary && { anniversary: d.anniversary }),
-  }));
+  };});
 }
 
 export const sampleProfiles: Profile[] = [

@@ -70,8 +70,8 @@ export default function CustomCursor() {
     >
       <svg
         width="32"
-        height="40"
-        viewBox="0 0 32 40"
+        height="56"
+        viewBox="0 -14 32 58"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.5))" }}
@@ -85,10 +85,10 @@ export default function CustomCursor() {
             transition: "opacity 0.05s ease",
           }}
         >
-          {/* Forked tongue */}
-          <line x1="16" y1="2" x2="16" y2="-4" stroke="#cc2222" strokeWidth="1" strokeLinecap="round" />
-          <line x1="16" y1="-4" x2="14.5" y2="-7" stroke="#cc2222" strokeWidth="0.8" strokeLinecap="round" />
-          <line x1="16" y1="-4" x2="17.5" y2="-7" stroke="#cc2222" strokeWidth="0.8" strokeLinecap="round" />
+          {/* Forked tongue — long and visible */}
+          <line x1="16" y1="2" x2="16" y2="-8" stroke="#dd2222" strokeWidth="1.2" strokeLinecap="round" />
+          <line x1="16" y1="-8" x2="13.5" y2="-13" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
+          <line x1="16" y1="-8" x2="18.5" y2="-13" stroke="#dd2222" strokeWidth="1" strokeLinecap="round" />
         </g>
 
         {/* Head */}
