@@ -229,6 +229,7 @@ export type SubmissionStatus = "pending" | "approved" | "rejected";
 export interface Submission {
   id: string;
   type: SubmissionType;
+  category: string;
   title: string;
   author_name: string;
   author_email: string;
