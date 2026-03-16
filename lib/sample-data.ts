@@ -767,12 +767,12 @@ const _rawPersonnel: Personnel[] = [
     order: 38,
   },
 
-  // ── Electrical / Finance ──
+  // ── Accounts / Finance ──
   {
     id: "pers-so-39",
     name: "Farhat Perveen",
     rank: "Sqn Ldr",
-    designation: "Electrical",
+    designation: "Accounts",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     unit_or_regiment: "Indian Air Force",
