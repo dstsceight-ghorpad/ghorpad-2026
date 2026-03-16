@@ -273,3 +273,34 @@ body {
 .magazine-theme p {
   line-height: 1.85;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SECURITY HARDENING
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Prevent text selection globally */
+body {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Prevent image dragging and direct interaction */
+img {
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+/* Re-enable selection for form inputs (login, upload, editorial) */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Blur overlay when DevTools detected or tab hidden */
+.security-blur {
+  filter: blur(30px) !important;
+  transition: filter 0.2s ease;
+}

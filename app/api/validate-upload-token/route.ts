@@ -1,8 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateUploadToken } from "@/lib/upload-token";
 import { createServiceRoleClient } from "@/lib/supabase";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
+  // Rate limit: 20 validations per minute per IP
+  const ip = getClientIp(request.headers);
+  const rl = rateLimit(`validate:${ip}`, 20);
+  if (rl.limited) {
+    return NextResponse.json(
+      { valid: false, error: "Too many requests" },
+      { status: 429 }
+    );
+  }
+
   const token = request.nextUrl.searchParams.get("token");
   if (!token) {
     return NextResponse.json({ valid: false }, { status: 400 });

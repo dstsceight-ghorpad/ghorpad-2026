@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateUploadToken } from "@/lib/upload-token";
 import { createServiceRoleClient } from "@/lib/supabase";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 10 uploads per minute per IP
+    const ip = getClientIp(request.headers);
+    const rl = rateLimit(`upload:${ip}`, 10);
+    if (rl.limited) {
+      return NextResponse.json(
+        { error: "Too many uploads. Please wait a minute." },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { token, personnelId, imageData } = body as {
       token: string;
