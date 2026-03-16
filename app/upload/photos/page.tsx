@@ -228,11 +228,14 @@ export default function PhotoUploadPage() {
               <p className="text-sm font-medium mb-1">
                 Upload Your Photograph
               </p>
-              <p className="font-mono text-[11px] text-muted leading-relaxed">
+              <p className="text-sm font-semibold text-foreground leading-relaxed">
+                Please upload the photograph clicked at Ante room for GHORPAD
+                Magazine.
+              </p>
+              <p className="font-mono text-[11px] text-muted leading-relaxed mt-1">
                 Find your name below, tap{" "}
                 <span className="text-gold">UPLOAD</span>, and select your
-                photo. Use a formal passport-size photograph (JPEG or PNG).
-                Photos are auto-optimized.
+                photo (JPEG or PNG). Photos are auto-optimized.
               </p>
             </div>
           </div>
