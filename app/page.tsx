@@ -6,7 +6,7 @@ import WhoIsWho from "@/components/public/WhoIsWho";
 import ArticlesGrid from "@/components/public/ArticlesGrid";
 import MediaVault from "@/components/public/MediaVault";
 import PhotoGallery from "@/components/public/PhotoGallery";
-import AlumniSpotlight from "@/components/public/AlumniSpotlight";
+
 import MastheadStrip from "@/components/public/MastheadStrip";
 import CampusMap from "@/components/public/CampusMap";
 import Footer from "@/components/public/Footer";
@@ -16,7 +16,7 @@ import {
   sampleArticles,
   samplePersonnel,
   sampleTocEntries,
-  sampleAlumni,
+
   sampleCampusLocations,
   sampleGalleryItems,
   tickerHeadlines,
@@ -39,7 +39,7 @@ export default function HomePage() {
         <ArticlesGrid articles={articles} />
         <MediaVault />
         <PhotoGallery items={sampleGalleryItems} />
-        <AlumniSpotlight alumni={sampleAlumni} />
+
         <MastheadStrip />
         <CampusMap locations={sampleCampusLocations} />
         <Footer />
@@ -47,7 +47,7 @@ export default function HomePage() {
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={sampleTocEntries}
-          alumni={sampleAlumni}
+
           galleryItems={sampleGalleryItems}
           campusLocations={sampleCampusLocations}
         />

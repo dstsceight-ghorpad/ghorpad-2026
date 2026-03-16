@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BookOpen } from "lucide-react";
 import dynamic from "next/dynamic";
-import type { Article, Personnel, TocEntry, Alumni, GalleryItem, CampusLocation } from "@/types";
+import type { Article, Personnel, TocEntry, GalleryItem, CampusLocation } from "@/types";
 
 const MagazineReader = dynamic(() => import("./MagazineReader"), {
   ssr: false,
@@ -13,7 +13,6 @@ interface MagazineTriggerProps {
   articles: Article[];
   personnel: Personnel[];
   tocEntries: TocEntry[];
-  alumni: Alumni[];
   galleryItems: GalleryItem[];
   campusLocations: CampusLocation[];
 }
@@ -22,7 +21,6 @@ export default function MagazineTrigger({
   articles,
   personnel,
   tocEntries,
-  alumni,
   galleryItems,
   campusLocations,
 }: MagazineTriggerProps) {
@@ -48,7 +46,7 @@ export default function MagazineTrigger({
           articles={articles}
           personnel={personnel}
           tocEntries={tocEntries}
-          alumni={alumni}
+
           galleryItems={galleryItems}
           campusLocations={campusLocations}
           onClose={() => setIsOpen(false)}

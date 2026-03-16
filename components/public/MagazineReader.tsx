@@ -29,7 +29,7 @@ import type {
   Personnel,
   TocEntry,
   Division,
-  Alumni,
+
   GalleryItem,
   CampusLocation,
 } from "@/types";
@@ -47,8 +47,6 @@ type PageType =
   | "article"
   | "media"
   | "gallery"
-  | "alumni"
-  | "alumni-feature"
   | "campus-map"
   | "back-cover";
 
@@ -62,7 +60,6 @@ interface MagazineReaderProps {
   articles: Article[];
   personnel: Personnel[];
   tocEntries: TocEntry[];
-  alumni: Alumni[];
   galleryItems: GalleryItem[];
   campusLocations: CampusLocation[];
   onClose: () => void;
@@ -74,7 +71,6 @@ function compilePages(
   articles: Article[],
   personnel: Personnel[],
   tocEntries: TocEntry[],
-  alumni: Alumni[],
   galleryItems: GalleryItem[],
   campusLocations: CampusLocation[]
 ): MagazinePage[] {
@@ -158,25 +154,7 @@ function compilePages(
     });
   }
 
-  // 9. Alumni
-  const featuredAlumni = alumni.find((a) => a.is_featured);
-  if (featuredAlumni) {
-    pages.push({
-      type: "alumni-feature",
-      title: `Alumni: ${featuredAlumni.name}`,
-      data: featuredAlumni,
-    });
-  }
-  const otherAlumni = alumni.filter((a) => !a.is_featured);
-  if (otherAlumni.length > 0) {
-    pages.push({
-      type: "alumni",
-      title: "Alumni Spotlight",
-      data: otherAlumni,
-    });
-  }
-
-  // 10. Campus Map
+  // 9. Campus Map
   if (campusLocations.length > 0) {
     pages.push({
       type: "campus-map",
@@ -742,107 +720,6 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
   );
 }
 
-function AlumniFeaturePage({ person }: { person: Alumni }) {
-  // Alumni don't have rank — use person.name directly
-  return (
-    <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // ALUMNI SPOTLIGHT
-      </h2>
-      <div className="w-12 h-0.5 bg-gold mb-8" />
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Photo */}
-        <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
-          <PersonnelAvatar
-            src={person.avatar_url}
-            alt={person.name}
-            className="w-full h-full object-cover rounded-lg"
-            iconSize={56}
-            iconLabel="ALUMNI"
-          />
-        </div>
-
-        {/* Details */}
-        <div className="md:col-span-2 flex flex-col justify-center">
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
-            {person.name}
-          </h3>
-          <p className="font-mono text-sm text-muted mb-1">
-            Batch of {person.batch_year}
-          </p>
-          <p className="font-mono text-xs text-gold/60 mb-2">
-            {person.current_role}
-          </p>
-          <p className="font-mono text-xs text-muted mb-6">
-            <Briefcase size={12} className="inline mr-1" />
-            {person.organization} &middot;{" "}
-            <MapPin size={12} className="inline mr-1" />
-            {person.location}
-          </p>
-
-          {/* Quote */}
-          <div className="bg-surface rounded-lg p-4 mb-6 border border-border-subtle">
-            <Quote size={16} className="text-gold/40 mb-2" />
-            <p className="font-serif text-sm italic text-foreground/80">
-              {person.quote}
-            </p>
-          </div>
-
-          <p className="text-muted text-sm leading-relaxed">{person.bio}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AlumniPage({ alumni }: { alumni: Alumni[] }) {
-  return (
-    <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // ALUMNI SPOTLIGHT
-      </h2>
-      <div className="w-12 h-0.5 bg-gold mb-8" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
-        Where Are They Now
-      </h3>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {alumni.map((person) => (
-          <div
-            key={person.id}
-            className="bg-surface border border-border-subtle rounded-lg p-4"
-          >
-            <div className="flex items-start gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-surface-light flex items-center justify-center shrink-0">
-                <PersonnelAvatar
-                  src={person.avatar_url}
-                  alt={person.name}
-                  className="w-full h-full object-cover rounded-full"
-                  iconSize={16}
-                />
-              </div>
-              <div>
-                <h4 className="font-serif text-sm font-semibold">
-                  {person.name}
-                </h4>
-                <p className="font-mono text-[10px] text-muted">
-                  Batch of {person.batch_year}
-                </p>
-              </div>
-            </div>
-            <p className="font-mono text-[10px] text-gold/70 mb-2">
-              {person.current_role} &middot; {person.organization}
-            </p>
-            <p className="font-serif text-xs italic text-muted line-clamp-2">
-              &ldquo;{person.quote}&rdquo;
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const LOCATION_COLORS: Record<string, string> = {
   building: "#8B6914",
@@ -1018,10 +895,6 @@ function PageRenderer({
       return <ArticlePage article={page.data as Article} />;
     case "gallery":
       return <GalleryPage items={page.data as GalleryItem[]} />;
-    case "alumni-feature":
-      return <AlumniFeaturePage person={page.data as Alumni} />;
-    case "alumni":
-      return <AlumniPage alumni={page.data as Alumni[]} />;
     case "campus-map":
       return <CampusMapPage locations={page.data as CampusLocation[]} />;
     case "media":
@@ -1039,7 +912,6 @@ export default function MagazineReader({
   articles,
   personnel,
   tocEntries,
-  alumni,
   galleryItems,
   campusLocations,
   onClose,
@@ -1059,11 +931,10 @@ export default function MagazineReader({
         articles,
         personnel,
         tocEntries,
-        alumni,
         galleryItems,
         campusLocations
       ),
-    [articles, personnel, tocEntries, alumni, galleryItems, campusLocations]
+    [articles, personnel, tocEntries, galleryItems, campusLocations]
   );
   const totalPages = pages.length;
 
