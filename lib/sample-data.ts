@@ -344,7 +344,7 @@ export const tickerHeadlines: string[] = [
 
 // --- Personnel Data for Who is Who ---
 
-export const samplePersonnel: Personnel[] = [
+const _rawPersonnel: Personnel[] = [
   // Commandant
   {
     id: "pers-1",
@@ -985,6 +985,12 @@ export const samplePersonnel: Personnel[] = [
     ["Maj Ajinkya Arvind Powar", "Major", "Corps of Signals"],
   ]),
 ];
+
+// Auto-fill avatar_url for all personnel from Supabase storage
+export const samplePersonnel: Personnel[] = _rawPersonnel.map((p) => ({
+  ...p,
+  avatar_url: p.avatar_url || getPersonnelPhotoUrl(p.id),
+}));
 
 // --- Table of Contents Data ---
 
