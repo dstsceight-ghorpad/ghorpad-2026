@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { X, Cake, Heart, CalendarDays, Phone, Mail } from "lucide-react";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel } from "@/types";
+import { getDisplayName } from "@/lib/personnel";
 
 interface PersonnelDetailOverlayProps {
   person: Personnel;
@@ -129,7 +130,7 @@ export default function PersonnelDetailOverlay({
         >
           <PersonnelAvatar
             src={person.avatar_url}
-            alt={person.name}
+            alt={getDisplayName(person)}
             className="w-full h-full object-cover"
             iconSize={120}
             iconLabel="PHOTO"
@@ -164,7 +165,7 @@ export default function PersonnelDetailOverlay({
 
             {/* Name */}
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 leading-tight">
-              {person.name}
+              {getDisplayName(person)}
             </h2>
 
             {/* Rank + Designation */}

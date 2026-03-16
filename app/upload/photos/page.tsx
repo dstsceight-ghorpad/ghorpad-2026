@@ -13,7 +13,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { samplePersonnel } from "@/lib/sample-data";
-import { resizeAndConvertToBase64 } from "@/lib/personnel";
+import { resizeAndConvertToBase64, getDisplayName } from "@/lib/personnel";
 import type { Division, Personnel } from "@/types";
 
 const DIVISIONS: Division[] = ["Manekshaw", "Cariappa", "Arjan", "Pereira"];
@@ -119,7 +119,7 @@ export default function PhotoUploadPage() {
     .filter((p) => p.division === activeDivision)
     .filter((p) =>
       searchQuery
-        ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ? getDisplayName(p).toLowerCase().includes(searchQuery.toLowerCase()) ||
           (p.unit_or_regiment || "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase())
@@ -339,10 +339,10 @@ export default function PhotoUploadPage() {
                 {/* Info + Upload button */}
                 <div className="p-2.5">
                   <h4 className="text-xs font-semibold mb-0.5 truncate">
-                    {person.name}
+                    {getDisplayName(person)}
                   </h4>
                   <p className="font-mono text-[9px] text-muted truncate">
-                    {person.rank} &middot; {person.unit_or_regiment || "—"}
+                    {person.unit_or_regiment || "—"}
                   </p>
 
                   {!isUploading && (

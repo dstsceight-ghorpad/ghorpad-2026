@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { getRoleBadgeColor, getRoleLabel } from "@/lib/auth";
+import { loadAuthorProfile } from "@/lib/author-profile";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/types";
 
@@ -84,7 +85,17 @@ export default function EditorialLayout({
         .single();
 
       if (data) {
-        setProfile(data as Profile);
+        const p = data as Profile;
+        // If full_name is missing, check author profile (localStorage) or use email
+        if (!p.full_name) {
+          const authorProfile = loadAuthorProfile(user.id);
+          if (authorProfile?.display_name) {
+            p.full_name = authorProfile.display_name;
+          } else if (user.email) {
+            p.full_name = user.email.split("@")[0];
+          }
+        }
+        setProfile(p);
       }
       setLoading(false);
     }

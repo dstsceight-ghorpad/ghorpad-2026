@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
+import { getDisplayName } from "@/lib/personnel";
 import type {
   Article,
   Personnel,
@@ -278,7 +279,7 @@ function MagazinePersonnelDetail({
           <div className="aspect-[3/4] bg-surface rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
             <PersonnelAvatar
               src={person.avatar_url}
-              alt={person.name}
+              alt={getDisplayName(person)}
               className="w-full h-full object-cover"
               iconSize={56}
               iconLabel="PHOTO"
@@ -291,7 +292,7 @@ function MagazinePersonnelDetail({
               // STUDENT OFFICER
             </span>
             <h3 className="font-serif text-2xl font-bold mb-1">
-              {person.name}
+              {getDisplayName(person)}
             </h3>
             <p className="font-mono text-sm text-muted mb-1">
               {person.rank} &middot; {person.designation}
@@ -485,7 +486,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
         <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
           <PersonnelAvatar
             src={person.avatar_url}
-            alt={person.name}
+            alt={getDisplayName(person)}
             className="w-full h-full object-cover rounded-lg"
             iconSize={56}
             iconLabel="PHOTO"
@@ -495,7 +496,7 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
         {/* Details */}
         <div className="md:col-span-2 flex flex-col justify-center">
           <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
-            {person.name}
+            {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
             {person.rank} &middot; {person.designation}
@@ -533,7 +534,7 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
             <div className="aspect-square bg-surface-light flex items-center justify-center relative">
               <PersonnelAvatar
                 src={officer.avatar_url}
-                alt={officer.name}
+                alt={getDisplayName(officer)}
                 className="w-full h-full object-cover"
                 iconSize={28}
               />
@@ -545,7 +546,7 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
             </div>
             <div className="p-3">
               <h4 className="font-serif text-xs font-semibold leading-snug mb-0.5">
-                {officer.name}
+                {getDisplayName(officer)}
               </h4>
               <p className="font-mono text-[9px] text-muted">
                 {officer.designation}
@@ -762,6 +763,7 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
 }
 
 function AlumniFeaturePage({ person }: { person: Alumni }) {
+  // Alumni don't have rank — use person.name directly
   return (
     <div>
       <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">

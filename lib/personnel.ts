@@ -3,6 +3,39 @@ import type { Personnel } from "@/types";
 
 const PERSONNEL_EDITS_KEY = "ghorpad_personnel_edits";
 
+// All known rank abbreviations (longest first so "Lt Col" matches before "Lt")
+const RANK_PREFIXES = [
+  "Gp Capt(TS)", "Col(TS)", "Capt(IN)", "Rear Admiral",
+  "Gp Capt", "Lt Col", "Lt Cdr", "Wg Cdr", "Sqn Ldr",
+  "Dy Comdt", "Brigadier", "Colonel",
+  "Major", "Capt", "Col", "Cdr", "Brig", "Maj", "Lt",
+  "R Adm", "Surg Cdr", "Surg Lt Cdr",
+];
+
+/**
+ * Returns the display name as "Rank Name".
+ * If the name already starts with the rank, returns the name as-is.
+ * If the name doesn't include the rank, prepends it.
+ */
+export function getDisplayName(person: { name: string; rank: string }): string {
+  // If name already starts with the rank abbreviation, return as-is
+  if (person.name.startsWith(person.rank + " ")) return person.name;
+  // Otherwise prepend rank
+  return `${person.rank} ${person.name}`;
+}
+
+/**
+ * Strips the rank prefix from a name string, returning just the name.
+ */
+export function stripRankFromName(name: string): string {
+  for (const prefix of RANK_PREFIXES) {
+    if (name.startsWith(prefix + " ")) {
+      return name.slice(prefix.length + 1);
+    }
+  }
+  return name;
+}
+
 type PersonnelEdits = Record<string, Partial<Personnel>>;
 
 // ─── Load personnel with localStorage edits merged ───────────────────────────

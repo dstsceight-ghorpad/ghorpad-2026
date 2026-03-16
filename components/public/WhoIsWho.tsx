@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel, Division } from "@/types";
 import { DIVISIONS } from "@/types";
-import { loadPersonnel } from "@/lib/personnel";
+import { loadPersonnel, getDisplayName } from "@/lib/personnel";
 import PersonnelDetailOverlay from "./PersonnelDetailOverlay";
 import { RevealText, RevealLine } from "@/components/ui/RevealText";
 
@@ -40,7 +40,7 @@ function PersonnelCard({
       <div className="aspect-square bg-surface-light relative flex items-center justify-center overflow-hidden">
         <PersonnelAvatar
           src={person.avatar_url}
-          alt={person.name}
+          alt={getDisplayName(person)}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           iconSize={32}
         />
@@ -55,7 +55,7 @@ function PersonnelCard({
       {/* Details */}
       <div className="p-4 flex flex-col flex-1">
         <h4 className="font-serif text-sm font-semibold mb-1 group-hover:text-gold transition-colors leading-snug">
-          {person.name}
+          {getDisplayName(person)}
         </h4>
         <p className="font-mono text-[10px] text-muted mb-1">
           {person.designation}
@@ -107,7 +107,7 @@ function CommandantCard({
         <div className="lg:col-span-2 aspect-[3/4] lg:aspect-auto bg-surface-light relative flex items-center justify-center min-h-[280px]">
           <PersonnelAvatar
             src={person.avatar_url}
-            alt={person.name}
+            alt={getDisplayName(person)}
             className="w-full h-full object-cover"
             iconSize={64}
             iconLabel="PHOTO"
@@ -122,7 +122,7 @@ function CommandantCard({
             // COMMANDANT
           </span>
           <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
-            {person.name}
+            {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
             {person.rank} &middot; {person.designation}
@@ -175,7 +175,7 @@ function DeputyCommandantCard({
         <div className="aspect-[3/4] md:aspect-auto bg-surface-light relative flex items-center justify-center min-h-[240px]">
           <PersonnelAvatar
             src={person.avatar_url}
-            alt={person.name}
+            alt={getDisplayName(person)}
             className="w-full h-full object-cover"
             iconSize={48}
             iconLabel="PHOTO"
@@ -188,7 +188,7 @@ function DeputyCommandantCard({
             <RevealText>// DEPUTY COMMANDANT</RevealText>
           </span>
           <h3 className="font-serif text-xl sm:text-2xl font-bold mb-1">
-            {person.name}
+            {getDisplayName(person)}
           </h3>
           <p className="font-mono text-sm text-muted mb-1">
             {person.rank} &middot; {person.designation}

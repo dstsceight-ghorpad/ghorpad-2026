@@ -22,6 +22,7 @@ import {
   loadPersonnel,
   savePersonnelEdit,
   resizeAndConvertToBase64,
+  getDisplayName,
 } from "@/lib/personnel";
 import type { Personnel, PersonnelRole } from "@/types";
 
@@ -394,7 +395,7 @@ export default function PersonnelPage() {
     .filter((p) => matchesFilter(p.personnel_role, activeTab))
     .filter((p) =>
       searchQuery
-        ? p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        ? getDisplayName(p).toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
           (p.unit_or_regiment || "")
             .toLowerCase()
@@ -526,7 +527,7 @@ export default function PersonnelPage() {
             {/* Info */}
             <div className="p-3">
               <h4 className="font-serif text-sm font-semibold mb-0.5 leading-snug">
-                {person.name}
+                {getDisplayName(person)}
               </h4>
               <p className="font-mono text-[10px] text-muted mb-1">
                 {person.designation}
