@@ -10,122 +10,145 @@ function seeded(seed: number) {
   return x - Math.floor(x);
 }
 
-/* ── Web Audio: synthesize a short fanfare chord ── */
-function playFanfare() {
+/* ══════════════════════════════════════════════════════════════
+   Realistic Applause — Web Audio API
+   Multiple overlapping noise layers with envelope shaping to
+   create the sound of a crowd clapping for ~10 seconds.
+   ══════════════════════════════════════════════════════════════ */
+function playApplause(durationSec = 10) {
   try {
-    const ctx = new (window.AudioContext ||
+    const AudioCtx =
+      window.AudioContext ||
       (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext)();
-
-    // Majestic brass chord: C4-E4-G4-C5
-    const freqs = [261.6, 329.6, 392.0, 523.3];
+        .webkitAudioContext;
+    const ctx = new AudioCtx();
     const now = ctx.currentTime;
+    const sr = ctx.sampleRate;
 
-    freqs.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine"; // warm tone
-      osc.frequency.setValueAtTime(freq, now);
-
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.06, now + 0.15 + i * 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 3);
-
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(now + i * 0.04);
-      osc.stop(now + 3.5);
-    });
-
-    // Add a subtle rising sweep
-    const sweep = ctx.createOscillator();
-    const sweepGain = ctx.createGain();
-    sweep.type = "sine";
-    sweep.frequency.setValueAtTime(200, now);
-    sweep.frequency.exponentialRampToValueAtTime(800, now + 0.8);
-    sweepGain.gain.setValueAtTime(0.02, now);
-    sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
-    sweep.connect(sweepGain);
-    sweepGain.connect(ctx.destination);
-    sweep.start(now);
-    sweep.stop(now + 1.2);
-  } catch {
-    /* Audio not supported — no-op */
-  }
-}
-
-/* ── Web Audio: synthesize applause (white noise + filter) ── */
-function playApplause(durationSec = 4) {
-  try {
-    const ctx = new (window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext)();
-    const now = ctx.currentTime;
-
-    const bufferSize = ctx.sampleRate * durationSec;
-    const buffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
-
-    // Fill with shaped noise resembling clapping
+    // --- Layer 1: Dense crowd clapping (main body) ---
+    const len1 = sr * durationSec;
+    const buf1 = ctx.createBuffer(2, len1, sr);
     for (let ch = 0; ch < 2; ch++) {
-      const data = buffer.getChannelData(ch);
-      for (let i = 0; i < bufferSize; i++) {
-        // Modulate with random bursts (simulates individual claps)
-        const burst = Math.sin(i / (ctx.sampleRate * 0.02)) > 0 ? 1 : 0.3;
-        data[i] = (Math.random() * 2 - 1) * burst;
+      const d = buf1.getChannelData(ch);
+      for (let i = 0; i < len1; i++) {
+        // Irregular bursts simulating many people clapping at different rates
+        const t = i / sr;
+        const burst1 = Math.sin(t * 47.3) > 0.2 ? 1 : 0.4;
+        const burst2 = Math.sin(t * 31.7 + 1.3) > 0.1 ? 1 : 0.5;
+        const burst3 = Math.sin(t * 67.1 + 2.7) > 0.3 ? 1 : 0.3;
+        const crowd = (burst1 + burst2 + burst3) / 3;
+        d[i] = (Math.random() * 2 - 1) * crowd;
       }
     }
+    const src1 = ctx.createBufferSource();
+    src1.buffer = buf1;
 
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
+    // Bandpass for clap timbre
+    const bp1 = ctx.createBiquadFilter();
+    bp1.type = "bandpass";
+    bp1.frequency.setValueAtTime(2200, now);
+    bp1.Q.setValueAtTime(0.6, now);
 
-    // Bandpass to sound like clapping (1kHz-4kHz)
-    const bandpass = ctx.createBiquadFilter();
-    bandpass.type = "bandpass";
-    bandpass.frequency.setValueAtTime(2500, now);
-    bandpass.Q.setValueAtTime(0.5, now);
+    // Highpass remove rumble
+    const hp1 = ctx.createBiquadFilter();
+    hp1.type = "highpass";
+    hp1.frequency.setValueAtTime(600, now);
 
-    // Highpass to remove rumble
-    const hp = ctx.createBiquadFilter();
-    hp.type = "highpass";
-    hp.frequency.setValueAtTime(800, now);
+    const gain1 = ctx.createGain();
+    // Envelope: swell in, sustain, fade out
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.08, now + 0.5);
+    gain1.gain.linearRampToValueAtTime(0.12, now + 1.5);
+    gain1.gain.setValueAtTime(0.12, now + durationSec * 0.5);
+    gain1.gain.linearRampToValueAtTime(0.10, now + durationSec * 0.7);
+    gain1.gain.linearRampToValueAtTime(0.04, now + durationSec * 0.9);
+    gain1.gain.linearRampToValueAtTime(0.001, now + durationSec);
 
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.12, now + 0.3);
-    gain.gain.setValueAtTime(0.12, now + durationSec * 0.6);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
+    src1.connect(bp1);
+    bp1.connect(hp1);
+    hp1.connect(gain1);
+    gain1.connect(ctx.destination);
+    src1.start(now);
+    src1.stop(now + durationSec + 0.5);
 
-    source.connect(bandpass);
-    bandpass.connect(hp);
-    hp.connect(gain);
-    gain.connect(ctx.destination);
-    source.start(now);
-    source.stop(now + durationSec);
+    // --- Layer 2: Sharper individual claps (texture) ---
+    const len2 = sr * durationSec;
+    const buf2 = ctx.createBuffer(2, len2, sr);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = buf2.getChannelData(ch);
+      for (let i = 0; i < len2; i++) {
+        const t = i / sr;
+        // Sporadic sharp transients
+        const clap = Math.random() > 0.985 ? (Math.random() * 2 - 1) * 3 : 0;
+        const ambient = (Math.random() * 2 - 1) * 0.3;
+        const rhythmic = Math.sin(t * 23.5) > 0.7 ? (Math.random() * 2 - 1) : 0;
+        d[i] = clap + ambient + rhythmic * 0.5;
+      }
+    }
+    const src2 = ctx.createBufferSource();
+    src2.buffer = buf2;
+
+    const bp2 = ctx.createBiquadFilter();
+    bp2.type = "bandpass";
+    bp2.frequency.setValueAtTime(3500, now);
+    bp2.Q.setValueAtTime(0.8, now);
+
+    const gain2 = ctx.createGain();
+    gain2.gain.setValueAtTime(0, now);
+    gain2.gain.linearRampToValueAtTime(0.04, now + 0.8);
+    gain2.gain.setValueAtTime(0.04, now + durationSec * 0.5);
+    gain2.gain.linearRampToValueAtTime(0.001, now + durationSec);
+
+    src2.connect(bp2);
+    bp2.connect(gain2);
+    gain2.connect(ctx.destination);
+    src2.start(now);
+    src2.stop(now + durationSec + 0.5);
+
+    // --- Layer 3: Low crowd murmur ---
+    const len3 = sr * durationSec;
+    const buf3 = ctx.createBuffer(1, len3, sr);
+    const d3 = buf3.getChannelData(0);
+    for (let i = 0; i < len3; i++) {
+      d3[i] = (Math.random() * 2 - 1);
+    }
+    const src3 = ctx.createBufferSource();
+    src3.buffer = buf3;
+
+    const lp3 = ctx.createBiquadFilter();
+    lp3.type = "lowpass";
+    lp3.frequency.setValueAtTime(400, now);
+
+    const gain3 = ctx.createGain();
+    gain3.gain.setValueAtTime(0, now);
+    gain3.gain.linearRampToValueAtTime(0.015, now + 1);
+    gain3.gain.setValueAtTime(0.015, now + durationSec * 0.6);
+    gain3.gain.linearRampToValueAtTime(0.001, now + durationSec);
+
+    src3.connect(lp3);
+    lp3.connect(gain3);
+    gain3.connect(ctx.destination);
+    src3.start(now);
+    src3.stop(now + durationSec + 0.5);
   } catch {
-    /* Audio not supported — no-op */
+    /* Audio not supported — silent */
   }
 }
 
-/* ── Confetti piece component ── */
+/* ── Confetti piece ── */
 function ConfettiPiece({ index, active }: { index: number; active: boolean }) {
   const style = useMemo(() => {
     const colors = [
-      "#FFD700",
-      "#DAA520",
-      "#FFA500",
-      "#FF6347",
-      "#FFFFFF",
-      "#B8860B",
-      "#FFE4B5",
-      "#FF4500",
+      "#FFD700", "#DAA520", "#FFA500", "#FF6347",
+      "#FFFFFF", "#B8860B", "#FFE4B5", "#FF4500",
     ];
     return {
       left: `${seeded(index * 11) * 100}%`,
       width: 4 + seeded(index * 13) * 8,
       height: 4 + seeded(index * 17) * 8,
       bg: colors[Math.floor(seeded(index * 19) * colors.length)],
-      delay: seeded(index * 23) * 2,
-      duration: 3 + seeded(index * 29) * 3,
+      delay: seeded(index * 23) * 3,
+      duration: 4 + seeded(index * 29) * 4,
       rotate: seeded(index * 31) * 720,
       swayAmp: 20 + seeded(index * 37) * 40,
     };
@@ -178,13 +201,15 @@ export default function InaugurationCeremony({
   const [logoSize, setLogoSize] = useState(320);
   const [mounted, setMounted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  // Track wave animation progress for curtain cloth effect
+  const [curtainProgress, setCurtainProgress] = useState(0);
   const audioPlayed = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Particles for ambient glow
+  // Particles
   const particles = useMemo(
     () =>
       Array.from({ length: 30 }).map((_, i) => ({
@@ -204,7 +229,6 @@ export default function InaugurationCeremony({
     function update() {
       const vh = window.innerHeight;
       const vw = window.innerWidth;
-      // Cap logo so total content fits within viewport
       const maxLogo = Math.min(vh * 0.28, vw * 0.35, 280);
       setLogoSize(Math.max(120, maxLogo));
     }
@@ -225,27 +249,42 @@ export default function InaugurationCeremony({
     return () => t.forEach(clearTimeout);
   }, []);
 
+  // Animate curtain wave progress when opening
+  useEffect(() => {
+    if (!curtainOpen) return;
+    const startTime = Date.now();
+    const totalDuration = 6000; // 6 seconds
+    let raf: number;
+    function tick() {
+      const elapsed = Date.now() - startTime;
+      const p = Math.min(elapsed / totalDuration, 1);
+      setCurtainProgress(p);
+      if (p < 1) raf = requestAnimationFrame(tick);
+    }
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [curtainOpen]);
+
   const handleUnveil = useCallback(() => {
     if (curtainOpen) return;
 
-    // Play celebration audio
+    // Play applause only
     if (!audioPlayed.current) {
       audioPlayed.current = true;
-      playFanfare();
-      setTimeout(() => playApplause(5), 600);
+      playApplause(10);
     }
 
     setShowConfetti(true);
     setCurtainOpen(true);
 
-    // Wait 3.5s for curtains to fully open with wave, then remove overlay
+    // Remove overlay after curtains fully open (6s) + brief hold (1s)
     setTimeout(() => {
       setRemoved(true);
       onComplete();
-    }, 3800);
+    }, 7500);
   }, [curtainOpen, onComplete]);
 
-  // Keyboard: Enter/Space to unveil
+  // Keyboard
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (phase >= 5 && (e.key === "Enter" || e.key === " ")) {
@@ -259,11 +298,9 @@ export default function InaugurationCeremony({
 
   if (removed) return null;
 
-  /* ── Curtain open: wave-like easing with longer duration ── */
-  const curtainTransition = {
-    duration: 3.2, // 2 seconds longer than before
-    ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
-  };
+  /* ── Curtain wave easing: slow start, smooth middle, gentle settle ── */
+  // Using a custom multi-step easing for cloth-like wave movement
+  const curtainEase: [number, number, number, number] = [0.16, 0.9, 0.4, 1];
 
   return (
     <AnimatePresence>
@@ -285,68 +322,159 @@ export default function InaugurationCeremony({
 
         {/* ═══ LEFT CURTAIN ═══ */}
         <motion.div
-          className="absolute inset-y-0 left-0 w-[52%] curtain-panel curtain-wave-left"
-          style={{ borderRight: "2px solid rgba(184,134,11,0.3)" }}
+          className="absolute inset-y-0 left-0 w-[52%] curtain-panel"
+          style={{
+            borderRight: "2px solid rgba(184,134,11,0.3)",
+            transformOrigin: "left center",
+          }}
           animate={{
             x: curtainOpen ? "-105%" : "0%",
-            skewY: curtainOpen ? -0.5 : 0,
           }}
-          transition={curtainTransition}
+          transition={{
+            duration: 6,
+            ease: curtainEase,
+          }}
         >
-          {/* Inner fold shadows */}
+          {/* Cloth wave ripple effect during opening */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              skewX: curtainOpen
+                ? [0, 2, -1.5, 1, -0.5, 0]
+                : 0,
+              scaleX: curtainOpen
+                ? [1, 1.03, 0.98, 1.01, 0.995, 1]
+                : 1,
+            }}
+            transition={{
+              duration: 6,
+              ease: "easeInOut",
+            }}
+            style={{ transformOrigin: "left center" }}
+          >
+            {/* Animated fold highlights during movement */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                opacity: curtainOpen ? [0, 0.3, 0.15, 0.25, 0] : 0,
+              }}
+              transition={{ duration: 6 }}
+              style={{
+                background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.04) 15px, transparent 30px, rgba(0,0,0,0.1) 45px, transparent 60px)",
+              }}
+            />
+          </motion.div>
+
+          {/* Inner fold shadow */}
           <div
             className="absolute inset-y-0 right-0 w-16"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))",
+              background: "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))",
             }}
           />
           {/* Gold edge trim */}
           <div
             className="absolute inset-y-0 right-0 w-1"
             style={{
-              background:
-                "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
+              background: "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
             }}
           />
+          {/* Gentle wave animation while closed */}
+          {!curtainOpen && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                backgroundPosition: ["0% 0%", "100% 0%"],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              style={{
+                background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.01) 20px, transparent 40px)",
+                backgroundSize: "200% 100%",
+              }}
+            />
+          )}
         </motion.div>
 
         {/* ═══ RIGHT CURTAIN ═══ */}
         <motion.div
-          className="absolute inset-y-0 right-0 w-[52%] curtain-panel curtain-wave-right"
+          className="absolute inset-y-0 right-0 w-[52%] curtain-panel"
           style={{
             borderLeft: "2px solid rgba(184,134,11,0.3)",
-            transform: "scaleX(-1)",
+            transformOrigin: "right center",
           }}
           animate={{
             x: curtainOpen ? "105%" : "0%",
-            skewY: curtainOpen ? 0.5 : 0,
           }}
-          transition={curtainTransition}
+          transition={{
+            duration: 6,
+            ease: curtainEase,
+          }}
         >
+          {/* Cloth wave ripple effect — mirrored */}
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              skewX: curtainOpen
+                ? [0, -2, 1.5, -1, 0.5, 0]
+                : 0,
+              scaleX: curtainOpen
+                ? [1, 1.03, 0.98, 1.01, 0.995, 1]
+                : 1,
+            }}
+            transition={{
+              duration: 6,
+              ease: "easeInOut",
+            }}
+            style={{ transformOrigin: "right center" }}
+          >
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                opacity: curtainOpen ? [0, 0.3, 0.15, 0.25, 0] : 0,
+              }}
+              transition={{ duration: 6 }}
+              style={{
+                background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.04) 15px, transparent 30px, rgba(0,0,0,0.1) 45px, transparent 60px)",
+              }}
+            />
+          </motion.div>
+
+          {/* Inner fold shadow */}
           <div
-            className="absolute inset-y-0 right-0 w-16"
+            className="absolute inset-y-0 left-0 w-16"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))",
+              background: "linear-gradient(270deg, transparent, rgba(0,0,0,0.4))",
             }}
           />
+          {/* Gold edge trim */}
           <div
-            className="absolute inset-y-0 right-0 w-1"
+            className="absolute inset-y-0 left-0 w-1"
             style={{
-              background:
-                "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
+              background: "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
             }}
           />
+          {/* Gentle wave while closed */}
+          {!curtainOpen && (
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                backgroundPosition: ["100% 0%", "0% 0%"],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+              style={{
+                background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.01) 20px, transparent 40px)",
+                backgroundSize: "200% 100%",
+              }}
+            />
+          )}
         </motion.div>
 
-        {/* ═══ TOP VALANCE (slim decorative pelmet) ═══ */}
+        {/* ═══ TOP VALANCE ═══ */}
         <div
           className="absolute top-0 left-0 right-0 z-[104]"
           style={{
             height: 6,
-            background:
-              "linear-gradient(180deg, #c49b1a 0%, #daa520 50%, #8b6914 100%)",
+            background: "linear-gradient(180deg, #c49b1a 0%, #daa520 50%, #8b6914 100%)",
             boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
           }}
         />
@@ -357,15 +485,15 @@ export default function InaugurationCeremony({
             className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-[103]"
             style={{ width: 6, backgroundColor: "rgba(255,215,0,0.9)" }}
             initial={{ opacity: 1, scaleY: 1 }}
-            animate={{ opacity: 0, scaleX: 30 }}
-            transition={{ duration: 1.0, ease: "easeOut" }}
+            animate={{ opacity: 0, scaleX: 40 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
           />
         )}
 
         {/* ═══ CONFETTI ═══ */}
         {showConfetti && (
           <div className="absolute inset-0 z-[105] pointer-events-none overflow-hidden">
-            {Array.from({ length: 60 }).map((_, i) => (
+            {Array.from({ length: 80 }).map((_, i) => (
               <ConfettiPiece key={i} index={i} active={showConfetti} />
             ))}
           </div>
@@ -375,7 +503,7 @@ export default function InaugurationCeremony({
         <motion.div
           className="absolute inset-0 z-[102] flex flex-col items-center justify-center"
           animate={{ opacity: curtainOpen ? 0 : 1 }}
-          transition={{ duration: 1.2, delay: curtainOpen ? 1.5 : 0 }}
+          transition={{ duration: 1.5, delay: curtainOpen ? 2 : 0 }}
         >
           {/* Ambient glow */}
           <motion.div
@@ -439,7 +567,6 @@ export default function InaugurationCeremony({
             }}
             className="relative z-10"
           >
-            {/* Golden halo */}
             <motion.div
               className="absolute rounded-full"
               style={{
@@ -550,7 +677,6 @@ export default function InaugurationCeremony({
             transition={{ duration: 1 }}
             className="relative z-10 text-center mt-4"
           >
-            {/* Gold divider */}
             <motion.div
               className="mx-auto mb-2"
               style={{
