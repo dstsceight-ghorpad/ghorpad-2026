@@ -10,130 +10,7 @@ function seeded(seed: number) {
   return x - Math.floor(x);
 }
 
-/* ══════════════════════════════════════════════════════════════
-   Realistic Applause — Web Audio API
-   Multiple overlapping noise layers with envelope shaping to
-   create the sound of a crowd clapping for ~10 seconds.
-   ══════════════════════════════════════════════════════════════ */
-function playApplause(durationSec = 10) {
-  try {
-    const AudioCtx =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    const ctx = new AudioCtx();
-    const now = ctx.currentTime;
-    const sr = ctx.sampleRate;
-
-    // --- Layer 1: Dense crowd clapping (main body) ---
-    const len1 = sr * durationSec;
-    const buf1 = ctx.createBuffer(2, len1, sr);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf1.getChannelData(ch);
-      for (let i = 0; i < len1; i++) {
-        // Irregular bursts simulating many people clapping at different rates
-        const t = i / sr;
-        const burst1 = Math.sin(t * 47.3) > 0.2 ? 1 : 0.4;
-        const burst2 = Math.sin(t * 31.7 + 1.3) > 0.1 ? 1 : 0.5;
-        const burst3 = Math.sin(t * 67.1 + 2.7) > 0.3 ? 1 : 0.3;
-        const crowd = (burst1 + burst2 + burst3) / 3;
-        d[i] = (Math.random() * 2 - 1) * crowd;
-      }
-    }
-    const src1 = ctx.createBufferSource();
-    src1.buffer = buf1;
-
-    // Bandpass for clap timbre
-    const bp1 = ctx.createBiquadFilter();
-    bp1.type = "bandpass";
-    bp1.frequency.setValueAtTime(2200, now);
-    bp1.Q.setValueAtTime(0.6, now);
-
-    // Highpass remove rumble
-    const hp1 = ctx.createBiquadFilter();
-    hp1.type = "highpass";
-    hp1.frequency.setValueAtTime(600, now);
-
-    const gain1 = ctx.createGain();
-    // Envelope: swell in, sustain, fade out
-    gain1.gain.setValueAtTime(0, now);
-    gain1.gain.linearRampToValueAtTime(0.08, now + 0.5);
-    gain1.gain.linearRampToValueAtTime(0.12, now + 1.5);
-    gain1.gain.setValueAtTime(0.12, now + durationSec * 0.5);
-    gain1.gain.linearRampToValueAtTime(0.10, now + durationSec * 0.7);
-    gain1.gain.linearRampToValueAtTime(0.04, now + durationSec * 0.9);
-    gain1.gain.linearRampToValueAtTime(0.001, now + durationSec);
-
-    src1.connect(bp1);
-    bp1.connect(hp1);
-    hp1.connect(gain1);
-    gain1.connect(ctx.destination);
-    src1.start(now);
-    src1.stop(now + durationSec + 0.5);
-
-    // --- Layer 2: Sharper individual claps (texture) ---
-    const len2 = sr * durationSec;
-    const buf2 = ctx.createBuffer(2, len2, sr);
-    for (let ch = 0; ch < 2; ch++) {
-      const d = buf2.getChannelData(ch);
-      for (let i = 0; i < len2; i++) {
-        const t = i / sr;
-        // Sporadic sharp transients
-        const clap = Math.random() > 0.985 ? (Math.random() * 2 - 1) * 3 : 0;
-        const ambient = (Math.random() * 2 - 1) * 0.3;
-        const rhythmic = Math.sin(t * 23.5) > 0.7 ? (Math.random() * 2 - 1) : 0;
-        d[i] = clap + ambient + rhythmic * 0.5;
-      }
-    }
-    const src2 = ctx.createBufferSource();
-    src2.buffer = buf2;
-
-    const bp2 = ctx.createBiquadFilter();
-    bp2.type = "bandpass";
-    bp2.frequency.setValueAtTime(3500, now);
-    bp2.Q.setValueAtTime(0.8, now);
-
-    const gain2 = ctx.createGain();
-    gain2.gain.setValueAtTime(0, now);
-    gain2.gain.linearRampToValueAtTime(0.04, now + 0.8);
-    gain2.gain.setValueAtTime(0.04, now + durationSec * 0.5);
-    gain2.gain.linearRampToValueAtTime(0.001, now + durationSec);
-
-    src2.connect(bp2);
-    bp2.connect(gain2);
-    gain2.connect(ctx.destination);
-    src2.start(now);
-    src2.stop(now + durationSec + 0.5);
-
-    // --- Layer 3: Low crowd murmur ---
-    const len3 = sr * durationSec;
-    const buf3 = ctx.createBuffer(1, len3, sr);
-    const d3 = buf3.getChannelData(0);
-    for (let i = 0; i < len3; i++) {
-      d3[i] = (Math.random() * 2 - 1);
-    }
-    const src3 = ctx.createBufferSource();
-    src3.buffer = buf3;
-
-    const lp3 = ctx.createBiquadFilter();
-    lp3.type = "lowpass";
-    lp3.frequency.setValueAtTime(400, now);
-
-    const gain3 = ctx.createGain();
-    gain3.gain.setValueAtTime(0, now);
-    gain3.gain.linearRampToValueAtTime(0.015, now + 1);
-    gain3.gain.setValueAtTime(0.015, now + durationSec * 0.6);
-    gain3.gain.linearRampToValueAtTime(0.001, now + durationSec);
-
-    src3.connect(lp3);
-    lp3.connect(gain3);
-    gain3.connect(ctx.destination);
-    src3.start(now);
-    src3.stop(now + durationSec + 0.5);
-  } catch {
-    /* Audio not supported — silent */
-  }
-}
+/* No audio — ceremony is silent */
 
 /* ── Confetti piece ── */
 function ConfettiPiece({ index, active }: { index: number; active: boolean }) {
@@ -203,7 +80,7 @@ export default function InaugurationCeremony({
   const [showConfetti, setShowConfetti] = useState(false);
   // Track wave animation progress for curtain cloth effect
   const [curtainProgress, setCurtainProgress] = useState(0);
-  const audioPlayed = useRef(false);
+  const _ = useRef(false); // keep ref import used
 
   useEffect(() => {
     setMounted(true);
@@ -253,7 +130,7 @@ export default function InaugurationCeremony({
   useEffect(() => {
     if (!curtainOpen) return;
     const startTime = Date.now();
-    const totalDuration = 6000; // 6 seconds
+    const totalDuration = 10000; // 10 seconds
     let raf: number;
     function tick() {
       const elapsed = Date.now() - startTime;
@@ -268,20 +145,14 @@ export default function InaugurationCeremony({
   const handleUnveil = useCallback(() => {
     if (curtainOpen) return;
 
-    // Play applause only
-    if (!audioPlayed.current) {
-      audioPlayed.current = true;
-      playApplause(10);
-    }
-
     setShowConfetti(true);
     setCurtainOpen(true);
 
-    // Remove overlay after curtains fully open (6s) + brief hold (1s)
+    // Remove overlay after curtains fully open (10s) + hold (2s)
     setTimeout(() => {
       setRemoved(true);
       onComplete();
-    }, 7500);
+    }, 12000);
   }, [curtainOpen, onComplete]);
 
   // Keyboard
@@ -331,7 +202,7 @@ export default function InaugurationCeremony({
             x: curtainOpen ? "-105%" : "0%",
           }}
           transition={{
-            duration: 6,
+            duration: 10,
             ease: curtainEase,
           }}
         >
@@ -347,7 +218,7 @@ export default function InaugurationCeremony({
                 : 1,
             }}
             transition={{
-              duration: 6,
+              duration: 10,
               ease: "easeInOut",
             }}
             style={{ transformOrigin: "left center" }}
@@ -358,7 +229,7 @@ export default function InaugurationCeremony({
               animate={{
                 opacity: curtainOpen ? [0, 0.3, 0.15, 0.25, 0] : 0,
               }}
-              transition={{ duration: 6 }}
+              transition={{ duration: 10 }}
               style={{
                 background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.04) 15px, transparent 30px, rgba(0,0,0,0.1) 45px, transparent 60px)",
               }}
@@ -406,7 +277,7 @@ export default function InaugurationCeremony({
             x: curtainOpen ? "105%" : "0%",
           }}
           transition={{
-            duration: 6,
+            duration: 10,
             ease: curtainEase,
           }}
         >
@@ -422,7 +293,7 @@ export default function InaugurationCeremony({
                 : 1,
             }}
             transition={{
-              duration: 6,
+              duration: 10,
               ease: "easeInOut",
             }}
             style={{ transformOrigin: "right center" }}
@@ -432,7 +303,7 @@ export default function InaugurationCeremony({
               animate={{
                 opacity: curtainOpen ? [0, 0.3, 0.15, 0.25, 0] : 0,
               }}
-              transition={{ duration: 6 }}
+              transition={{ duration: 10 }}
               style={{
                 background: "repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.04) 15px, transparent 30px, rgba(0,0,0,0.1) 45px, transparent 60px)",
               }}
@@ -503,7 +374,7 @@ export default function InaugurationCeremony({
         <motion.div
           className="absolute inset-0 z-[102] flex flex-col items-center justify-center"
           animate={{ opacity: curtainOpen ? 0 : 1 }}
-          transition={{ duration: 1.5, delay: curtainOpen ? 2 : 0 }}
+          transition={{ duration: 2, delay: curtainOpen ? 6 : 0 }}
         >
           {/* Ambient glow */}
           <motion.div
