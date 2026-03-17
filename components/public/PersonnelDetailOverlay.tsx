@@ -255,7 +255,7 @@ export default function PersonnelDetailOverlay({
             {/* Placeholder when no bio/extended info */}
             {!person.bio && !hasExtendedInfo && (
               <div className="border-t border-border-subtle pt-5 mt-2">
-                <p className="text-muted/40 text-sm font-mono italic">
+                <p className="text-muted text-sm font-mono italic">
                   Profile details will be updated soon.
                 </p>
               </div>

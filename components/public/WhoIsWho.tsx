@@ -56,7 +56,7 @@ function PersonnelCard({
           {person.designation}
         </p>
         {person.unit_or_regiment && (
-          <p className="font-mono text-[10px] text-gold/50 mt-auto">
+          <p className="font-mono text-[10px] text-gold mt-auto">
             {person.unit_or_regiment}
           </p>
         )}
@@ -121,7 +121,7 @@ function CommandantCard({
             {person.designation}
           </p>
           {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold/60 mb-4">
+            <p className="font-mono text-xs text-gold mb-4">
               {person.unit_or_regiment}
             </p>
           )}
@@ -185,7 +185,7 @@ function DeputyCommandantCard({
             {person.designation}
           </p>
           {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold/60 mb-4">
+            <p className="font-mono text-xs text-gold mb-4">
               {person.unit_or_regiment}
             </p>
           )}

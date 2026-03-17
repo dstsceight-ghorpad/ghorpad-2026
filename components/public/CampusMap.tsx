@@ -373,12 +373,12 @@ export default function CampusMap({ locations }: CampusMapProps) {
                   >
                     <Compass
                       size={32}
-                      className="text-muted/20 mb-3"
+                      className="text-muted/50 mb-3"
                     />
-                    <p className="font-mono text-xs text-muted/50 tracking-wider">
+                    <p className="font-mono text-xs text-muted/80 tracking-wider">
                       SELECT A LOCATION
                     </p>
-                    <p className="text-xs text-muted/30 mt-1">
+                    <p className="text-xs text-muted/60 mt-1">
                       Click any pin on the map
                     </p>
                   </motion.div>

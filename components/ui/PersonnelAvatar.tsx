@@ -27,7 +27,7 @@ export default function PersonnelAvatar({
   if (!src || failed) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center">
-        <User size={iconSize} className="text-muted/30" />
+        <User size={iconSize} className="text-muted/50" />
         {iconLabel && (
           <span className="font-mono text-[10px] text-muted mt-2">
             {iconLabel}

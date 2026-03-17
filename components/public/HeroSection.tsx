@@ -219,10 +219,10 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           className="flex flex-col items-center gap-2"
         >
-          <span className="font-mono text-[10px] text-muted/60 tracking-widest">
+          <span className="font-mono text-[10px] text-muted tracking-widest">
             SCROLL
           </span>
-          <div className="w-5 h-8 border border-muted/30 rounded-full flex justify-center pt-1.5">
+          <div className="w-5 h-8 border border-muted/50 rounded-full flex justify-center pt-1.5">
             <motion.div
               animate={{ y: [0, 10, 0], opacity: [1, 0.3, 1] }}
               transition={{

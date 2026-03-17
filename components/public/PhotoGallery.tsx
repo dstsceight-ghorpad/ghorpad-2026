@@ -93,7 +93,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                   <div className="absolute inset-0 flex items-center justify-center">
                     {item.type === "video" ? (
                       <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-gold/20 flex items-center justify-center">
+                        <div className="w-12 h-12 rounded-full bg-gold/30 flex items-center justify-center">
                           <Play size={20} className="text-gold ml-0.5" />
                         </div>
                         <span className="font-mono text-[9px] text-muted">
@@ -113,7 +113,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                     <h4 className="font-serif text-sm font-semibold text-foreground truncate">
                       {item.title}
                     </h4>
-                    <span className="font-mono text-[9px] text-gold/70">
+                    <span className="font-mono text-[9px] text-gold">
                       {item.category.toUpperCase()}
                     </span>
                   </div>
@@ -165,7 +165,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
               <div className="absolute inset-0 flex items-center justify-center">
                 {lightboxItem.type === "video" ? (
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 rounded-full bg-gold/20 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-gold/30 flex items-center justify-center">
                       <Play size={28} className="text-gold ml-1" />
                     </div>
                     <span className="font-mono text-xs text-muted">

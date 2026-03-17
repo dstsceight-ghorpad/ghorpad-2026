@@ -517,7 +517,7 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
                 {officer.designation}
               </p>
               {officer.unit_or_regiment && (
-                <p className="font-mono text-[9px] text-gold/50 mt-0.5">
+                <p className="font-mono text-[9px] text-gold mt-0.5">
                   {officer.unit_or_regiment}
                 </p>
               )}
@@ -552,7 +552,7 @@ function StudentDivisionPage({
         Click on any officer to view their profile
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {students.map((student) => (
           <div
             key={student.id}
@@ -566,16 +566,26 @@ function StudentDivisionPage({
                 onSelectPerson(student);
               }
             }}
-            className="bg-surface border border-border-subtle rounded p-2.5 cursor-pointer hover:border-gold/40 hover:bg-surface-light/50 transition-all group"
+            className="bg-surface border border-border-subtle rounded-lg overflow-hidden cursor-pointer hover:border-gold/40 hover:bg-surface-light/50 transition-all group"
           >
-            <p className="font-serif text-[11px] font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
-              {getDisplayName(student)}
-            </p>
-            {student.unit_or_regiment && (
-              <p className="font-mono text-[9px] text-gold/70 mt-0.5 truncate">
-                {student.unit_or_regiment}
+            <div className="aspect-square bg-surface-light flex items-center justify-center">
+              <PersonnelAvatar
+                src={student.avatar_url}
+                alt={getDisplayName(student)}
+                className="w-full h-full object-cover object-top"
+                iconSize={24}
+              />
+            </div>
+            <div className="p-2.5">
+              <p className="font-serif text-xs font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
+                {getDisplayName(student)}
               </p>
-            )}
+              {student.unit_or_regiment && (
+                <p className="font-mono text-[9px] text-gold mt-0.5 truncate">
+                  {student.unit_or_regiment}
+                </p>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -1087,30 +1097,25 @@ export default function MagazineReader({
   return (
     <div className="magazine-theme fixed inset-0 z-[90] bg-background flex flex-col">
       {/* ─── Top Bar ─────────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-border-subtle bg-surface shrink-0">
-        <div className="flex items-center gap-3">
-          <AnimatedLogo size={28} />
-          <div className="flex flex-col leading-none">
-            <span className="font-serif text-sm font-bold tracking-tight">
-              GHORPAD
-            </span>
-            <span className="font-mono text-[8px] text-gold tracking-widest">
-              MAGAZINE READER
-            </span>
-          </div>
+      <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-border-subtle/50 bg-background/80 backdrop-blur-sm shrink-0">
+        <div className="flex items-center gap-2">
+          <AnimatedLogo size={22} />
+          <span className="font-serif text-xs font-bold tracking-tight text-foreground">
+            GHORPAD
+          </span>
         </div>
 
-        <p className="hidden sm:block font-mono text-xs text-muted truncate max-w-[300px] mx-4">
+        <p className="hidden sm:block font-mono text-[10px] text-muted truncate max-w-[400px] mx-4">
           {pages[currentPage]?.title}
         </p>
 
         <button
           onClick={onClose}
           data-interactive="true"
-          className="p-2 text-muted hover:text-foreground hover:bg-surface-light rounded transition-colors"
+          className="p-1.5 text-muted hover:text-foreground hover:bg-surface-light rounded transition-colors"
           aria-label="Close reader"
         >
-          <X size={20} />
+          <X size={18} />
         </button>
       </div>
 
@@ -1143,7 +1148,7 @@ export default function MagazineReader({
           transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0 overflow-y-auto"
         >
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 relative">
+          <div className="max-w-5xl mx-auto px-6 sm:px-10 py-8 relative">
             <PageRenderer
               page={pages[currentPage]}
               onSelectPerson={setSelectedPerson}
