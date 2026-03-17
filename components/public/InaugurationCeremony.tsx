@@ -95,9 +95,9 @@ export default function InaugurationCeremony({
         className="fixed inset-0 z-[100] overflow-hidden select-none"
         style={{ backgroundColor: "#060604" }}
       >
-        {/* ── Curtain Panels ── */}
+        {/* ── Curtain Panels (background layer — split to reveal website) ── */}
         <motion.div
-          className="absolute inset-y-0 left-0 w-1/2 curtain-texture z-[120]"
+          className="absolute inset-y-0 left-0 w-1/2 curtain-texture z-[101]"
           style={{
             backgroundColor: "#0a0908",
             borderRight: "1px solid rgba(232,200,74,0.1)",
@@ -111,7 +111,7 @@ export default function InaugurationCeremony({
           }}
         />
         <motion.div
-          className="absolute inset-y-0 right-0 w-1/2 curtain-texture z-[120]"
+          className="absolute inset-y-0 right-0 w-1/2 curtain-texture z-[101]"
           style={{
             backgroundColor: "#0a0908",
             borderLeft: "1px solid rgba(232,200,74,0.1)",
@@ -128,7 +128,7 @@ export default function InaugurationCeremony({
         {/* ── Golden flash at seam on open ── */}
         {curtainOpen && (
           <motion.div
-            className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-[121]"
+            className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-[103]"
             style={{ width: 4, backgroundColor: "rgba(232,200,74,0.8)" }}
             initial={{ opacity: 1, scaleY: 1 }}
             animate={{ opacity: 0, scaleX: 20 }}
@@ -136,8 +136,12 @@ export default function InaugurationCeremony({
           />
         )}
 
-        {/* ── Content Layer (behind curtains) ── */}
-        <div className="absolute inset-0 z-[110] flex flex-col items-center justify-center">
+        {/* ── Content Layer (on top of curtains, fades out when unveiled) ── */}
+        <motion.div
+          className="absolute inset-0 z-[102] flex flex-col items-center justify-center"
+          animate={{ opacity: curtainOpen ? 0 : 1 }}
+          transition={{ duration: 0.6 }}
+        >
           {/* Radial glow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
@@ -434,7 +438,7 @@ export default function InaugurationCeremony({
               style={{ borderColor: "rgba(232,200,74,0.2)" }}
             />
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </AnimatePresence>
   );
