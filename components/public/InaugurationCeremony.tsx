@@ -204,7 +204,9 @@ export default function InaugurationCeremony({
     function update() {
       const vh = window.innerHeight;
       const vw = window.innerWidth;
-      setLogoSize(Math.max(160, Math.min(vh - 420, vw * 0.4, 360)));
+      // Cap logo so total content fits within viewport
+      const maxLogo = Math.min(vh * 0.28, vw * 0.35, 280);
+      setLogoSize(Math.max(120, maxLogo));
     }
     update();
     window.addEventListener("resize", update);
@@ -468,7 +470,7 @@ export default function InaugurationCeremony({
               y: phase >= 3 ? 0 : 30,
             }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="relative z-10 text-center mt-5"
+            className="relative z-10 text-center mt-2"
           >
             <h1
               className="font-serif font-bold tracking-[0.2em]"
@@ -513,7 +515,7 @@ export default function InaugurationCeremony({
               scale: phase >= 3 ? 1 : 0.8,
             }}
             transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-            className="relative z-10 text-center mt-3"
+            className="relative z-10 text-center mt-1"
           >
             <h2
               className="font-serif font-bold"
@@ -546,11 +548,11 @@ export default function InaugurationCeremony({
             initial={{ opacity: 0 }}
             animate={{ opacity: phase >= 4 ? 1 : 0 }}
             transition={{ duration: 1 }}
-            className="relative z-10 text-center mt-8"
+            className="relative z-10 text-center mt-4"
           >
             {/* Gold divider */}
             <motion.div
-              className="mx-auto mb-4"
+              className="mx-auto mb-2"
               style={{
                 height: 1,
                 background:
@@ -562,7 +564,7 @@ export default function InaugurationCeremony({
             />
 
             <motion.p
-              className="font-mono tracking-[0.4em] mb-3"
+              className="font-mono tracking-[0.4em] mb-1"
               style={{
                 fontSize: `clamp(18px, ${logoSize * 0.045}px, 26px)`,
                 color: "rgba(200,180,140,0.7)",
@@ -615,7 +617,7 @@ export default function InaugurationCeremony({
               y: phase >= 5 ? 0 : 20,
             }}
             transition={{ duration: 0.8 }}
-            className="relative z-10 mt-10"
+            className="relative z-10 mt-5"
           >
             <motion.button
               onClick={handleUnveil}
