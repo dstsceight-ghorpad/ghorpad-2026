@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./SplashScreen";
 import InaugurationCeremony from "./InaugurationCeremony";
 
-// Set NEXT_PUBLIC_INAUGURATION_MODE=false on Vercel to disable inauguration.
-// Default: inauguration is ON (so it works even if env var is missing).
-const INAUGURATION_OFF =
-  process.env.NEXT_PUBLIC_INAUGURATION_MODE === "false";
+// Global toggle — set NEXT_PUBLIC_INAUGURATION_MODE=true in Vercel env vars
+const INAUGURATION_ENV =
+  process.env.NEXT_PUBLIC_INAUGURATION_MODE === "true";
 
 export default function SplashGate() {
   const [mode, setMode] = useState<"loading" | "inauguration" | "splash">(
@@ -26,8 +25,8 @@ export default function SplashGate() {
       return;
     }
 
-    // Default: inauguration ON unless explicitly disabled via env var
-    setMode(INAUGURATION_OFF ? "splash" : "inauguration");
+    // Use env var as global toggle
+    setMode(INAUGURATION_ENV ? "inauguration" : "splash");
   }, []);
 
   if (dismissed || mode === "loading") {
