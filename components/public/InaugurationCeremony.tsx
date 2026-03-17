@@ -355,7 +355,7 @@ export default function InaugurationCeremony({
               }}
               transition={{ duration: 0.8, delay: 0.8 }}
             >
-              R Adm V Ganapathy, NM
+              Rear Adm V Ganapathy, NM
             </motion.h3>
 
             <motion.p
