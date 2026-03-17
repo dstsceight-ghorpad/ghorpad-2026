@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./SplashScreen";
 import InaugurationCeremony from "./InaugurationCeremony";
 
-// Global toggle — set NEXT_PUBLIC_INAUGURATION_MODE=true in .env.local / Vercel env vars
-// When true, ALL visitors see the inauguration animation after the access code
-const INAUGURATION_ENV =
-  process.env.NEXT_PUBLIC_INAUGURATION_MODE === "true";
+// Set NEXT_PUBLIC_INAUGURATION_MODE=false on Vercel to disable inauguration.
+// Default: inauguration is ON (so it works even if env var is missing).
+const INAUGURATION_OFF =
+  process.env.NEXT_PUBLIC_INAUGURATION_MODE === "false";
 
 export default function SplashGate() {
   const [mode, setMode] = useState<"loading" | "inauguration" | "splash">(
@@ -16,7 +16,7 @@ export default function SplashGate() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // URL params override for testing (per-device)
+    // URL param override for testing
     const urlParams = new URLSearchParams(window.location.search);
     const param = urlParams.get("inauguration");
 
@@ -26,8 +26,8 @@ export default function SplashGate() {
       return;
     }
 
-    // Use env var as global toggle for all visitors
-    setMode(INAUGURATION_ENV ? "inauguration" : "splash");
+    // Default: inauguration ON unless explicitly disabled via env var
+    setMode(INAUGURATION_OFF ? "splash" : "inauguration");
   }, []);
 
   if (dismissed || mode === "loading") {
