@@ -267,19 +267,19 @@ function MagazinePersonnelDetail({
           {/* Info */}
           <div className="md:col-span-2">
             {/* Role label removed */}
-            <h3 className="font-serif text-2xl font-bold mb-1">
+            <h3 className="font-serif text-2xl font-bold mb-1 text-foreground">
               {getDisplayName(person)}
             </h3>
-            <p className="font-mono text-sm text-muted mb-1">
+            <p className="font-mono text-sm text-foreground/70 mb-1">
               {person.designation}
             </p>
             {person.unit_or_regiment && (
-              <p className="font-mono text-xs text-gold/60 mb-2">
+              <p className="font-mono text-xs text-gold mb-2">
                 {person.unit_or_regiment}
               </p>
             )}
             {person.division && (
-              <p className="font-mono text-[10px] text-muted tracking-wider mb-5">
+              <p className="font-mono text-[10px] text-foreground/50 tracking-wider mb-5">
                 {person.division.toUpperCase()} DIVISION
               </p>
             )}
@@ -401,7 +401,7 @@ function TocPage({ entries }: { entries: TocEntry[] }) {
         // INDEX
       </h2>
       <div className="w-12 h-0.5 bg-gold mb-6" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-8">
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-8 text-foreground">
         Table of Contents
       </h3>
 
@@ -466,14 +466,14 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
 
         {/* Details */}
         <div className="md:col-span-2 flex flex-col justify-center">
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1">
+          <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1 text-foreground">
             {getDisplayName(person)}
           </h3>
-          <p className="font-mono text-sm text-muted mb-1">
+          <p className="font-mono text-sm text-foreground/70 mb-1">
             {person.designation}
           </p>
           {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold/60 mb-6">
+            <p className="font-mono text-xs text-gold mb-6">
               {person.unit_or_regiment}
             </p>
           )}
@@ -510,10 +510,10 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
               {/* Rank is shown in display name */}
             </div>
             <div className="p-3">
-              <h4 className="font-serif text-xs font-semibold leading-snug mb-0.5">
+              <h4 className="font-serif text-xs font-semibold leading-snug mb-0.5 text-foreground">
                 {getDisplayName(officer)}
               </h4>
-              <p className="font-mono text-[9px] text-muted">
+              <p className="font-mono text-[9px] text-foreground/60">
                 {officer.designation}
               </p>
               {officer.unit_or_regiment && (
@@ -542,9 +542,9 @@ function StudentDivisionPage({
     <div>
       {/* Role label removed */}
       <div className="w-12 h-0.5 bg-gold mb-4" />
-      <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">
+      <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2 text-foreground">
         {division} Division
-        <span className="font-mono text-xs text-muted ml-3">
+        <span className="font-mono text-xs text-foreground/60 ml-3">
           ({students.length} officers)
         </span>
       </h3>
@@ -568,7 +568,7 @@ function StudentDivisionPage({
             }}
             className="bg-surface border border-border-subtle rounded p-2.5 cursor-pointer hover:border-gold/40 hover:bg-surface-light/50 transition-all group"
           >
-            <p className="font-serif text-[11px] font-semibold leading-tight group-hover:text-gold transition-colors">
+            <p className="font-serif text-[11px] font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
               {getDisplayName(student)}
             </p>
             {student.unit_or_regiment && (
@@ -592,7 +592,7 @@ function ArticlePage({ article }: { article: Article }) {
         {article.category.toUpperCase()}
       </span>
 
-      <h2 className="font-serif text-2xl sm:text-3xl font-bold mt-4 mb-3">
+      <h2 className="font-serif text-2xl sm:text-3xl font-bold mt-4 mb-3 text-foreground">
         {article.title}
       </h2>
 
@@ -601,7 +601,7 @@ function ArticlePage({ article }: { article: Article }) {
           <User size={14} className="text-muted" />
         </div>
         <div>
-          <p className="font-serif text-sm">
+          <p className="font-serif text-sm text-foreground">
             {article.author?.full_name || "Unknown"}
           </p>
           <p className="font-mono text-[10px] text-muted">
@@ -677,7 +677,7 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
         // PHOTO GALLERY
       </h2>
       <div className="w-12 h-0.5 bg-gold mb-8" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6 text-foreground">
         Through the Lens
       </h3>
 
@@ -704,7 +704,7 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
               </div>
             </div>
             <div className="p-2.5">
-              <p className="font-serif text-xs font-semibold truncate">
+              <p className="font-serif text-xs font-semibold truncate text-foreground">
                 {item.title}
               </p>
               {item.description && (
@@ -737,7 +737,7 @@ function CampusMapPage({ locations }: { locations: CampusLocation[] }) {
         // CAMPUS MAP
       </h2>
       <div className="w-12 h-0.5 bg-gold mb-8" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6">
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6 text-foreground">
         Navigate the Grounds
       </h3>
 
@@ -771,10 +771,10 @@ function CampusMapPage({ locations }: { locations: CampusLocation[] }) {
               }}
             />
             <div className="min-w-0">
-              <p className="font-serif text-sm font-semibold">{loc.name}</p>
-              <p className="text-[11px] text-muted mt-0.5">{loc.description}</p>
+              <p className="font-serif text-sm font-semibold text-foreground">{loc.name}</p>
+              <p className="text-[11px] text-foreground/60 mt-0.5">{loc.description}</p>
               {loc.fun_fact && (
-                <p className="text-[10px] text-gold/60 mt-1 italic">
+                <p className="text-[10px] text-gold mt-1 italic">
                   {loc.fun_fact}
                 </p>
               )}

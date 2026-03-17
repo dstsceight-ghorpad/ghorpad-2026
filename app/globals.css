@@ -264,12 +264,12 @@ body {
 /* ─── Magazine Reader — Cream theme (scoped) ──────────────── */
 .magazine-theme {
   --background: #FDF5E6;
-  --foreground: #2C1810;
+  --foreground: #1A0E08;
   --surface: #F5ECD7;
   --surface-light: #EDE3CC;
-  --accent-gold: #8B6914;
+  --accent-gold: #7A5C0F;
   --accent-red: #8B2500;
-  --text-muted: #6B5B4F;
+  --text-muted: #5A4A3E;
   --border-subtle: rgba(44, 24, 16, 0.12);
   --glass-bg: rgba(253, 245, 230, 0.95);
   --prose-body: #3D2B1F;
