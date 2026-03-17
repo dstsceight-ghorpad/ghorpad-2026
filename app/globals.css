@@ -383,38 +383,7 @@ select,
   pointer-events: none;
 }
 
-/* Gold tassel trim at top */
-.curtain-valance {
-  background: linear-gradient(
-    180deg,
-    #b8860b 0%,
-    #daa520 40%,
-    #b8860b 70%,
-    #8b6914 100%
-  );
-  box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 2px 8px rgba(184,134,11,0.3);
-}
-.curtain-valance::after {
-  content: "";
-  position: absolute;
-  bottom: -12px;
-  left: 0;
-  right: 0;
-  height: 12px;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px,
-    #daa520 2px,
-    #b8860b 4px,
-    transparent 6px,
-    transparent 10px,
-    #daa520 12px,
-    #b8860b 14px,
-    transparent 16px
-  );
-  mask-image: linear-gradient(180deg, black 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(180deg, black 0%, transparent 100%);
-}
+/* Gold trim — removed heavy valance, now inline in component */
 
 /* Curtain wave animation */
 @keyframes curtain-wave {

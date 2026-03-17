@@ -338,20 +338,16 @@ export default function InaugurationCeremony({
           />
         </motion.div>
 
-        {/* ═══ TOP VALANCE (decorative pelmet) ═══ */}
+        {/* ═══ TOP VALANCE (slim decorative pelmet) ═══ */}
         <div
-          className="absolute top-0 left-0 right-0 h-8 curtain-valance z-[104]"
-          style={{ position: "relative" }}
-        >
-          <div
-            className="absolute top-0 left-0 right-0 h-full"
-            style={{
-              background:
-                "linear-gradient(180deg, #c49b1a 0%, #daa520 40%, #b8860b 80%, #8b6914 100%)",
-              boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-            }}
-          />
-        </div>
+          className="absolute top-0 left-0 right-0 z-[104]"
+          style={{
+            height: 6,
+            background:
+              "linear-gradient(180deg, #c49b1a 0%, #daa520 50%, #8b6914 100%)",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.5)",
+          }}
+        />
 
         {/* ═══ GOLDEN SEAM FLASH on open ═══ */}
         {curtainOpen && (
