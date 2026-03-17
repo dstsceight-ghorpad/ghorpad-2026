@@ -1,81 +1,249 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AnimatedLogo from "./AnimatedLogo";
 
-// Deterministic pseudo-random based on seed
-function seededRandom(seed: number) {
+/* ── Deterministic random ── */
+function seeded(seed: number) {
   const x = Math.sin(seed * 9301 + 49297) * 49297;
   return x - Math.floor(x);
 }
 
+/* ── Web Audio: synthesize a short fanfare chord ── */
+function playFanfare() {
+  try {
+    const ctx = new (window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext)();
+
+    // Majestic brass chord: C4-E4-G4-C5
+    const freqs = [261.6, 329.6, 392.0, 523.3];
+    const now = ctx.currentTime;
+
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine"; // warm tone
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.06, now + 0.15 + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 3);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now + i * 0.04);
+      osc.stop(now + 3.5);
+    });
+
+    // Add a subtle rising sweep
+    const sweep = ctx.createOscillator();
+    const sweepGain = ctx.createGain();
+    sweep.type = "sine";
+    sweep.frequency.setValueAtTime(200, now);
+    sweep.frequency.exponentialRampToValueAtTime(800, now + 0.8);
+    sweepGain.gain.setValueAtTime(0.02, now);
+    sweepGain.gain.exponentialRampToValueAtTime(0.001, now + 1);
+    sweep.connect(sweepGain);
+    sweepGain.connect(ctx.destination);
+    sweep.start(now);
+    sweep.stop(now + 1.2);
+  } catch {
+    /* Audio not supported — no-op */
+  }
+}
+
+/* ── Web Audio: synthesize applause (white noise + filter) ── */
+function playApplause(durationSec = 4) {
+  try {
+    const ctx = new (window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext)();
+    const now = ctx.currentTime;
+
+    const bufferSize = ctx.sampleRate * durationSec;
+    const buffer = ctx.createBuffer(2, bufferSize, ctx.sampleRate);
+
+    // Fill with shaped noise resembling clapping
+    for (let ch = 0; ch < 2; ch++) {
+      const data = buffer.getChannelData(ch);
+      for (let i = 0; i < bufferSize; i++) {
+        // Modulate with random bursts (simulates individual claps)
+        const burst = Math.sin(i / (ctx.sampleRate * 0.02)) > 0 ? 1 : 0.3;
+        data[i] = (Math.random() * 2 - 1) * burst;
+      }
+    }
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+
+    // Bandpass to sound like clapping (1kHz-4kHz)
+    const bandpass = ctx.createBiquadFilter();
+    bandpass.type = "bandpass";
+    bandpass.frequency.setValueAtTime(2500, now);
+    bandpass.Q.setValueAtTime(0.5, now);
+
+    // Highpass to remove rumble
+    const hp = ctx.createBiquadFilter();
+    hp.type = "highpass";
+    hp.frequency.setValueAtTime(800, now);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.3);
+    gain.gain.setValueAtTime(0.12, now + durationSec * 0.6);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + durationSec);
+
+    source.connect(bandpass);
+    bandpass.connect(hp);
+    hp.connect(gain);
+    gain.connect(ctx.destination);
+    source.start(now);
+    source.stop(now + durationSec);
+  } catch {
+    /* Audio not supported — no-op */
+  }
+}
+
+/* ── Confetti piece component ── */
+function ConfettiPiece({ index, active }: { index: number; active: boolean }) {
+  const style = useMemo(() => {
+    const colors = [
+      "#FFD700",
+      "#DAA520",
+      "#FFA500",
+      "#FF6347",
+      "#FFFFFF",
+      "#B8860B",
+      "#FFE4B5",
+      "#FF4500",
+    ];
+    return {
+      left: `${seeded(index * 11) * 100}%`,
+      width: 4 + seeded(index * 13) * 8,
+      height: 4 + seeded(index * 17) * 8,
+      bg: colors[Math.floor(seeded(index * 19) * colors.length)],
+      delay: seeded(index * 23) * 2,
+      duration: 3 + seeded(index * 29) * 3,
+      rotate: seeded(index * 31) * 720,
+      swayAmp: 20 + seeded(index * 37) * 40,
+    };
+  }, [index]);
+
+  if (!active) return null;
+
+  return (
+    <motion.div
+      className="absolute top-0 rounded-sm"
+      style={{
+        left: style.left,
+        width: style.width,
+        height: style.height,
+        backgroundColor: style.bg,
+        zIndex: 200,
+      }}
+      initial={{ y: -20, opacity: 1, rotate: 0, x: 0 }}
+      animate={{
+        y: "110vh",
+        opacity: [1, 1, 0.8, 0],
+        rotate: style.rotate,
+        x: [0, style.swayAmp, -style.swayAmp, style.swayAmp * 0.5, 0],
+      }}
+      transition={{
+        duration: style.duration,
+        delay: style.delay,
+        ease: "linear",
+        x: {
+          duration: style.duration,
+          ease: "easeInOut",
+          repeat: Infinity,
+        },
+      }}
+    />
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+   ══════════════════════════════════════════════════════════════ */
 export default function InaugurationCeremony({
   onComplete,
 }: {
   onComplete: () => void;
 }) {
-  const [phase, setPhase] = useState(0); // 0-5 animation phases
+  const [phase, setPhase] = useState(0);
   const [curtainOpen, setCurtainOpen] = useState(false);
   const [removed, setRemoved] = useState(false);
-  const [logoSize, setLogoSize] = useState(350);
+  const [logoSize, setLogoSize] = useState(320);
   const [mounted, setMounted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const audioPlayed = useRef(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Pre-compute particle positions
+  // Particles for ambient glow
   const particles = useMemo(
     () =>
-      Array.from({ length: 40 }).map((_, i) => ({
-        w: 1 + seededRandom(i * 3) * 3,
-        h: 1 + seededRandom(i * 3 + 1) * 3,
-        left: seededRandom(i * 7 + 2) * 100,
-        top: seededRandom(i * 7 + 3) * 100,
-        opacity: 0.05 + seededRandom(i * 7 + 4) * 0.15,
-        duration: 2 + seededRandom(i * 7 + 5) * 3,
-        delay: seededRandom(i * 7 + 6) * 2,
+      Array.from({ length: 30 }).map((_, i) => ({
+        w: 1 + seeded(i * 3) * 3,
+        h: 1 + seeded(i * 3 + 1) * 3,
+        left: seeded(i * 7 + 2) * 100,
+        top: seeded(i * 7 + 3) * 100,
+        opacity: 0.05 + seeded(i * 7 + 4) * 0.12,
+        duration: 2.5 + seeded(i * 7 + 5) * 3,
+        delay: seeded(i * 7 + 6) * 2,
       })),
     []
   );
 
-  // Responsive logo size
+  // Responsive logo
   useEffect(() => {
-    function updateSize() {
+    function update() {
       const vh = window.innerHeight;
       const vw = window.innerWidth;
-      const maxFromHeight = vh - 400;
-      const maxFromWidth = vw * 0.5;
-      setLogoSize(Math.max(180, Math.min(maxFromHeight, maxFromWidth, 400)));
+      setLogoSize(Math.max(160, Math.min(vh - 420, vw * 0.4, 360)));
     }
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Phase progression timer
+  // Phase progression
   useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 500),    // Ambience
-      setTimeout(() => setPhase(2), 2000),   // Logo
-      setTimeout(() => setPhase(3), 4000),   // Title
-      setTimeout(() => setPhase(4), 7000),   // Inaugurator
-      setTimeout(() => setPhase(5), 10000),  // CTA
+    const t = [
+      setTimeout(() => setPhase(1), 400),
+      setTimeout(() => setPhase(2), 1800),
+      setTimeout(() => setPhase(3), 3800),
+      setTimeout(() => setPhase(4), 6500),
+      setTimeout(() => setPhase(5), 9500),
     ];
-    return () => timers.forEach(clearTimeout);
+    return () => t.forEach(clearTimeout);
   }, []);
 
   const handleUnveil = useCallback(() => {
     if (curtainOpen) return;
+
+    // Play celebration audio
+    if (!audioPlayed.current) {
+      audioPlayed.current = true;
+      playFanfare();
+      setTimeout(() => playApplause(5), 600);
+    }
+
+    setShowConfetti(true);
     setCurtainOpen(true);
+
+    // Wait 3.5s for curtains to fully open with wave, then remove overlay
     setTimeout(() => {
       setRemoved(true);
       onComplete();
-    }, 1400);
+    }, 3800);
   }, [curtainOpen, onComplete]);
 
-  // Keyboard dismiss
+  // Keyboard: Enter/Space to unveil
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (phase >= 5 && (e.key === "Enter" || e.key === " ")) {
@@ -89,60 +257,129 @@ export default function InaugurationCeremony({
 
   if (removed) return null;
 
+  /* ── Curtain open: wave-like easing with longer duration ── */
+  const curtainTransition = {
+    duration: 3.2, // 2 seconds longer than before
+    ease: [0.25, 0.1, 0.25, 1] as [number, number, number, number],
+  };
+
   return (
     <AnimatePresence>
       <div
         className="fixed inset-0 z-[100] overflow-hidden select-none"
-        style={{ backgroundColor: "#060604" }}
+        style={{ backgroundColor: "#0c0404" }}
       >
-        {/* ── Curtain Panels (background layer — split to reveal website) ── */}
-        <motion.div
-          className="absolute inset-y-0 left-0 w-1/2 curtain-texture z-[101]"
+        {/* ═══ STAGE BACKGROUND ═══ */}
+        <div
+          className="absolute inset-0"
           style={{
-            backgroundColor: "#0a0908",
-            borderRight: "1px solid rgba(232,200,74,0.1)",
-          }}
-          animate={{
-            x: curtainOpen ? "-100%" : "0%",
-          }}
-          transition={{
-            duration: 1.2,
-            ease: [0.76, 0, 0.24, 1],
-          }}
-        />
-        <motion.div
-          className="absolute inset-y-0 right-0 w-1/2 curtain-texture z-[101]"
-          style={{
-            backgroundColor: "#0a0908",
-            borderLeft: "1px solid rgba(232,200,74,0.1)",
-          }}
-          animate={{
-            x: curtainOpen ? "100%" : "0%",
-          }}
-          transition={{
-            duration: 1.2,
-            ease: [0.76, 0, 0.24, 1],
+            background:
+              "radial-gradient(ellipse 120% 80% at 50% 100%, rgba(60,10,10,0.4) 0%, transparent 60%)",
           }}
         />
 
-        {/* ── Golden flash at seam on open ── */}
+        {/* ═══ SPOTLIGHT ═══ */}
+        <div className="absolute inset-0 stage-spotlight pointer-events-none" />
+
+        {/* ═══ LEFT CURTAIN ═══ */}
+        <motion.div
+          className="absolute inset-y-0 left-0 w-[52%] curtain-panel curtain-wave-left"
+          style={{ borderRight: "2px solid rgba(184,134,11,0.3)" }}
+          animate={{
+            x: curtainOpen ? "-105%" : "0%",
+            skewY: curtainOpen ? -0.5 : 0,
+          }}
+          transition={curtainTransition}
+        >
+          {/* Inner fold shadows */}
+          <div
+            className="absolute inset-y-0 right-0 w-16"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))",
+            }}
+          />
+          {/* Gold edge trim */}
+          <div
+            className="absolute inset-y-0 right-0 w-1"
+            style={{
+              background:
+                "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
+            }}
+          />
+        </motion.div>
+
+        {/* ═══ RIGHT CURTAIN ═══ */}
+        <motion.div
+          className="absolute inset-y-0 right-0 w-[52%] curtain-panel curtain-wave-right"
+          style={{
+            borderLeft: "2px solid rgba(184,134,11,0.3)",
+            transform: "scaleX(-1)",
+          }}
+          animate={{
+            x: curtainOpen ? "105%" : "0%",
+            skewY: curtainOpen ? 0.5 : 0,
+          }}
+          transition={curtainTransition}
+        >
+          <div
+            className="absolute inset-y-0 right-0 w-16"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, rgba(0,0,0,0.4))",
+            }}
+          />
+          <div
+            className="absolute inset-y-0 right-0 w-1"
+            style={{
+              background:
+                "linear-gradient(180deg, #b8860b, #daa520, #b8860b, #8b6914, #daa520, #b8860b)",
+            }}
+          />
+        </motion.div>
+
+        {/* ═══ TOP VALANCE (decorative pelmet) ═══ */}
+        <div
+          className="absolute top-0 left-0 right-0 h-8 curtain-valance z-[104]"
+          style={{ position: "relative" }}
+        >
+          <div
+            className="absolute top-0 left-0 right-0 h-full"
+            style={{
+              background:
+                "linear-gradient(180deg, #c49b1a 0%, #daa520 40%, #b8860b 80%, #8b6914 100%)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+            }}
+          />
+        </div>
+
+        {/* ═══ GOLDEN SEAM FLASH on open ═══ */}
         {curtainOpen && (
           <motion.div
             className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-[103]"
-            style={{ width: 4, backgroundColor: "rgba(232,200,74,0.8)" }}
+            style={{ width: 6, backgroundColor: "rgba(255,215,0,0.9)" }}
             initial={{ opacity: 1, scaleY: 1 }}
-            animate={{ opacity: 0, scaleX: 20 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            animate={{ opacity: 0, scaleX: 30 }}
+            transition={{ duration: 1.0, ease: "easeOut" }}
           />
         )}
 
-        {/* ── Content Layer (on top of curtains, fades out when unveiled) ── */}
+        {/* ═══ CONFETTI ═══ */}
+        {showConfetti && (
+          <div className="absolute inset-0 z-[105] pointer-events-none overflow-hidden">
+            {Array.from({ length: 60 }).map((_, i) => (
+              <ConfettiPiece key={i} index={i} active={showConfetti} />
+            ))}
+          </div>
+        )}
+
+        {/* ═══ CONTENT (on top of curtains) ═══ */}
         <motion.div
           className="absolute inset-0 z-[102] flex flex-col items-center justify-center"
           animate={{ opacity: curtainOpen ? 0 : 1 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 1.2, delay: curtainOpen ? 1.5 : 0 }}
         >
-          {/* Radial glow */}
+          {/* Ambient glow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{
@@ -155,7 +392,7 @@ export default function InaugurationCeremony({
               width: logoSize * 2.5,
               height: logoSize * 2.5,
               background:
-                "radial-gradient(circle, rgba(232,200,74,0.08) 0%, rgba(232,200,74,0.03) 30%, transparent 60%)",
+                "radial-gradient(circle, rgba(255,215,0,0.08) 0%, rgba(218,165,32,0.03) 30%, transparent 60%)",
               borderRadius: "50%",
             }}
           />
@@ -172,11 +409,11 @@ export default function InaugurationCeremony({
                     height: p.h,
                     left: `${p.left}%`,
                     top: `${p.top}%`,
-                    backgroundColor: `rgba(232,200,74,${p.opacity})`,
+                    backgroundColor: `rgba(255,215,0,${p.opacity})`,
                   }}
                   animate={{
-                    opacity: [0.1, 0.7, 0.1],
-                    scale: [1, 1.8, 1],
+                    opacity: [0.1, 0.6, 0.1],
+                    scale: [1, 1.6, 1],
                   }}
                   transition={{
                     duration: p.duration,
@@ -189,7 +426,7 @@ export default function InaugurationCeremony({
             </div>
           )}
 
-          {/* ── Phase 2: Institute Logo ── */}
+          {/* ── Phase 2: Logo ── */}
           <motion.div
             initial={{ opacity: 0, scale: 0.3 }}
             animate={{
@@ -204,17 +441,18 @@ export default function InaugurationCeremony({
             }}
             className="relative z-10"
           >
-            {/* Golden halo ring */}
+            {/* Golden halo */}
             <motion.div
-              className="absolute inset-0 rounded-full"
+              className="absolute rounded-full"
               style={{
                 width: logoSize * 1.4,
                 height: logoSize * 1.4,
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                border: "1px solid rgba(232,200,74,0.15)",
-                boxShadow: "0 0 60px rgba(232,200,74,0.05), inset 0 0 60px rgba(232,200,74,0.03)",
+                border: "1px solid rgba(255,215,0,0.2)",
+                boxShadow:
+                  "0 0 80px rgba(255,215,0,0.06), inset 0 0 60px rgba(255,215,0,0.03)",
               }}
               initial={{ scale: 0.6, opacity: 0 }}
               animate={{
@@ -234,14 +472,14 @@ export default function InaugurationCeremony({
               y: phase >= 3 ? 0 : 30,
             }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="relative z-10 text-center mt-6"
+            className="relative z-10 text-center mt-5"
           >
             <h1
               className="font-serif font-bold tracking-[0.2em]"
               style={{
-                fontSize: `clamp(20px, ${logoSize * 0.065}px, 38px)`,
-                color: "rgba(232,200,74,0.9)",
-                textShadow: "0 0 40px rgba(232,200,74,0.3)",
+                fontSize: `clamp(18px, ${logoSize * 0.06}px, 34px)`,
+                color: "rgba(255,215,0,0.9)",
+                textShadow: "0 0 40px rgba(255,215,0,0.3)",
               }}
             >
               {"DSTSC-08".split("").map((char, i) => (
@@ -262,7 +500,7 @@ export default function InaugurationCeremony({
               className="font-mono tracking-[0.5em] mt-2"
               style={{
                 fontSize: `clamp(9px, ${logoSize * 0.022}px, 13px)`,
-                color: "rgba(136,136,136,0.6)",
+                color: "rgba(200,180,140,0.6)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 3 ? 1 : 0 }}
@@ -284,11 +522,11 @@ export default function InaugurationCeremony({
             <h2
               className="font-serif font-bold"
               style={{
-                fontSize: `clamp(32px, ${logoSize * 0.12}px, 64px)`,
-                color: "rgba(240,240,240,0.95)",
+                fontSize: `clamp(30px, ${logoSize * 0.12}px, 60px)`,
+                color: "rgba(245,245,245,0.95)",
                 letterSpacing: "0.15em",
                 textShadow:
-                  "0 0 60px rgba(232,200,74,0.2), 0 0 120px rgba(232,200,74,0.1)",
+                  "0 0 60px rgba(255,215,0,0.2), 0 0 120px rgba(255,215,0,0.1)",
               }}
             >
               GHORPAD
@@ -297,7 +535,7 @@ export default function InaugurationCeremony({
               className="font-mono tracking-[0.3em] mt-1"
               style={{
                 fontSize: `clamp(10px, ${logoSize * 0.025}px, 14px)`,
-                color: "rgba(232,200,74,0.5)",
+                color: "rgba(255,215,0,0.5)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 3 ? 1 : 0 }}
@@ -314,15 +552,16 @@ export default function InaugurationCeremony({
             transition={{ duration: 1 }}
             className="relative z-10 text-center mt-8"
           >
-            {/* Gold divider line */}
+            {/* Gold divider */}
             <motion.div
-              className="mx-auto mb-5"
+              className="mx-auto mb-4"
               style={{
                 height: 1,
-                backgroundColor: "rgba(232,200,74,0.3)",
+                background:
+                  "linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent)",
               }}
               initial={{ width: 0 }}
-              animate={{ width: phase >= 4 ? 200 : 0 }}
+              animate={{ width: phase >= 4 ? 240 : 0 }}
               transition={{ duration: 1, ease: "easeInOut" }}
             />
 
@@ -330,7 +569,7 @@ export default function InaugurationCeremony({
               className="font-mono tracking-[0.4em] mb-3"
               style={{
                 fontSize: `clamp(9px, ${logoSize * 0.02}px, 12px)`,
-                color: "rgba(136,136,136,0.5)",
+                color: "rgba(200,180,140,0.6)",
               }}
               initial={{ opacity: 0, y: 10 }}
               animate={{
@@ -345,7 +584,7 @@ export default function InaugurationCeremony({
             <motion.h3
               className="font-serif font-bold inaug-shimmer"
               style={{
-                fontSize: `clamp(22px, ${logoSize * 0.065}px, 36px)`,
+                fontSize: `clamp(20px, ${logoSize * 0.065}px, 34px)`,
                 letterSpacing: "0.08em",
               }}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -362,7 +601,7 @@ export default function InaugurationCeremony({
               className="font-mono tracking-[0.3em] mt-2"
               style={{
                 fontSize: `clamp(10px, ${logoSize * 0.025}px, 13px)`,
-                color: "rgba(136,136,136,0.5)",
+                color: "rgba(200,180,140,0.5)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 4 ? 1 : 0 }}
@@ -372,7 +611,7 @@ export default function InaugurationCeremony({
             </motion.p>
           </motion.div>
 
-          {/* ── Phase 5: CTA Button ── */}
+          {/* ── Phase 5: CTA ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{
@@ -386,21 +625,21 @@ export default function InaugurationCeremony({
               onClick={handleUnveil}
               className="relative px-10 py-4 font-mono text-sm font-semibold tracking-[0.3em] rounded-lg border overflow-hidden"
               style={{
-                color: "#e8c84a",
-                borderColor: "rgba(232,200,74,0.4)",
-                backgroundColor: "rgba(232,200,74,0.05)",
+                color: "#FFD700",
+                borderColor: "rgba(255,215,0,0.4)",
+                backgroundColor: "rgba(255,215,0,0.06)",
               }}
               whileHover={{
-                backgroundColor: "rgba(232,200,74,0.15)",
-                borderColor: "rgba(232,200,74,0.7)",
-                scale: 1.02,
+                backgroundColor: "rgba(255,215,0,0.15)",
+                borderColor: "rgba(255,215,0,0.7)",
+                scale: 1.03,
               }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.97 }}
               animate={{
                 boxShadow: [
-                  "0 0 20px rgba(232,200,74,0.1)",
-                  "0 0 40px rgba(232,200,74,0.2)",
-                  "0 0 20px rgba(232,200,74,0.1)",
+                  "0 0 20px rgba(255,215,0,0.1)",
+                  "0 0 50px rgba(255,215,0,0.25)",
+                  "0 0 20px rgba(255,215,0,0.1)",
                 ],
               }}
               transition={{
@@ -413,30 +652,38 @@ export default function InaugurationCeremony({
             >
               UNVEIL THE MAGAZINE
             </motion.button>
+
+            <motion.p
+              className="text-center mt-3 font-mono tracking-wider"
+              style={{
+                fontSize: "10px",
+                color: "rgba(200,180,140,0.35)",
+              }}
+              animate={{ opacity: [0.3, 0.6, 0.3] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              or press Enter
+            </motion.p>
           </motion.div>
 
-          {/* Corner decorations */}
+          {/* Corner gold brackets */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: phase >= 1 ? 1 : 0 }}
             transition={{ duration: 1.5 }}
           >
-            <div
-              className="absolute top-6 left-6 w-10 h-10 border-t-2 border-l-2"
-              style={{ borderColor: "rgba(232,200,74,0.2)" }}
-            />
-            <div
-              className="absolute top-6 right-6 w-10 h-10 border-t-2 border-r-2"
-              style={{ borderColor: "rgba(232,200,74,0.2)" }}
-            />
-            <div
-              className="absolute bottom-6 left-6 w-10 h-10 border-b-2 border-l-2"
-              style={{ borderColor: "rgba(232,200,74,0.2)" }}
-            />
-            <div
-              className="absolute bottom-6 right-6 w-10 h-10 border-b-2 border-r-2"
-              style={{ borderColor: "rgba(232,200,74,0.2)" }}
-            />
+            {[
+              "top-6 left-6 border-t-2 border-l-2",
+              "top-6 right-6 border-t-2 border-r-2",
+              "bottom-6 left-6 border-b-2 border-l-2",
+              "bottom-6 right-6 border-b-2 border-r-2",
+            ].map((cls, i) => (
+              <div
+                key={i}
+                className={`absolute w-10 h-10 ${cls}`}
+                style={{ borderColor: "rgba(255,215,0,0.2)" }}
+              />
+            ))}
           </motion.div>
         </motion.div>
       </div>
