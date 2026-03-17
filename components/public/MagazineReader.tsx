@@ -360,28 +360,28 @@ function MagazinePersonnelDetail({
 
 function CoverPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       {/* Corner decorations */}
-      <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-gold/20" />
-      <div className="absolute top-4 right-4 w-8 h-8 border-t border-r border-gold/20" />
-      <div className="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-gold/20" />
-      <div className="absolute bottom-4 right-4 w-8 h-8 border-b border-r border-gold/20" />
+      <div className="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2 border-gold/30" />
+      <div className="absolute top-6 right-6 w-12 h-12 border-t-2 border-r-2 border-gold/30" />
+      <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 border-gold/30" />
+      <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 border-gold/30" />
 
-      <AnimatedLogo size={180} />
-      <p className="font-mono text-xs tracking-[0.4em] text-muted mt-6">
+      <AnimatedLogo size={260} />
+      <p className="font-mono text-sm sm:text-base tracking-[0.4em] text-muted mt-8">
         DSTSC-08 PRESENTS
       </p>
-      <h1 className="font-serif text-5xl sm:text-6xl font-bold mt-4 tracking-wide text-foreground">
+      <h1 className="font-serif text-6xl sm:text-8xl font-bold mt-5 tracking-wide text-foreground">
         GHORPAD
       </h1>
-      <p className="font-mono text-sm tracking-[0.3em] text-gold mt-2">
+      <p className="font-mono text-lg sm:text-xl tracking-[0.3em] text-gold mt-3">
         2025-26
       </p>
-      <div className="w-16 h-0.5 bg-gold/40 mt-8" />
-      <p className="font-mono text-[10px] text-muted mt-4 tracking-widest">
+      <div className="w-24 h-0.5 bg-gold/40 mt-10" />
+      <p className="font-mono text-sm text-muted mt-5 tracking-widest">
         MILITARY INSTITUTE OF TECHNOLOGY
       </p>
-      <p className="font-mono text-[10px] text-muted mt-8 animate-pulse">
+      <p className="font-mono text-xs text-muted mt-10 animate-pulse">
         Click right side to begin &rarr;
       </p>
     </div>
@@ -397,21 +397,21 @@ function TocPage({ entries }: { entries: TocEntry[] }) {
 
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // INDEX
+      <h2 className="font-mono text-sm tracking-[0.3em] text-gold mb-3">
+        INDEX
       </h2>
-      <div className="w-12 h-0.5 bg-gold mb-6" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-8 text-foreground">
+      <div className="w-16 h-0.5 bg-gold mb-8" />
+      <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-10 text-foreground">
         Table of Contents
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-16 gap-y-8">
         {Object.entries(groups).map(([category, items]) => {
           const catColor = getCategoryColor(category);
           return (
             <div key={category}>
               <h4
-                className="font-serif text-sm font-semibold mb-3 border-b pb-1.5"
+                className="font-serif text-base font-semibold mb-4 border-b pb-2"
                 style={{
                   color: catColor.hex,
                   borderColor: `${catColor.hex}33`,
@@ -419,20 +419,20 @@ function TocPage({ entries }: { entries: TocEntry[] }) {
               >
                 {category}
               </h4>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {items.map((entry) => (
-                  <div key={entry.id} className="flex items-baseline gap-2">
+                  <div key={entry.id} className="flex items-baseline gap-3">
                     <span
-                      className="font-mono text-xs shrink-0 w-6"
+                      className="font-mono text-sm shrink-0 w-7"
                       style={{ color: catColor.hex }}
                     >
                       {entry.page_label}
                     </span>
-                    <span className="font-serif text-sm text-foreground truncate">
+                    <span className="font-serif text-base text-foreground truncate">
                       {entry.title}
                     </span>
                     <span className="flex-1 border-b border-dotted border-border-subtle min-w-[12px]" />
-                    <span className="font-mono text-[10px] text-muted shrink-0 uppercase">
+                    <span className="font-mono text-xs text-muted shrink-0 uppercase">
                       {entry.type}
                     </span>
                   </div>
@@ -450,35 +450,35 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
   return (
     <div>
       {/* Role label removed */}
-      <div className="w-12 h-0.5 bg-gold mb-8" />
+      <div className="w-16 h-0.5 bg-gold mb-10" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         {/* Photo area */}
         <div className="aspect-[3/4] bg-surface-light rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
           <PersonnelAvatar
             src={person.avatar_url}
             alt={getDisplayName(person)}
             className="w-full h-full object-cover object-top rounded-lg"
-            iconSize={56}
+            iconSize={72}
             iconLabel="PHOTO"
           />
         </div>
 
         {/* Details */}
         <div className="md:col-span-2 flex flex-col justify-center">
-          <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-1 text-foreground">
+          <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-2 text-foreground">
             {getDisplayName(person)}
           </h3>
-          <p className="font-mono text-sm text-foreground/70 mb-1">
+          <p className="font-mono text-base text-foreground/70 mb-1">
             {person.designation}
           </p>
           {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold mb-6">
+            <p className="font-mono text-sm text-gold mb-8">
               {person.unit_or_regiment}
             </p>
           )}
           {person.bio && (
-            <p className="text-muted text-sm leading-relaxed border-l-2 border-gold/30 pl-4">
+            <p className="text-foreground/70 text-base leading-relaxed border-l-2 border-gold/30 pl-5">
               {person.bio}
             </p>
           )}
@@ -492,9 +492,9 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
   return (
     <div>
       {/* Role label removed */}
-      <div className="w-12 h-0.5 bg-gold mb-8" />
+      <div className="w-16 h-0.5 bg-gold mb-10" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
         {officers.map((officer) => (
           <div
             key={officer.id}
@@ -505,19 +505,18 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
                 src={officer.avatar_url}
                 alt={getDisplayName(officer)}
                 className="w-full h-full object-cover object-top"
-                iconSize={28}
+                iconSize={36}
               />
-              {/* Rank is shown in display name */}
             </div>
-            <div className="p-3">
-              <h4 className="font-serif text-xs font-semibold leading-snug mb-0.5 text-foreground">
+            <div className="p-4">
+              <h4 className="font-serif text-sm font-semibold leading-snug mb-1 text-foreground">
                 {getDisplayName(officer)}
               </h4>
-              <p className="font-mono text-[9px] text-foreground/60">
+              <p className="font-mono text-xs text-foreground/60">
                 {officer.designation}
               </p>
               {officer.unit_or_regiment && (
-                <p className="font-mono text-[9px] text-gold mt-0.5">
+                <p className="font-mono text-xs text-gold mt-0.5">
                   {officer.unit_or_regiment}
                 </p>
               )}
@@ -541,18 +540,18 @@ function StudentDivisionPage({
   return (
     <div>
       {/* Role label removed */}
-      <div className="w-12 h-0.5 bg-gold mb-4" />
-      <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2 text-foreground">
+      <div className="w-16 h-0.5 bg-gold mb-5" />
+      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-2 text-foreground">
         {division} Division
-        <span className="font-mono text-xs text-foreground/60 ml-3">
+        <span className="font-mono text-sm text-foreground/60 ml-3">
           ({students.length} officers)
         </span>
       </h3>
-      <p className="font-mono text-[10px] text-muted mb-6">
+      <p className="font-mono text-xs text-muted mb-8">
         Click on any officer to view their profile
       </p>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {students.map((student) => (
           <div
             key={student.id}
@@ -573,15 +572,15 @@ function StudentDivisionPage({
                 src={student.avatar_url}
                 alt={getDisplayName(student)}
                 className="w-full h-full object-cover object-top"
-                iconSize={24}
+                iconSize={32}
               />
             </div>
-            <div className="p-2.5">
-              <p className="font-serif text-xs font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
+            <div className="p-3">
+              <p className="font-serif text-sm font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
                 {getDisplayName(student)}
               </p>
               {student.unit_or_regiment && (
-                <p className="font-mono text-[9px] text-gold mt-0.5 truncate">
+                <p className="font-mono text-xs text-gold mt-1 truncate">
                   {student.unit_or_regiment}
                 </p>
               )}
@@ -597,24 +596,24 @@ function ArticlePage({ article }: { article: Article }) {
   return (
     <div>
       <span
-        className={`font-mono text-[10px] px-2 py-0.5 rounded ${getCategoryBadgeClasses(article.category)}`}
+        className={`font-mono text-xs px-3 py-1 rounded ${getCategoryBadgeClasses(article.category)}`}
       >
         {article.category.toUpperCase()}
       </span>
 
-      <h2 className="font-serif text-2xl sm:text-3xl font-bold mt-4 mb-3 text-foreground">
+      <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-5 mb-4 text-foreground">
         {article.title}
       </h2>
 
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-full bg-surface-light flex items-center justify-center">
-          <User size={14} className="text-muted" />
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-10 h-10 rounded-full bg-surface-light flex items-center justify-center">
+          <User size={18} className="text-muted" />
         </div>
         <div>
-          <p className="font-serif text-sm text-foreground">
+          <p className="font-serif text-base text-foreground">
             {article.author?.full_name || "Unknown"}
           </p>
-          <p className="font-mono text-[10px] text-muted">
+          <p className="font-mono text-xs text-muted">
             {article.read_time_minutes} MIN READ
           </p>
         </div>
@@ -634,7 +633,7 @@ function ArticlePage({ article }: { article: Article }) {
       )}
 
       {/* Excerpt */}
-      <p className="text-base leading-relaxed text-foreground/80 mb-6 border-l-2 border-gold/30 pl-4 italic">
+      <p className="text-lg leading-relaxed text-foreground/80 mb-8 border-l-3 border-gold/30 pl-5 italic">
         {article.excerpt}
       </p>
 
@@ -683,11 +682,11 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
 
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // PHOTO GALLERY
+      <h2 className="font-mono text-sm tracking-[0.3em] text-gold mb-3">
+        PHOTO GALLERY
       </h2>
-      <div className="w-12 h-0.5 bg-gold mb-8" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+      <div className="w-16 h-0.5 bg-gold mb-10" />
+      <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-8 text-foreground">
         Through the Lens
       </h3>
 
@@ -743,11 +742,11 @@ const LOCATION_COLORS: Record<string, string> = {
 function CampusMapPage({ locations }: { locations: CampusLocation[] }) {
   return (
     <div>
-      <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // CAMPUS MAP
+      <h2 className="font-mono text-sm tracking-[0.3em] text-gold mb-3">
+        CAMPUS MAP
       </h2>
-      <div className="w-12 h-0.5 bg-gold mb-8" />
-      <h3 className="font-serif text-2xl sm:text-3xl font-bold mb-6 text-foreground">
+      <div className="w-16 h-0.5 bg-gold mb-10" />
+      <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-8 text-foreground">
         Navigate the Grounds
       </h3>
 
@@ -842,31 +841,31 @@ function MediaPage() {
 
 function BackCoverPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
+    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
       {/* Corner decorations */}
-      <div className="absolute top-4 left-4 w-8 h-8 border-t border-l border-gold/20" />
-      <div className="absolute top-4 right-4 w-8 h-8 border-t border-r border-gold/20" />
-      <div className="absolute bottom-4 left-4 w-8 h-8 border-b border-l border-gold/20" />
-      <div className="absolute bottom-4 right-4 w-8 h-8 border-b border-r border-gold/20" />
+      <div className="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2 border-gold/30" />
+      <div className="absolute top-6 right-6 w-12 h-12 border-t-2 border-r-2 border-gold/30" />
+      <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 border-gold/30" />
+      <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 border-gold/30" />
 
-      <AnimatedLogo size={100} />
+      <AnimatedLogo size={160} />
 
-      <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-6 tracking-wide text-foreground/40">
+      <h2 className="font-serif text-4xl sm:text-5xl font-bold mt-8 tracking-wide text-foreground/50">
         GHORPAD
       </h2>
-      <p className="font-mono text-xs tracking-[0.3em] text-gold/60 mt-2">
+      <p className="font-mono text-base tracking-[0.3em] text-gold mt-3">
         2025-26
       </p>
 
-      <div className="w-16 h-0.5 bg-gold/30 mt-8 mb-8" />
+      <div className="w-24 h-0.5 bg-gold/30 mt-10 mb-10" />
 
-      <p className="font-serif text-lg text-foreground/70 mb-2">
+      <p className="font-serif text-xl text-foreground/70 mb-3">
         Thank you for reading
       </p>
-      <p className="font-mono text-[10px] text-muted tracking-widest mt-4">
+      <p className="font-mono text-sm text-muted tracking-widest mt-5">
         PUBLISHED BY MILIT &mdash; DSTSC 08
       </p>
-      <p className="font-mono text-[10px] text-muted/70 mt-1">
+      <p className="font-mono text-xs text-muted mt-2">
         MILITARY INSTITUTE OF TECHNOLOGY
       </p>
     </div>
@@ -1148,7 +1147,7 @@ export default function MagazineReader({
           transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
           className="absolute inset-0 overflow-y-auto"
         >
-          <div className="max-w-5xl mx-auto px-6 sm:px-10 py-8 relative">
+          <div className="max-w-6xl mx-auto px-6 sm:px-12 lg:px-16 py-10 relative">
             <PageRenderer
               page={pages[currentPage]}
               onSelectPerson={setSelectedPerson}
