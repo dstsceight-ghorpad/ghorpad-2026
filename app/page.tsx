@@ -11,7 +11,7 @@ import MastheadStrip from "@/components/public/MastheadStrip";
 import CampusMap from "@/components/public/CampusMap";
 import Footer from "@/components/public/Footer";
 import MagazineTrigger from "@/components/public/MagazineTrigger";
-import SplashScreen from "@/components/public/SplashScreen";
+import SplashGate from "@/components/public/SplashGate";
 import {
   sampleArticles,
   samplePersonnel,
@@ -29,7 +29,7 @@ export default function HomePage() {
 
   return (
     <>
-      <SplashScreen />
+      <SplashGate />
       <main className="min-h-screen bg-background">
         <Navbar />
         <HeroSection headlines={tickerHeadlines} />
