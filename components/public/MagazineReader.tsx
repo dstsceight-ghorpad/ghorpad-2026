@@ -239,54 +239,53 @@ function MagazinePersonnelDetail({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="max-w-2xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-6 sm:px-10 lg:px-16 py-10">
         {/* Back button */}
         <button
           onClick={onClose}
           data-interactive="true"
-          className="mb-6 flex items-center gap-2 text-muted hover:text-foreground transition-colors"
+          className="mb-8 flex items-center gap-2 text-muted hover:text-foreground transition-colors"
         >
-          <ChevronLeft size={16} />
-          <span className="font-mono text-xs tracking-wider">
+          <ChevronLeft size={18} />
+          <span className="font-mono text-sm tracking-wider">
             BACK TO DIVISION
           </span>
         </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Photo */}
-          <div className="aspect-[3/4] bg-surface rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
+          {/* Photo — large, taking half the screen */}
+          <div className="aspect-[3/4] max-h-[70vh] bg-surface rounded-lg border border-border-subtle flex items-center justify-center overflow-hidden">
             <PersonnelAvatar
               src={person.avatar_url}
               alt={getDisplayName(person)}
               className="w-full h-full object-cover object-top"
-              iconSize={56}
+              iconSize={80}
               iconLabel="PHOTO"
             />
           </div>
 
           {/* Info */}
-          <div className="md:col-span-2">
-            {/* Role label removed */}
-            <h3 className="font-serif text-2xl font-bold mb-1 text-foreground">
+          <div className="flex flex-col justify-center">
+            <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-2 text-foreground">
               {getDisplayName(person)}
             </h3>
-            <p className="font-mono text-sm text-foreground/70 mb-1">
+            <p className="font-mono text-base text-foreground/70 mb-1">
               {person.designation}
             </p>
             {person.unit_or_regiment && (
-              <p className="font-mono text-xs text-gold mb-2">
+              <p className="font-mono text-sm text-gold mb-3">
                 {person.unit_or_regiment}
               </p>
             )}
             {person.division && (
-              <p className="font-mono text-[10px] text-foreground/50 tracking-wider mb-5">
+              <p className="font-mono text-xs text-foreground/50 tracking-wider mb-6">
                 {person.division.toUpperCase()} DIVISION
               </p>
             )}
 
             {/* Extended info */}
             {hasExtendedInfo && (
-              <div className="border-t border-border-subtle pt-3 space-y-0">
+              <div className="border-t border-border-subtle pt-4 space-y-1">
                 {person.birthday && (
                   <DetailRow
                     icon={Cake}
@@ -332,19 +331,19 @@ function MagazinePersonnelDetail({
             )}
 
             {person.bio && (
-              <div className="border-t border-border-subtle pt-4 mt-3">
-                <span className="font-mono text-[10px] tracking-widest text-gold mb-3 block">
-                  // ABOUT
+              <div className="border-t border-border-subtle pt-5 mt-4">
+                <span className="font-mono text-xs tracking-widest text-gold mb-4 block">
+                  ABOUT
                 </span>
-                <p className="text-muted text-sm leading-relaxed">
+                <p className="text-foreground/70 text-base leading-relaxed">
                   {person.bio}
                 </p>
               </div>
             )}
 
             {!person.bio && !hasExtendedInfo && (
-              <div className="border-t border-border-subtle pt-4 mt-3">
-                <p className="text-muted/50 text-sm font-mono italic">
+              <div className="border-t border-border-subtle pt-5 mt-4">
+                <p className="text-muted text-base font-mono italic">
                   Profile details will be updated soon.
                 </p>
               </div>
