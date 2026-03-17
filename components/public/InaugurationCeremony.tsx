@@ -473,7 +473,7 @@ export default function InaugurationCeremony({
             <h1
               className="font-serif font-bold tracking-[0.2em]"
               style={{
-                fontSize: `clamp(18px, ${logoSize * 0.06}px, 34px)`,
+                fontSize: `clamp(36px, ${logoSize * 0.12}px, 64px)`,
                 color: "rgba(255,215,0,0.9)",
                 textShadow: "0 0 40px rgba(255,215,0,0.3)",
               }}
@@ -495,8 +495,8 @@ export default function InaugurationCeremony({
             <motion.p
               className="font-mono tracking-[0.5em] mt-2"
               style={{
-                fontSize: `clamp(9px, ${logoSize * 0.022}px, 13px)`,
-                color: "rgba(200,180,140,0.6)",
+                fontSize: `clamp(18px, ${logoSize * 0.045}px, 26px)`,
+                color: "rgba(200,180,140,0.7)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 3 ? 1 : 0 }}
@@ -518,7 +518,7 @@ export default function InaugurationCeremony({
             <h2
               className="font-serif font-bold"
               style={{
-                fontSize: `clamp(30px, ${logoSize * 0.12}px, 60px)`,
+                fontSize: `clamp(52px, ${logoSize * 0.22}px, 100px)`,
                 color: "rgba(245,245,245,0.95)",
                 letterSpacing: "0.15em",
                 textShadow:
@@ -530,8 +530,8 @@ export default function InaugurationCeremony({
             <motion.p
               className="font-mono tracking-[0.3em] mt-1"
               style={{
-                fontSize: `clamp(10px, ${logoSize * 0.025}px, 14px)`,
-                color: "rgba(255,215,0,0.5)",
+                fontSize: `clamp(18px, ${logoSize * 0.05}px, 28px)`,
+                color: "rgba(255,215,0,0.6)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 3 ? 1 : 0 }}
@@ -564,8 +564,8 @@ export default function InaugurationCeremony({
             <motion.p
               className="font-mono tracking-[0.4em] mb-3"
               style={{
-                fontSize: `clamp(9px, ${logoSize * 0.02}px, 12px)`,
-                color: "rgba(200,180,140,0.6)",
+                fontSize: `clamp(18px, ${logoSize * 0.045}px, 26px)`,
+                color: "rgba(200,180,140,0.7)",
               }}
               initial={{ opacity: 0, y: 10 }}
               animate={{
@@ -580,7 +580,7 @@ export default function InaugurationCeremony({
             <motion.h3
               className="font-serif font-bold inaug-shimmer"
               style={{
-                fontSize: `clamp(20px, ${logoSize * 0.065}px, 34px)`,
+                fontSize: `clamp(36px, ${logoSize * 0.12}px, 60px)`,
                 letterSpacing: "0.08em",
               }}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -596,8 +596,8 @@ export default function InaugurationCeremony({
             <motion.p
               className="font-mono tracking-[0.3em] mt-2"
               style={{
-                fontSize: `clamp(10px, ${logoSize * 0.025}px, 13px)`,
-                color: "rgba(200,180,140,0.5)",
+                fontSize: `clamp(18px, ${logoSize * 0.05}px, 26px)`,
+                color: "rgba(200,180,140,0.6)",
               }}
               initial={{ opacity: 0 }}
               animate={{ opacity: phase >= 4 ? 1 : 0 }}
@@ -619,7 +619,7 @@ export default function InaugurationCeremony({
           >
             <motion.button
               onClick={handleUnveil}
-              className="relative px-10 py-4 font-mono text-sm font-semibold tracking-[0.3em] rounded-lg border overflow-hidden"
+              className="relative px-14 py-5 font-mono text-xl font-semibold tracking-[0.3em] rounded-lg border overflow-hidden"
               style={{
                 color: "#FFD700",
                 borderColor: "rgba(255,215,0,0.4)",
@@ -652,7 +652,7 @@ export default function InaugurationCeremony({
             <motion.p
               className="text-center mt-3 font-mono tracking-wider"
               style={{
-                fontSize: "10px",
+                fontSize: "14px",
                 color: "rgba(200,180,140,0.35)",
               }}
               animate={{ opacity: [0.3, 0.6, 0.3] }}
