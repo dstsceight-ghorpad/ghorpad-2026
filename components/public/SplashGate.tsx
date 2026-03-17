@@ -4,7 +4,10 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./SplashScreen";
 import InaugurationCeremony from "./InaugurationCeremony";
 
-const STORAGE_KEY = "ghorpad_inauguration_active";
+// Global toggle — set NEXT_PUBLIC_INAUGURATION_MODE=true in .env.local / Vercel env vars
+// When true, ALL visitors see the inauguration animation after the access code
+const INAUGURATION_ENV =
+  process.env.NEXT_PUBLIC_INAUGURATION_MODE === "true";
 
 export default function SplashGate() {
   const [mode, setMode] = useState<"loading" | "inauguration" | "splash">(
@@ -13,32 +16,22 @@ export default function SplashGate() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Check URL params for activation/deactivation
+    // URL params override for testing (per-device)
     const urlParams = new URLSearchParams(window.location.search);
     const param = urlParams.get("inauguration");
 
-    if (param === "activate") {
-      localStorage.setItem(STORAGE_KEY, "true");
-      // Clean URL without reload
+    if (param === "activate" || param === "deactivate") {
       window.history.replaceState({}, "", window.location.pathname);
-      setMode("inauguration");
-      return;
-    }
-    if (param === "deactivate") {
-      localStorage.removeItem(STORAGE_KEY);
-      window.history.replaceState({}, "", window.location.pathname);
-      setMode("splash");
+      setMode(param === "activate" ? "inauguration" : "splash");
       return;
     }
 
-    // Check localStorage
-    const active = localStorage.getItem(STORAGE_KEY);
-    setMode(active === "true" ? "inauguration" : "splash");
+    // Use env var as global toggle for all visitors
+    setMode(INAUGURATION_ENV ? "inauguration" : "splash");
   }, []);
 
   if (dismissed || mode === "loading") {
     if (mode === "loading") {
-      // Brief blank screen while checking localStorage
       return (
         <div
           className="fixed inset-0 z-[100]"
