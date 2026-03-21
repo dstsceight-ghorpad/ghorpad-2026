@@ -582,7 +582,7 @@ function ArticlePage({ article }: { article: Article }) {
         </div>
         <div>
           <p className="font-serif text-base text-foreground">
-            {article.author?.full_name || "Unknown"}
+            {article.contributor_name || article.author?.full_name || "Unknown"}
           </p>
           <p className="font-mono text-xs text-muted">
             {article.read_time_minutes} MIN READ

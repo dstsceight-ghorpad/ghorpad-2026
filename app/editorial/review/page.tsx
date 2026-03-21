@@ -120,7 +120,7 @@ export default function ReviewQueuePage() {
                   </h3>
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-mono text-[10px] text-muted">
-                      by {article.author?.full_name || "Unknown"}
+                      by {article.contributor_name || article.author?.full_name || "Unknown"}
                     </span>
                     <span className="font-mono text-[10px] text-muted">
                       {formatDateShort(article.created_at)}

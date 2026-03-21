@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   Inbox,
   CheckCircle2,
@@ -10,6 +11,7 @@ import {
   Mail,
   X,
   Loader2,
+  ExternalLink,
 } from "lucide-react";
 import {
   loadSubmissions,
@@ -344,6 +346,15 @@ export default function SubmissionsPage() {
                 >
                   {selectedSubmission.status.toUpperCase()}
                 </span>
+                {selectedSubmission.status === "approved" && selectedSubmission.article_id && (
+                  <Link
+                    href={`/editorial/articles/${selectedSubmission.article_id}/edit`}
+                    className="inline-flex items-center gap-1.5 font-mono text-[10px] px-3 py-1 bg-gold/10 text-gold rounded hover:bg-gold/20 transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    EDIT DRAFT
+                  </Link>
+                )}
               </div>
             </div>
 

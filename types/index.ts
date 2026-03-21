@@ -29,6 +29,7 @@ export interface Article {
   updated_at: string;
   published_at: string | null;
   read_time_minutes: number;
+  contributor_name?: string;
   author?: Profile;
 }
 
@@ -245,6 +246,7 @@ export interface Submission {
   created_at: string;
   reviewed_at?: string;
   reviewed_by?: string;
+  article_id?: string;
 }
 
 // --- Table of Contents types ---

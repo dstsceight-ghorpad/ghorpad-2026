@@ -62,7 +62,7 @@ export default function SpotlightSection({ article }: SpotlightSectionProps) {
             {article.excerpt}
           </p>
           <div className="flex items-center gap-3 mb-6 font-mono text-xs text-muted">
-            <span>{article.author?.full_name}</span>
+            <span>{article.contributor_name || article.author?.full_name}</span>
             <span className="text-border-subtle">/</span>
             <span>{article.published_at ? formatDate(article.published_at) : ""}</span>
             <span className="text-border-subtle">/</span>

@@ -135,9 +135,9 @@ export default function ArticlePage() {
                   color: getCategoryColor(article.category).hex,
                 }}
               >
-                {article.author?.full_name?.charAt(0) || "?"}
+                {(article.contributor_name || article.author?.full_name)?.charAt(0) || "?"}
               </div>
-              <span>{article.author?.full_name}</span>
+              <span>{article.contributor_name || article.author?.full_name}</span>
             </div>
             <span className="text-border-subtle">|</span>
             <span>
@@ -301,7 +301,7 @@ export default function ArticlePage() {
                     {ra.title}
                   </h3>
                   <p className="font-mono text-[10px] text-muted">
-                    {ra.author?.full_name} &middot;{" "}
+                    {ra.contributor_name || ra.author?.full_name} &middot;{" "}
                     {ra.read_time_minutes} min read
                   </p>
                 </div>

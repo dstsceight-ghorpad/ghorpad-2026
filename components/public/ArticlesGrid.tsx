@@ -133,7 +133,7 @@ function ArticleCard({ article }: { article: Article }) {
             {article.excerpt}
           </p>
           <div className="flex items-center justify-between font-mono text-[10px] text-muted">
-            <span>{article.author?.full_name}</span>
+            <span>{article.contributor_name || article.author?.full_name}</span>
             <span className="flex items-center gap-2">
               <span>{article.read_time_minutes} min</span>
               <span className="text-border-subtle">|</span>
