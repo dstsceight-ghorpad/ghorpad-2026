@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Image as ImageIcon, Users, Plus, Upload, Eye, ClipboardCheck, Inbox } from "lucide-react";
+import { FileText, Image as ImageIcon, Users, Plus, Upload, Eye, ClipboardCheck, Inbox, Sparkles } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
-import { canManageTeam } from "@/lib/auth";
+import { canManageTeam, canPublish } from "@/lib/auth";
 import { formatDateShort } from "@/lib/utils";
 
 interface DashboardStats {
@@ -21,6 +21,33 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>(
     { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0, inReview: 0 }
   );
+  const [inaugurationMode, setInaugurationMode] = useState(false);
+  const [inaugurationLoading, setInaugurationLoading] = useState(true);
+  const [inaugurationSaving, setInaugurationSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings?key=inauguration_mode")
+      .then((res) => res.json())
+      .then((data) => setInaugurationMode(data.value === "true"))
+      .catch(() => {})
+      .finally(() => setInaugurationLoading(false));
+  }, []);
+
+  async function toggleInauguration() {
+    setInaugurationSaving(true);
+    const newValue = !inaugurationMode;
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "inauguration_mode", value: String(newValue) }),
+      });
+      if (res.ok) {
+        setInaugurationMode(newValue);
+      }
+    } catch {}
+    setInaugurationSaving(false);
+  }
 
   useEffect(() => {
     async function fetchStats() {
@@ -180,6 +207,47 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Site Controls — visible to editors and super_editors */}
+      {profile?.role && canPublish(profile.role) && (
+        <div className="mb-8">
+          <h2 className="font-mono text-xs text-gold tracking-[0.2em] mb-4">
+            // SITE CONTROLS
+          </h2>
+          <div className="bg-surface border border-border-subtle rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-purple-400/10 p-2 rounded-lg">
+                  <Sparkles size={18} className="text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Inauguration Landing Page</p>
+                  <p className="font-mono text-[10px] text-muted mt-0.5">
+                    {inaugurationLoading
+                      ? "Loading..."
+                      : inaugurationMode
+                        ? "ENABLED — All visitors see the inauguration animation"
+                        : "DISABLED — Visitors see the regular splash screen"}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={toggleInauguration}
+                disabled={inaugurationLoading || inaugurationSaving}
+                className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${
+                  inaugurationMode ? "bg-gold" : "bg-zinc-600"
+                } ${inaugurationLoading || inaugurationSaving ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 ${
+                    inaugurationMode ? "translate-x-6" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Recent Activity placeholder */}
       <div>

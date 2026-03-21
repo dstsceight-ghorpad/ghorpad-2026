@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import SplashScreen from "./SplashScreen";
 import InaugurationCeremony from "./InaugurationCeremony";
 
-// Global toggle — set NEXT_PUBLIC_INAUGURATION_MODE=true in Vercel env vars
+// Build-time fallback — used only if the API call fails
 const INAUGURATION_ENV =
   process.env.NEXT_PUBLIC_INAUGURATION_MODE === "true";
 
@@ -15,7 +15,7 @@ export default function SplashGate() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // URL param override for testing
+    // URL param override for testing (highest priority)
     const urlParams = new URLSearchParams(window.location.search);
     const param = urlParams.get("inauguration");
 
@@ -25,8 +25,16 @@ export default function SplashGate() {
       return;
     }
 
-    // Use env var as global toggle
-    setMode(INAUGURATION_ENV ? "inauguration" : "splash");
+    // Fetch runtime setting from database
+    fetch("/api/settings?key=inauguration_mode")
+      .then((res) => res.json())
+      .then((data) => {
+        setMode(data.value === "true" ? "inauguration" : "splash");
+      })
+      .catch(() => {
+        // Fallback to env var if API fails
+        setMode(INAUGURATION_ENV ? "inauguration" : "splash");
+      });
   }, []);
 
   if (dismissed || mode === "loading") {

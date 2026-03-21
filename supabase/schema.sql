@@ -160,6 +160,27 @@ CREATE POLICY "Editors can delete media"
   );
 
 -- ============================================
+-- SITE SETTINGS TABLE
+-- ============================================
+CREATE TABLE site_settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT 'false',
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO site_settings (key, value) VALUES ('inauguration_mode', 'false');
+
+ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read settings"
+  ON site_settings FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can update settings"
+  ON site_settings FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+-- ============================================
 -- STORAGE BUCKETS
 -- ============================================
 -- Run these in Supabase Dashboard > Storage
