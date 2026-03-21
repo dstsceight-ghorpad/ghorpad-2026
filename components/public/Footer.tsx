@@ -25,7 +25,7 @@ export default function Footer() {
             <h3 className="font-serif text-2xl font-bold mb-2">GHORPAD</h3>
             <p className="font-mono text-xs text-gold mb-4">2026 EDITION</p>
             <p className="text-muted text-sm leading-relaxed">
-              The official student magazine of MILIT - DSTSC 08. Amplifying
+              Ghorpad 2026 — The official student magazine of MILIT. Amplifying
               campus voices.
             </p>
           </div>

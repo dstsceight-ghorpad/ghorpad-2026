@@ -165,21 +165,7 @@ export default function PersonnelDetailOverlay({
               {person.designation}
             </p>
 
-            {/* Regiment */}
-            {person.unit_or_regiment && (
-              <p className="font-mono text-xs text-gold/60 mb-2">
-                {person.unit_or_regiment}
-              </p>
-            )}
-
-            {/* Division */}
-            {person.division && (
-              <p className="font-mono text-[10px] text-muted tracking-wider mb-6">
-                {person.division.toUpperCase()} DIVISION
-              </p>
-            )}
-
-            {!person.division && <div className="mb-6" />}
+            <div className="mb-6" />
 
             {/* Extended Info rows */}
             {hasExtendedInfo && (

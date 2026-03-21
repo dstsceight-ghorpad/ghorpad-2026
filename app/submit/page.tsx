@@ -4,18 +4,27 @@ import { useState } from "react";
 import {
   FileText,
   Image as ImageIcon,
-  Mail,
+  PenTool,
+  Palette,
   ChevronRight,
   ChevronLeft,
   Check,
   Send,
   Tag,
+  User,
+  Users,
 } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { saveSubmission } from "@/lib/submissions";
-import { CATEGORIES } from "@/types";
-import type { SubmissionType, Submission } from "@/types";
+import { CATEGORIES, DIVISIONS } from "@/types";
+import type {
+  SubmissionType,
+  ContributorType,
+  Submission,
+  GalleryCategory,
+  Division,
+} from "@/types";
 
 // ── Submission type options ──────────────────────────────────────────────────
 
@@ -23,132 +32,45 @@ const submissionTypes = [
   {
     type: "article" as SubmissionType,
     label: "Article",
-    description: "Submit a written piece — news, opinion, feature, or review",
+    description: "Written piece — news, opinion, feature, or review",
     icon: FileText,
   },
   {
     type: "photo" as SubmissionType,
     label: "Photo",
-    description: "Share photos from campus events, training, or campus life",
+    description: "Photos from campus events, training, or campus life",
     icon: ImageIcon,
   },
   {
-    type: "letter" as SubmissionType,
-    label: "Letter to Editor",
-    description:
-      "Write a letter to the editorial team with feedback or thoughts",
-    icon: Mail,
+    type: "poem" as SubmissionType,
+    label: "Poem",
+    description: "Poetry and creative verse",
+    icon: PenTool,
+  },
+  {
+    type: "sketch" as SubmissionType,
+    label: "Sketch",
+    description: "Artwork, illustrations, or creative sketches",
+    icon: Palette,
   },
 ];
 
-// ── Category-specific writing templates ──────────────────────────────────────
+// ── Gallery categories for photos ────────────────────────────────────────────
 
-const categoryTemplates: Record<string, string> = {
-  Campus: `[HEADLINE — What happened / What is this about?]
+const GALLERY_CATEGORIES: GalleryCategory[] = [
+  "Ceremonies",
+  "CAPSTAR",
+  "Cultural",
+  "Social",
+  "Guest Lectures",
+  "Sports",
+  "Campus",
+  "Adventures",
+  "Families",
+  "Creative",
+];
 
-[INTRODUCTION — Set the scene. When and where did this take place? Why is it significant to the DSTSC community?]
-
-[BODY — Describe the event, activity, or development in detail. Include key participants, highlights, and outcomes.]
-
-[IMPACT — How does this affect the campus community? What are the takeaways?]
-
-[CONCLUSION — Wrap up with a forward-looking statement or reflection.]`,
-
-  Culture: `[TITLE — Name the cultural event, tradition, or experience]
-
-[CONTEXT — What is the cultural significance? Provide background for readers who may not be familiar.]
-
-[NARRATIVE — Describe the experience, celebration, or tradition in vivid detail. Paint a picture for the reader.]
-
-[PERSONAL REFLECTION — What did this mean to you or the participants? How does it connect diverse backgrounds at DSTSC?]
-
-[CLOSING THOUGHT — A unifying message or takeaway about cultural exchange.]`,
-
-  Opinion: `[HEADLINE — A clear, engaging statement of your position]
-
-[OPENING — Introduce the topic and state your thesis clearly. Why does this matter?]
-
-[ARGUMENT 1 — Present your first supporting point with evidence or examples.]
-
-[ARGUMENT 2 — Present your second supporting point. Address potential counterarguments.]
-
-[ARGUMENT 3 (Optional) — Additional supporting evidence or perspective.]
-
-[CONCLUSION — Restate your position and leave the reader with a thought-provoking closing.]
-
-Note: Opinion pieces reflect the author's personal views and do not represent the views of the editorial team or MILIT.`,
-
-  Sports: `[HEADLINE — Sport, event name, and result/outcome]
-
-[MATCH/EVENT SUMMARY — Date, venue, teams/participants, and final result.]
-
-[KEY MOMENTS — Describe the turning points, standout performances, or memorable plays.]
-
-[PLAYER HIGHLIGHTS — Name the top performers and their contributions.]
-
-[TEAM SPIRIT — Capture the atmosphere, sportsmanship, and camaraderie.]
-
-[LOOKING AHEAD — Upcoming fixtures, training goals, or reflections on the season.]`,
-
-  Tech: `[TITLE — The technology, innovation, or concept you are writing about]
-
-[INTRODUCTION — What is this technology? Why should the DSTSC community care?]
-
-[EXPLANATION — Break down how it works in simple, accessible language. Avoid excessive jargon.]
-
-[MILITARY/DEFENCE APPLICATION — How is this relevant to defence, strategy, or military operations?]
-
-[FUTURE OUTLOOK — Where is this technology headed? What should officers be aware of?]
-
-[REFERENCES (Optional) — Cite any sources or further reading.]`,
-
-  Achievements: `[HEADLINE — Who achieved what?]
-
-[THE ACHIEVEMENT — Clearly state what was accomplished, by whom, and when.]
-
-[JOURNEY — Describe the effort, preparation, or journey that led to this achievement.]
-
-[SIGNIFICANCE — Why does this matter? How does it inspire the DSTSC community?]
-
-[RECOGNITION — Any awards, citations, or words of appreciation received.]
-
-[IN THEIR OWN WORDS (Optional) — A brief quote from the achiever.]`,
-
-  "Ladies Corner": `[TITLE — A compelling title for your piece]
-
-[INTRODUCTION — Set the context. What is this article about and why is it relevant?]
-
-[NARRATIVE — Share the story, experience, insight, or perspective. This could be personal, observational, or informative.]
-
-[REFLECTION — What are the key insights or lessons? How does this connect to the broader community?]
-
-[CLOSING — End with an uplifting or thought-provoking message.]`,
-
-  "International Perspectives": `[TITLE — Country/Region and the topic of your perspective]
-
-[INTRODUCTION — Briefly introduce yourself, your country, and the topic you wish to discuss.]
-
-[PERSPECTIVE — Share your unique viewpoint shaped by your national or cultural background. How does your experience differ from or align with what you have observed at DSTSC?]
-
-[COMPARISON — Draw parallels or contrasts between your home country's approach and what you have learned here.]
-
-[TAKEAWAY — What is the key message for your fellow officers? What can we learn from each other?]
-
-[PERSONAL NOTE (Optional) — A personal anecdote that illustrates your point.]`,
-
-  Poems: `[TITLE OF POEM]
-
-[Your poem here — free verse, rhyming, or any style you prefer.]
-
-
-
-
-
----
-Note: Please include a brief note (2-3 lines) about the inspiration behind your poem.`,
-};
-
-// ── Category descriptions for the selection grid ─────────────────────────────
+// ── Category descriptions ────────────────────────────────────────────────────
 
 const categoryDescriptions: Record<string, string> = {
   Campus: "Campus life, events, and institute happenings",
@@ -160,7 +82,114 @@ const categoryDescriptions: Record<string, string> = {
   "Ladies Corner": "Stories, experiences, and perspectives",
   "International Perspectives": "Cross-cultural insights from international officers",
   Poems: "Poetry and creative verse",
+  // Gallery categories
+  Ceremonies: "Passing out parades, commissioning, and formal events",
+  CAPSTAR: "CAPSTAR competition events and activities",
+  Cultural: "Cultural programmes and celebrations",
+  Social: "Social gatherings and community events",
+  "Guest Lectures": "Lectures, talks, and seminars",
+  Adventures: "Trekking, expeditions, and outdoor activities",
+  Families: "Family day events and gatherings",
+  Creative: "Art, creativity, and expression",
 };
+
+// ── Category-specific writing templates ──────────────────────────────────────
+
+const categoryTemplates: Record<string, string> = {
+  Campus: `[HEADLINE — What happened / What is this about?]
+
+[INTRODUCTION — Set the scene. When and where did this take place? Why is it significant?]
+
+[BODY — Describe the event, activity, or development in detail. Include key participants, highlights, and outcomes.]
+
+[IMPACT — How does this affect the campus community? What are the takeaways?]
+
+[CONCLUSION — Wrap up with a forward-looking statement or reflection.]`,
+
+  Culture: `[TITLE — Name the cultural event, tradition, or experience]
+
+[CONTEXT — What is the cultural significance? Provide background.]
+
+[NARRATIVE — Describe the experience in vivid detail.]
+
+[PERSONAL REFLECTION — What did this mean to you or the participants?]
+
+[CLOSING THOUGHT — A unifying message or takeaway.]`,
+
+  Opinion: `[HEADLINE — A clear, engaging statement of your position]
+
+[OPENING — Introduce the topic and state your thesis clearly.]
+
+[ARGUMENT 1 — Present your first supporting point with evidence.]
+
+[ARGUMENT 2 — Present your second supporting point. Address counterarguments.]
+
+[CONCLUSION — Restate your position and leave a thought-provoking closing.]
+
+Note: Opinion pieces reflect the author's personal views.`,
+
+  Sports: `[HEADLINE — Sport, event name, and result/outcome]
+
+[MATCH/EVENT SUMMARY — Date, venue, teams/participants, and result.]
+
+[KEY MOMENTS — Describe turning points and standout performances.]
+
+[TEAM SPIRIT — Capture the atmosphere and camaraderie.]
+
+[LOOKING AHEAD — Upcoming fixtures or reflections on the season.]`,
+
+  Tech: `[TITLE — The technology or concept you are writing about]
+
+[INTRODUCTION — What is this technology? Why should we care?]
+
+[EXPLANATION — Break down how it works in accessible language.]
+
+[DEFENCE APPLICATION — How is this relevant to defence or military operations?]
+
+[FUTURE OUTLOOK — Where is this technology headed?]`,
+
+  Achievements: `[HEADLINE — Who achieved what?]
+
+[THE ACHIEVEMENT — What was accomplished, by whom, and when.]
+
+[JOURNEY — The effort and preparation that led to this achievement.]
+
+[SIGNIFICANCE — Why does this matter? How does it inspire the community?]
+
+[IN THEIR OWN WORDS (Optional) — A brief quote from the achiever.]`,
+
+  "Ladies Corner": `[TITLE — A compelling title for your piece]
+
+[INTRODUCTION — Set the context. What is this article about?]
+
+[NARRATIVE — Share the story, experience, or perspective.]
+
+[REFLECTION — What are the key insights or lessons?]
+
+[CLOSING — End with an uplifting or thought-provoking message.]`,
+
+  "International Perspectives": `[TITLE — Country/Region and the topic of your perspective]
+
+[INTRODUCTION — Introduce yourself, your country, and the topic.]
+
+[PERSPECTIVE — Share your unique viewpoint shaped by your background.]
+
+[COMPARISON — Draw parallels or contrasts with what you have observed here.]
+
+[TAKEAWAY — What can we learn from each other?]`,
+
+  Poems: `[TITLE OF POEM]
+
+[Your poem here — free verse, rhyming, or any style you prefer.]
+
+
+
+
+---
+Note: Please include a brief note (2-3 lines) about the inspiration behind your poem.`,
+};
+
+const RELATIONS = ["Wife of", "Son of", "Daughter of"];
 
 // ── Component ────────────────────────────────────────────────────────────────
 
@@ -172,23 +201,44 @@ export default function SubmitPage() {
   const [content, setContent] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [authorEmail, setAuthorEmail] = useState("");
-  const [authorBatch, setAuthorBatch] = useState("");
+  const [authorDivision, setAuthorDivision] = useState<Division | "">("");
+  const [contributorType, setContributorType] = useState<ContributorType>("officer");
+  const [relation, setRelation] = useState("");
+  const [officerName, setOfficerName] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submissionId, setSubmissionId] = useState("");
 
+  // Get applicable categories based on submission type
+  const getCategories = (): string[] => {
+    if (type === "photo") return [...GALLERY_CATEGORIES];
+    if (type === "poem") return ["Poems"];
+    if (type === "sketch") return ["Creative"];
+    // articles get full CATEGORIES list
+    return [...CATEGORIES];
+  };
+
   const handleSubmit = () => {
-    if (!type || !category || !title || !content || !authorName || !authorEmail)
-      return;
+    if (!type || !category || !title || !content || !authorName) return;
 
     const id = `sub-${Date.now()}`;
+
+    // Build display name for family members
+    let displayName = authorName;
+    if (contributorType === "family" && relation && officerName) {
+      displayName = `${authorName}, ${relation} ${officerName}`;
+    }
+
     const submission: Submission = {
       id,
       type,
       category,
       title,
-      author_name: authorName,
-      author_email: authorEmail,
-      author_batch: authorBatch || undefined,
+      author_name: displayName,
+      author_email: authorEmail || "",
+      author_division: (authorDivision as Division) || undefined,
+      contributor_type: contributorType,
+      relation: contributorType === "family" ? relation || undefined : undefined,
+      officer_name: contributorType === "family" ? officerName || undefined : undefined,
       content,
       status: "pending",
       created_at: new Date().toISOString(),
@@ -202,15 +252,54 @@ export default function SubmitPage() {
   // When category changes, pre-fill the template if content is empty or still a template
   const handleCategorySelect = (cat: string) => {
     setCategory(cat);
-    // Only pre-fill if content is empty or is still a template (starts with "[")
-    if (!content || content.startsWith("[")) {
-      setContent(categoryTemplates[cat] || "");
+    if (type === "article" || type === "poem") {
+      if (!content || content.startsWith("[")) {
+        setContent(categoryTemplates[cat] || "");
+      }
+    }
+  };
+
+  // Auto-select category for poem/sketch since they have single categories
+  const handleTypeSelect = (selectedType: SubmissionType) => {
+    setType(selectedType);
+    // Reset category when type changes
+    setCategory(null);
+    if (selectedType === "poem") {
+      setCategory("Poems");
+      if (!content || content.startsWith("[")) {
+        setContent(categoryTemplates["Poems"] || "");
+      }
+    } else if (selectedType === "sketch") {
+      setCategory("Creative");
     }
   };
 
   const canProceedStep2 = type !== null;
   const canProceedStep3 = category !== null;
-  const canProceedStep4 = title && content && authorName && authorEmail;
+  const canProceedStep4 =
+    title &&
+    content &&
+    authorName &&
+    (contributorType === "officer" || (relation && officerName));
+
+  // For poem/sketch, skip category selection (step 2)
+  const skipCategoryStep = type === "poem" || type === "sketch";
+
+  const goNext = (currentStep: number) => {
+    if (currentStep === 1 && skipCategoryStep) {
+      setStep(3);
+    } else {
+      setStep(currentStep + 1);
+    }
+  };
+
+  const goBack = (currentStep: number) => {
+    if (currentStep === 3 && skipCategoryStep) {
+      setStep(1);
+    } else {
+      setStep(currentStep - 1);
+    }
+  };
 
   // ── Success screen ──────────────────────────────────────────────────────────
   if (submitted) {
@@ -222,7 +311,7 @@ export default function SubmitPage() {
             <Check size={40} className="text-green-400" />
           </div>
           <h1 className="font-serif text-3xl font-bold mb-3">
-            Submission Received!
+            Contribution Received!
           </h1>
           <p className="text-muted leading-relaxed mb-4">
             Thank you for your contribution. Our editorial team will review your
@@ -248,6 +337,15 @@ export default function SubmitPage() {
     );
   }
 
+  // Total visible steps
+  const totalSteps = skipCategoryStep ? 3 : 4;
+  const displayStep = (s: number) => {
+    if (!skipCategoryStep) return s;
+    // Map step 3→2, step 4→3 when skipping category
+    if (s >= 3) return s - 1;
+    return s;
+  };
+
   // ── Main form ───────────────────────────────────────────────────────────────
   return (
     <main className="min-h-screen bg-background">
@@ -256,43 +354,46 @@ export default function SubmitPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-3">
-            Submit Content
+            Contribute
           </h1>
           <p className="text-muted leading-relaxed">
-            Share your voice with the GHORPAD community. All submissions are
-            reviewed by our editorial team.
+            Share your voice with the GHORPAD community. All contributions are
+            reviewed by our editorial team before publishing.
           </p>
         </div>
 
-        {/* Progress bar — 4 steps now */}
+        {/* Progress bar */}
         <div className="flex items-center justify-center gap-2 mb-10">
-          {[1, 2, 3, 4].map((s) => (
-            <div key={s} className="flex items-center gap-2">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs transition-all ${
-                  step >= s
-                    ? "bg-gold text-background"
-                    : "bg-surface-light text-muted border border-border-subtle"
-                }`}
-              >
-                {step > s ? <Check size={14} /> : s}
-              </div>
-              {s < 4 && (
+          {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s) => {
+            const actualStep = displayStep(step);
+            return (
+              <div key={s} className="flex items-center gap-2">
                 <div
-                  className={`w-8 sm:w-12 h-0.5 transition-all ${
-                    step > s ? "bg-gold" : "bg-border-subtle"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center font-mono text-xs transition-all ${
+                    actualStep >= s
+                      ? "bg-gold text-background"
+                      : "bg-surface-light text-muted border border-border-subtle"
                   }`}
-                />
-              )}
-            </div>
-          ))}
+                >
+                  {actualStep > s ? <Check size={14} /> : s}
+                </div>
+                {s < totalSteps && (
+                  <div
+                    className={`w-8 sm:w-12 h-0.5 transition-all ${
+                      actualStep > s ? "bg-gold" : "bg-border-subtle"
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* ── Step 1: Type selection ────────────────────────────────────── */}
         {step === 1 && (
           <div className="space-y-4">
             <h2 className="font-mono text-xs text-gold tracking-widest text-center mb-6">
-              STEP 1: CHOOSE SUBMISSION TYPE
+              STEP 1: WHAT WOULD YOU LIKE TO CONTRIBUTE?
             </h2>
             {submissionTypes.map((item) => {
               const Icon = item.icon;
@@ -301,7 +402,7 @@ export default function SubmitPage() {
               return (
                 <button
                   key={item.type}
-                  onClick={() => setType(item.type)}
+                  onClick={() => handleTypeSelect(item.type)}
                   className={`w-full text-left p-5 rounded-lg border transition-all flex items-center gap-4 ${
                     isSelected
                       ? "border-gold bg-gold/5"
@@ -337,7 +438,7 @@ export default function SubmitPage() {
 
             <div className="flex justify-end mt-6">
               <button
-                onClick={() => canProceedStep2 && setStep(2)}
+                onClick={() => canProceedStep2 && goNext(1)}
                 disabled={!canProceedStep2}
                 className="flex items-center gap-2 bg-gold text-background font-mono text-xs font-semibold px-6 py-3 rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -348,18 +449,20 @@ export default function SubmitPage() {
           </div>
         )}
 
-        {/* ── Step 2: Category selection ────────────────────────────────── */}
+        {/* ── Step 2: Category selection (skipped for poem/sketch) ─────── */}
         {step === 2 && (
           <div className="space-y-4">
             <h2 className="font-mono text-xs text-gold tracking-widest text-center mb-2">
               STEP 2: SELECT CATEGORY
             </h2>
             <p className="text-center text-xs text-muted mb-6">
-              Choose the category that best fits your submission
+              {type === "photo"
+                ? "Choose the gallery section for your photo"
+                : "Choose the category that best fits your article"}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {CATEGORIES.map((cat) => {
+              {getCategories().map((cat) => {
                 const isSelected = category === cat;
                 return (
                   <button
@@ -381,9 +484,11 @@ export default function SubmitPage() {
                       >
                         {cat}
                       </h3>
-                      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
-                        {categoryDescriptions[cat]}
-                      </p>
+                      {categoryDescriptions[cat] && (
+                        <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+                          {categoryDescriptions[cat]}
+                        </p>
+                      )}
                     </div>
                     {isSelected && (
                       <Check
@@ -398,14 +503,14 @@ export default function SubmitPage() {
 
             <div className="flex items-center justify-between mt-6">
               <button
-                onClick={() => setStep(1)}
+                onClick={() => goBack(2)}
                 className="flex items-center gap-2 font-mono text-xs text-muted hover:text-foreground transition-colors"
               >
                 <ChevronLeft size={14} />
                 BACK
               </button>
               <button
-                onClick={() => canProceedStep3 && setStep(3)}
+                onClick={() => canProceedStep3 && goNext(2)}
                 disabled={!canProceedStep3}
                 className="flex items-center gap-2 bg-gold text-background font-mono text-xs font-semibold px-6 py-3 rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
@@ -416,11 +521,11 @@ export default function SubmitPage() {
           </div>
         )}
 
-        {/* ── Step 3: Write content with template ──────────────────────── */}
+        {/* ── Step 3: Content + Contributor Info ──────────────────────── */}
         {step === 3 && (
           <div className="space-y-6">
             <h2 className="font-mono text-xs text-gold tracking-widest text-center mb-2">
-              STEP 3: WRITE YOUR CONTENT
+              {skipCategoryStep ? "STEP 2" : "STEP 3"}: YOUR CONTENT &amp; DETAILS
             </h2>
             {category && (
               <div className="text-center mb-4">
@@ -433,18 +538,20 @@ export default function SubmitPage() {
 
             <div>
               <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
-                TITLE
+                TITLE *
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={
-                  type === "letter"
-                    ? "Subject of your letter"
-                    : type === "photo"
-                      ? "Photo title or caption"
-                      : "Article title"
+                  type === "photo"
+                    ? "Photo title or caption"
+                    : type === "poem"
+                      ? "Title of your poem"
+                      : type === "sketch"
+                        ? "Title of your sketch"
+                        : "Article title"
                 }
                 className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
               />
@@ -455,46 +562,156 @@ export default function SubmitPage() {
                 <label className="font-mono text-[10px] text-muted tracking-widest">
                   {type === "photo"
                     ? "DESCRIPTION"
-                    : type === "letter"
-                      ? "YOUR LETTER"
-                      : "ARTICLE CONTENT"}
+                    : type === "poem"
+                      ? "YOUR POEM"
+                      : type === "sketch"
+                        ? "DESCRIPTION"
+                        : "ARTICLE CONTENT"}{" "}
+                  *
                 </label>
-                <span className="font-mono text-[9px] text-muted/60">
-                  Follow the template structure for best results
-                </span>
+                {(type === "article" || type === "poem") && (
+                  <span className="font-mono text-[9px] text-muted/60">
+                    Follow the template for best results
+                  </span>
+                )}
               </div>
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                rows={16}
+                rows={type === "photo" || type === "sketch" ? 6 : 16}
+                placeholder={
+                  type === "photo"
+                    ? "Describe the photo — event, date, people pictured, and context"
+                    : type === "sketch"
+                      ? "Describe your sketch — inspiration, medium used, and any context"
+                      : undefined
+                }
                 className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-gold transition-all font-mono leading-relaxed"
               />
-              <p className="font-mono text-[9px] text-muted/50 mt-1.5">
-                Replace the [bracketed prompts] with your content. You may add
-                or remove sections as needed.
-              </p>
+              {(type === "article" || type === "poem") && content.startsWith("[") && (
+                <p className="font-mono text-[9px] text-muted/50 mt-1.5">
+                  Replace the [bracketed prompts] with your content. You may add
+                  or remove sections as needed.
+                </p>
+              )}
             </div>
 
+            {/* Contributor Info */}
             <div className="border-t border-border-subtle pt-6">
               <span className="font-mono text-[10px] text-muted tracking-widest mb-4 block">
-                YOUR INFORMATION
+                CONTRIBUTOR INFORMATION
               </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
-                    YOUR NAME *
-                  </label>
-                  <input
-                    type="text"
-                    value={authorName}
-                    onChange={(e) => setAuthorName(e.target.value)}
-                    placeholder="e.g. Capt Arjun Singh"
-                    className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
-                  />
+
+              {/* Contributor type toggle */}
+              <div className="flex gap-2 mb-5">
+                <button
+                  onClick={() => setContributorType("officer")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border font-mono text-xs transition-all ${
+                    contributorType === "officer"
+                      ? "border-gold bg-gold/5 text-gold"
+                      : "border-border-subtle text-muted hover:border-gold/30"
+                  }`}
+                >
+                  <User size={14} />
+                  STUDENT OFFICER
+                </button>
+                <button
+                  onClick={() => setContributorType("family")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border font-mono text-xs transition-all ${
+                    contributorType === "family"
+                      ? "border-gold bg-gold/5 text-gold"
+                      : "border-border-subtle text-muted hover:border-gold/30"
+                  }`}
+                >
+                  <Users size={14} />
+                  FAMILY MEMBER
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                      YOUR NAME *
+                    </label>
+                    <input
+                      type="text"
+                      value={authorName}
+                      onChange={(e) => setAuthorName(e.target.value)}
+                      placeholder={
+                        contributorType === "officer"
+                          ? "e.g. Capt Arjun Singh"
+                          : "e.g. Priya"
+                      }
+                      className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                      DIVISION
+                    </label>
+                    <select
+                      value={authorDivision}
+                      onChange={(e) => setAuthorDivision(e.target.value as Division | "")}
+                      className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
+                    >
+                      <option value="">Select Division</option>
+                      {DIVISIONS.map((div) => (
+                        <option key={div} value={div}>
+                          {div}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+
+                {contributorType === "family" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-surface-light rounded-lg border border-border-subtle">
+                    <div>
+                      <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                        RELATION *
+                      </label>
+                      <select
+                        value={relation}
+                        onChange={(e) => setRelation(e.target.value)}
+                        className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
+                      >
+                        <option value="">Select Relation</option>
+                        {RELATIONS.map((r) => (
+                          <option key={r} value={r}>
+                            {r}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                        OFFICER&apos;S NAME *
+                      </label>
+                      <input
+                        type="text"
+                        value={officerName}
+                        onChange={(e) => setOfficerName(e.target.value)}
+                        placeholder="e.g. Capt Arjun Singh"
+                        className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
+                      />
+                    </div>
+                    {authorName && relation && officerName && (
+                      <div className="sm:col-span-2">
+                        <span className="font-mono text-[10px] text-muted block mb-1">
+                          CONTRIBUTOR DISPLAY NAME
+                        </span>
+                        <span className="text-sm text-gold">
+                          {authorName}, {relation} {officerName}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div>
                   <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
-                    EMAIL *
+                    EMAIL (OPTIONAL)
                   </label>
                   <input
                     type="email"
@@ -504,24 +721,12 @@ export default function SubmitPage() {
                     className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
                   />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
-                    BATCH (OPTIONAL)
-                  </label>
-                  <input
-                    type="text"
-                    value={authorBatch}
-                    onChange={(e) => setAuthorBatch(e.target.value)}
-                    placeholder="e.g. DSTSC 08"
-                    className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-gold transition-all"
-                  />
-                </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between mt-6">
               <button
-                onClick={() => setStep(2)}
+                onClick={() => goBack(3)}
                 className="flex items-center gap-2 font-mono text-xs text-muted hover:text-foreground transition-colors"
               >
                 <ChevronLeft size={14} />
@@ -543,7 +748,7 @@ export default function SubmitPage() {
         {step === 4 && (
           <div className="space-y-6">
             <h2 className="font-mono text-xs text-gold tracking-widest text-center mb-6">
-              STEP 4: REVIEW & SUBMIT
+              {skipCategoryStep ? "STEP 3" : "STEP 4"}: REVIEW &amp; SUBMIT
             </h2>
 
             <div className="bg-surface border border-border-subtle rounded-lg p-5 space-y-4">
@@ -579,14 +784,21 @@ export default function SubmitPage() {
               </div>
               <div className="border-t border-border-subtle pt-4">
                 <span className="font-mono text-[10px] text-muted block mb-1">
-                  SUBMITTED BY
+                  CONTRIBUTED BY
                 </span>
                 <span className="text-sm">
-                  {authorName} ({authorEmail})
+                  {contributorType === "family" && relation && officerName
+                    ? `${authorName}, ${relation} ${officerName}`
+                    : authorName}
                 </span>
-                {authorBatch && (
+                {authorDivision && (
                   <span className="font-mono text-[10px] text-muted block mt-0.5">
-                    Batch: {authorBatch}
+                    Division: {authorDivision}
+                  </span>
+                )}
+                {authorEmail && (
+                  <span className="font-mono text-[10px] text-muted block mt-0.5">
+                    {authorEmail}
                   </span>
                 )}
               </div>

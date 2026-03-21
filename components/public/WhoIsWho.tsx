@@ -55,16 +55,6 @@ function PersonnelCard({
         <p className="font-mono text-[10px] text-muted mb-1">
           {person.designation}
         </p>
-        {person.unit_or_regiment && (
-          <p className="font-mono text-[10px] text-gold mt-auto">
-            {person.unit_or_regiment}
-          </p>
-        )}
-        {person.division && (
-          <p className="font-mono text-[10px] text-muted mt-1">
-            {person.division.toUpperCase()} DIV
-          </p>
-        )}
       </div>
     </div>
   );
@@ -120,11 +110,6 @@ function CommandantCard({
           <p className="font-mono text-sm text-muted mb-1">
             {person.designation}
           </p>
-          {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold mb-4">
-              {person.unit_or_regiment}
-            </p>
-          )}
           {person.bio && (
             <p className="text-muted text-sm sm:text-base leading-relaxed border-l-2 border-gold/30 pl-4 line-clamp-3">
               {person.bio}
@@ -181,14 +166,9 @@ function DeputyCommandantCard({
           <h3 className="font-serif text-xl sm:text-2xl font-bold mb-1">
             {getDisplayName(person)}
           </h3>
-          <p className="font-mono text-sm text-muted mb-1">
+          <p className="font-mono text-sm text-muted mb-4">
             {person.designation}
           </p>
-          {person.unit_or_regiment && (
-            <p className="font-mono text-xs text-gold mb-4">
-              {person.unit_or_regiment}
-            </p>
-          )}
           {person.bio && (
             <p className="text-muted text-sm leading-relaxed line-clamp-3">
               {person.bio}

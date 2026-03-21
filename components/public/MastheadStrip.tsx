@@ -1,21 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useInView } from "framer-motion";
 import { RevealText, RevealOnScroll } from "@/components/ui/RevealText";
 
-const stats = [
-  { label: "Articles Published", value: 284 },
-  { label: "Editions Published", value: 12 },
-  { label: "Student Writers", value: 52 },
-  { label: "Monthly Readers", value: 4200 },
+const STATS = [
+  { label: "Articles & Poems", value: 36 },
+  { label: "Contributors", value: 15 },
+  { label: "Photo Features", value: 19 },
 ];
+
+const VISIT_KEY = "ghorpad_visit_count";
 
 function AnimatedCounter({ value, inView }: { value: number; inView: boolean }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || value === 0) return;
     let start = 0;
     const duration = 1500;
     const increment = value / (duration / 16);
@@ -37,6 +38,14 @@ function AnimatedCounter({ value, inView }: { value: number; inView: boolean }) 
 export default function MastheadStrip() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
+  const [visitCount, setVisitCount] = useState(0);
+
+  useEffect(() => {
+    const stored = parseInt(localStorage.getItem(VISIT_KEY) || "0", 10);
+    const next = stored + 1;
+    localStorage.setItem(VISIT_KEY, String(next));
+    setVisitCount(next);
+  }, []);
 
   return (
     <section id="about" className="bg-background py-20 px-4 sm:px-6" ref={ref}>
@@ -62,7 +71,7 @@ export default function MastheadStrip() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {stats.map((stat, i) => (
+          {STATS.map((stat, i) => (
             <RevealOnScroll
               key={stat.label}
               delay={i * 0.12}
@@ -70,13 +79,25 @@ export default function MastheadStrip() {
             >
               <div className="font-serif text-3xl sm:text-4xl font-bold text-gold mb-2">
                 <AnimatedCounter value={stat.value} inView={inView} />
-                {stat.value >= 1000 ? "+" : ""}
               </div>
               <div className="font-mono text-[10px] tracking-widest text-muted uppercase">
                 {stat.label}
               </div>
             </RevealOnScroll>
           ))}
+
+          {/* Visit Counter */}
+          <RevealOnScroll
+            delay={3 * 0.12}
+            className="text-center p-6 bg-surface rounded-lg border border-border-subtle"
+          >
+            <div className="font-serif text-3xl sm:text-4xl font-bold text-gold mb-2">
+              <AnimatedCounter value={visitCount} inView={inView} />
+            </div>
+            <div className="font-mono text-[10px] tracking-widest text-muted uppercase">
+              Your Visits
+            </div>
+          </RevealOnScroll>
         </div>
       </div>
     </section>

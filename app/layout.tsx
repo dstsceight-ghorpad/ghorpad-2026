@@ -24,10 +24,10 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GHORPAD 2026 | MILIT - DSTSC 08",
+  title: "GHORPAD 2026 | MILIT",
   description:
-    "The official college magazine of MILIT - DSTSC 08. Where campus speaks to the world.",
-  keywords: ["college magazine", "GHORPAD", "MILIT", "DSTSC 08", "campus"],
+    "Ghorpad 2026 — The official college magazine of MILIT. Where campus speaks to the world.",
+  keywords: ["college magazine", "GHORPAD", "MILIT", "Ghorpad 2026", "campus"],
 };
 
 // Inline script to prevent flash of wrong theme on page load

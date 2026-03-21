@@ -4,7 +4,6 @@ import SpotlightSection from "@/components/public/SpotlightSection";
 import TableOfContents from "@/components/public/TableOfContents";
 import WhoIsWho from "@/components/public/WhoIsWho";
 import ArticlesGrid from "@/components/public/ArticlesGrid";
-import MediaVault from "@/components/public/MediaVault";
 import PhotoGallery from "@/components/public/PhotoGallery";
 
 import MastheadStrip from "@/components/public/MastheadStrip";
@@ -37,7 +36,6 @@ export default function HomePage() {
         <TableOfContents entries={sampleTocEntries} />
         <WhoIsWho personnel={samplePersonnel} />
         <ArticlesGrid articles={articles} />
-        <MediaVault />
         <PhotoGallery items={sampleGalleryItems} />
 
         <MastheadStrip />

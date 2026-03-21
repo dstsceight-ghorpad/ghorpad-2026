@@ -163,10 +163,7 @@ function compilePages(
     });
   }
 
-  // 11. Media Vault
-  pages.push({ type: "media", title: "Media Vault" });
-
-  // 12. Back Cover
+  // 11. Back Cover
   pages.push({ type: "back-cover", title: "Back Cover" });
 
   return pages;
@@ -272,16 +269,6 @@ function MagazinePersonnelDetail({
             <p className="font-mono text-base text-foreground/70 mb-1">
               {person.designation}
             </p>
-            {person.unit_or_regiment && (
-              <p className="font-mono text-sm text-gold mb-3">
-                {person.unit_or_regiment}
-              </p>
-            )}
-            {person.division && (
-              <p className="font-mono text-xs text-foreground/50 tracking-wider mb-6">
-                {person.division.toUpperCase()} DIVISION
-              </p>
-            )}
 
             {/* Extended info */}
             {hasExtendedInfo && (
@@ -471,11 +458,6 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
           <p className="font-mono text-base text-foreground/70 mb-1">
             {person.designation}
           </p>
-          {person.unit_or_regiment && (
-            <p className="font-mono text-sm text-gold mb-8">
-              {person.unit_or_regiment}
-            </p>
-          )}
           {person.bio && (
             <p className="text-foreground/70 text-base leading-relaxed border-l-2 border-gold/30 pl-5">
               {person.bio}
@@ -514,11 +496,6 @@ function StaffPage({ officers }: { officers: Personnel[] }) {
               <p className="font-mono text-xs text-foreground/60">
                 {officer.designation}
               </p>
-              {officer.unit_or_regiment && (
-                <p className="font-mono text-xs text-gold mt-0.5">
-                  {officer.unit_or_regiment}
-                </p>
-              )}
             </div>
           </div>
         ))}
@@ -578,11 +555,6 @@ function StudentDivisionPage({
               <p className="font-serif text-sm font-semibold leading-tight text-foreground group-hover:text-gold transition-colors">
                 {getDisplayName(student)}
               </p>
-              {student.unit_or_regiment && (
-                <p className="font-mono text-xs text-gold mt-1 truncate">
-                  {student.unit_or_regiment}
-                </p>
-              )}
             </div>
           </div>
         ))}
@@ -632,7 +604,7 @@ function ArticlePage({ article }: { article: Article }) {
       )}
 
       {/* Excerpt */}
-      <p className="text-lg leading-relaxed text-foreground/80 mb-8 border-l-3 border-gold/30 pl-5 italic">
+      <p className="text-lg leading-relaxed text-foreground/80 mb-8 border-l-2 border-gold/30 pl-5 italic">
         {article.excerpt}
       </p>
 

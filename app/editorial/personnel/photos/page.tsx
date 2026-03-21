@@ -182,11 +182,7 @@ export default function PhotoCampaignPage() {
           <p className="font-mono text-xs text-muted mb-1">
             {currentPerson.designation}
           </p>
-          {currentPerson.unit_or_regiment && (
-            <p className="font-mono text-[10px] text-gold/50 mb-6">
-              {currentPerson.unit_or_regiment}
-            </p>
-          )}
+          <div className="mb-6" />
 
           {/* Upload zone */}
           <div

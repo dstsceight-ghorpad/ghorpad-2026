@@ -13,8 +13,8 @@ const navLinks = [
   { label: "INDEX", href: "/#index" },
   { label: "WHO IS WHO", href: "/#who-is-who" },
   { label: "ARTICLES", href: "/#articles" },
-  { label: "MEDIA", href: "/#media" },
-  { label: "SUBMIT", href: "/submit" },
+  { label: "GALLERY", href: "/#gallery" },
+  { label: "CONTRIBUTE", href: "/submit" },
 ];
 
 export default function Navbar() {

@@ -232,11 +232,16 @@ export default function SubmissionsPage() {
                   AUTHOR
                 </span>
                 <p className="text-sm">
-                  {selectedSubmission.author_name} ({selectedSubmission.author_email})
+                  {selectedSubmission.author_name}
                 </p>
-                {selectedSubmission.author_batch && (
+                {selectedSubmission.author_division && (
                   <p className="font-mono text-[10px] text-muted mt-0.5">
-                    Batch: {selectedSubmission.author_batch}
+                    Division: {selectedSubmission.author_division}
+                  </p>
+                )}
+                {selectedSubmission.relation && selectedSubmission.officer_name && (
+                  <p className="font-mono text-[10px] text-muted mt-0.5">
+                    {selectedSubmission.relation} {selectedSubmission.officer_name}
                   </p>
                 )}
               </div>

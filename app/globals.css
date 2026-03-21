@@ -310,10 +310,16 @@ select,
   -webkit-user-select: text;
 }
 
-/* Blur overlay when DevTools detected or tab hidden */
-.security-blur {
-  filter: blur(30px) !important;
-  transition: filter 0.2s ease;
+/* Overlay when DevTools detected or tab hidden — uses a pseudo-element
+   instead of filter:blur on body, which would break fixed-position children
+   (e.g. MagazineReader). */
+.security-blur::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--background, #060604);
+  pointer-events: all;
 }
 
 /* ─── Inauguration Animation ──────────────────────────────── */

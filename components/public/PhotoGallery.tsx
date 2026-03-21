@@ -6,12 +6,16 @@ import { SectionHeading, RevealOnScroll } from "@/components/ui/RevealText";
 import type { GalleryItem, GalleryCategory } from "@/types";
 
 const ALL_CATEGORIES: GalleryCategory[] = [
-  "Events",
-  "Campus",
-  "Sports",
-  "Portraits",
-  "Training",
+  "Ceremonies",
+  "CAPSTAR",
   "Cultural",
+  "Social",
+  "Guest Lectures",
+  "Sports",
+  "Campus",
+  "Adventures",
+  "Families",
+  "Creative",
 ];
 
 interface PhotoGalleryProps {

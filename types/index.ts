@@ -209,7 +209,7 @@ export interface ReviewDecision {
 
 // --- Photo Gallery types ---
 
-export type GalleryCategory = "Events" | "Campus" | "Sports" | "Portraits" | "Training" | "Cultural";
+export type GalleryCategory = "Ceremonies" | "CAPSTAR" | "Cultural" | "Social" | "Guest Lectures" | "Sports" | "Campus" | "Adventures" | "Families" | "Creative";
 
 export interface GalleryItem {
   id: string;
@@ -223,8 +223,9 @@ export interface GalleryItem {
 
 // --- Submission Portal types ---
 
-export type SubmissionType = "article" | "photo" | "letter";
+export type SubmissionType = "article" | "photo" | "poem" | "sketch";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
+export type ContributorType = "officer" | "family";
 
 export interface Submission {
   id: string;
@@ -233,7 +234,10 @@ export interface Submission {
   title: string;
   author_name: string;
   author_email: string;
-  author_batch?: string;
+  author_division?: string;
+  contributor_type: ContributorType;
+  relation?: string; // e.g. "wife of", "son of"
+  officer_name?: string; // related officer's name (for family)
   content: string;
   attachment_url?: string;
   status: SubmissionStatus;

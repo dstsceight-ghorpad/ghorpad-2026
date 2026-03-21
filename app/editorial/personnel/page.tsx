@@ -532,12 +532,6 @@ export default function PersonnelPage() {
               <p className="font-mono text-[10px] text-muted mb-1">
                 {person.designation}
               </p>
-              {person.unit_or_regiment && (
-                <p className="font-mono text-[9px] text-gold/50">
-                  {person.unit_or_regiment}
-                </p>
-              )}
-
               {/* Edit button */}
               {canEdit && (
                 <button

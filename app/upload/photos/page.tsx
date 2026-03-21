@@ -342,7 +342,7 @@ export default function PhotoUploadPage() {
                     {getDisplayName(person)}
                   </h4>
                   <p className="font-mono text-[9px] text-muted truncate">
-                    {person.unit_or_regiment || "—"}
+                    {person.designation}
                   </p>
 
                   {!isUploading && (

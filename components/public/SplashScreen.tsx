@@ -147,7 +147,7 @@ export default function SplashScreen() {
             <AnimatedLogo size={logoSize} />
           </motion.div>
 
-          {/* DSTSC-08 course name */}
+          {/* Course name */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

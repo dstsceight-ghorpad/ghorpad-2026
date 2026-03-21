@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
+import { X } from "lucide-react";
 import Link from "next/link";
 import AnimatedLogo from "./AnimatedLogo";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -15,6 +16,7 @@ interface HeroSectionProps {
 export default function HeroSection({ headlines }: HeroSectionProps) {
   const [engineReady, setEngineReady] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [showTeam, setShowTeam] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
   // Parallax scroll tracking
@@ -196,12 +198,12 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
               </Link>
             </MagneticButton>
             <MagneticButton as="div" strength={8}>
-              <Link
-                href="/#about"
+              <button
+                onClick={() => setShowTeam(true)}
                 className="block border border-foreground/30 text-foreground font-mono text-sm px-8 py-3 rounded hover:border-gold hover:text-gold transition-colors"
               >
                 MEET THE TEAM
-              </Link>
+              </button>
             </MagneticButton>
           </motion.div>
         </motion.div>
@@ -235,6 +237,46 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* ── Meet the Team Popup ──────────────────────────────── */}
+      <AnimatePresence>
+        {showTeam && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowTeam(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="relative w-full max-w-4xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowTeam(false)}
+                className="absolute -top-4 -right-4 sm:top-2 sm:right-2 z-10 p-2 rounded-full bg-surface border border-border-subtle text-muted hover:text-foreground transition-colors"
+              >
+                <X size={18} />
+              </button>
+              <div className="rounded-xl overflow-hidden border border-gold/30 shadow-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/team-photo.jpg"
+                  alt="Ghorpad 2026 Editorial Team"
+                  className="w-full h-auto"
+                />
+              </div>
+              <p className="text-center mt-4 font-mono text-xs tracking-widest text-gold">
+                GHORPAD 2026 &middot; EDITORIAL TEAM
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Layer 5: Live Ticker ──────────────────────────────── */}
       <motion.div
