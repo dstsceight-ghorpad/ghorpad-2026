@@ -79,6 +79,7 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
   const doubledHeadlines = [...headlines, ...headlines];
 
   return (
+    <>
     <section
       ref={sectionRef}
       className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden bg-background"
@@ -238,46 +239,6 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
         </motion.div>
       </motion.div>
 
-      {/* ── Meet the Team Popup ──────────────────────────────── */}
-      <AnimatePresence>
-        {showTeam && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-background/90 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setShowTeam(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="relative w-full max-w-4xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setShowTeam(false)}
-                className="absolute -top-4 -right-4 sm:top-2 sm:right-2 z-10 p-2 rounded-full bg-surface border border-border-subtle text-muted hover:text-foreground transition-colors"
-              >
-                <X size={18} />
-              </button>
-              <div className="rounded-xl overflow-hidden border border-gold/30 shadow-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/team-photo.jpg"
-                  alt="Ghorpad 2026 Editorial Team"
-                  className="w-full h-auto"
-                />
-              </div>
-              <p className="text-center mt-4 font-mono text-xs tracking-widest text-gold">
-                GHORPAD 2026 &middot; EDITORIAL TEAM
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* ── Layer 5: Live Ticker ──────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -306,5 +267,35 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
         </div>
       </motion.div>
     </section>
+
+    {/* Meet the Team Popup - Full Screen */}
+    <AnimatePresence>
+      {showTeam && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[999] bg-black flex items-center justify-center cursor-pointer"
+          onClick={() => setShowTeam(false)}
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowTeam(false); }}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+          >
+            <X size={22} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/team-photo.jpg"
+            alt="Ghorpad 2026 Editorial Team"
+            className="w-full h-full object-contain"
+          />
+          <p className="absolute bottom-6 left-0 right-0 text-center font-mono text-xs tracking-widest text-gold">
+            GHORPAD 2026 &middot; EDITORIAL TEAM
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
