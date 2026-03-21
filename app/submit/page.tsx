@@ -206,6 +206,8 @@ export default function SubmitPage() {
   const [relation, setRelation] = useState("");
   const [officerName, setOfficerName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [submissionId, setSubmissionId] = useState("");
 
   // Get applicable categories based on submission type
@@ -217,8 +219,12 @@ export default function SubmitPage() {
     return [...CATEGORIES];
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!type || !category || !title || !content || !authorName) return;
+    if (submitting) return;
+
+    setSubmitting(true);
+    setSubmitError("");
 
     const id = `sub-${Date.now()}`;
 
@@ -244,9 +250,17 @@ export default function SubmitPage() {
       created_at: new Date().toISOString(),
     };
 
-    saveSubmission(submission);
-    setSubmissionId(id);
-    setSubmitted(true);
+    try {
+      await saveSubmission(submission);
+      setSubmissionId(id);
+      setSubmitted(true);
+    } catch (err) {
+      setSubmitError(
+        err instanceof Error ? err.message : "Something went wrong. Please try again."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   // When category changes, pre-fill the template if content is empty or still a template
@@ -804,20 +818,28 @@ export default function SubmitPage() {
               </div>
             </div>
 
+            {submitError && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 text-sm text-red-400">
+                {submitError}
+              </div>
+            )}
+
             <div className="flex items-center justify-between mt-6">
               <button
                 onClick={() => setStep(3)}
-                className="flex items-center gap-2 font-mono text-xs text-muted hover:text-foreground transition-colors"
+                disabled={submitting}
+                className="flex items-center gap-2 font-mono text-xs text-muted hover:text-foreground transition-colors disabled:opacity-40"
               >
                 <ChevronLeft size={14} />
                 BACK
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-2 bg-gold text-background font-mono text-xs font-semibold px-6 py-3 rounded-lg hover:bg-gold/90 transition-colors"
+                disabled={submitting}
+                className="flex items-center gap-2 bg-gold text-background font-mono text-xs font-semibold px-6 py-3 rounded-lg hover:bg-gold/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <Send size={14} />
-                SUBMIT
+                {submitting ? "SUBMITTING..." : "SUBMIT"}
               </button>
             </div>
           </div>

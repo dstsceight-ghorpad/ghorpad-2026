@@ -14,12 +14,14 @@ interface DashboardStats {
   drafts: number;
   mediaFiles: number;
   inReview: number;
+  submissions: number;
+  pendingSubmissions: number;
 }
 
 export default function DashboardPage() {
   const { profile } = useUser();
   const [stats, setStats] = useState<DashboardStats>(
-    { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0, inReview: 0 }
+    { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0, inReview: 0, submissions: 0, pendingSubmissions: 0 }
   );
   const [inaugurationMode, setInaugurationMode] = useState(false);
   const [inaugurationLoading, setInaugurationLoading] = useState(true);
@@ -53,7 +55,7 @@ export default function DashboardPage() {
     async function fetchStats() {
       const supabase = createBrowserSupabaseClient();
 
-      const [articlesRes, publishedRes, draftsRes, mediaRes, reviewRes] =
+      const [articlesRes, publishedRes, draftsRes, mediaRes, reviewRes, subsRes, pendingSubsRes] =
         await Promise.all([
           supabase
             .from("articles")
@@ -73,6 +75,13 @@ export default function DashboardPage() {
             .from("articles")
             .select("id", { count: "exact", head: true })
             .eq("status", "review"),
+          supabase
+            .from("submissions")
+            .select("id", { count: "exact", head: true }),
+          supabase
+            .from("submissions")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "pending"),
         ]);
 
       setStats({
@@ -81,6 +90,8 @@ export default function DashboardPage() {
         drafts: draftsRes.count || 0,
         mediaFiles: mediaRes.count || 0,
         inReview: reviewRes.count || 0,
+        submissions: subsRes.count || 0,
+        pendingSubmissions: pendingSubsRes.count || 0,
       });
     }
 
@@ -123,6 +134,13 @@ export default function DashboardPage() {
       color: "text-orange-400",
       bg: "bg-orange-400/10",
     },
+    {
+      label: `Submissions (${stats.pendingSubmissions} pending)`,
+      value: stats.submissions,
+      icon: Inbox,
+      color: "text-yellow-400",
+      bg: "bg-yellow-400/10",
+    },
   ];
 
   return (
@@ -140,7 +158,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (

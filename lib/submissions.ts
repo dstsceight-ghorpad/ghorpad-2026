@@ -1,52 +1,51 @@
 import type { Submission, SubmissionStatus } from "@/types";
 
-const SUBMISSIONS_KEY = "ghorpad_submissions";
+/**
+ * Save a new submission via API (stores in Supabase).
+ */
+export async function saveSubmission(submission: Submission): Promise<void> {
+  const res = await fetch("/api/submissions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(submission),
+  });
 
-export function loadSubmissions(): Submission[] {
-  if (typeof window === "undefined") return [];
-  const raw = localStorage.getItem(SUBMISSIONS_KEY);
-  if (!raw) return [];
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return [];
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Failed to save submission");
   }
 }
 
-export function saveSubmission(submission: Submission): void {
-  if (typeof window === "undefined") return;
-  const all = loadSubmissions();
-  all.push(submission);
-  localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(all));
+/**
+ * Load all submissions via API (requires editorial auth).
+ */
+export async function loadSubmissions(): Promise<Submission[]> {
+  const res = await fetch("/api/submissions");
+
+  if (!res.ok) {
+    console.error("Failed to load submissions:", res.status);
+    return [];
+  }
+
+  return res.json();
 }
 
-export function updateSubmissionStatus(
+/**
+ * Update a submission's status via API (requires editorial auth).
+ */
+export async function updateSubmissionStatus(
   id: string,
   status: SubmissionStatus,
   notes?: string
-): void {
-  if (typeof window === "undefined") return;
-  const all = loadSubmissions();
-  const updated = all.map((s) =>
-    s.id === id
-      ? {
-          ...s,
-          status,
-          reviewer_notes: notes || s.reviewer_notes,
-          reviewed_at: new Date().toISOString(),
-        }
-      : s
-  );
-  localStorage.setItem(SUBMISSIONS_KEY, JSON.stringify(updated));
-}
+): Promise<void> {
+  const res = await fetch(`/api/submissions/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status, reviewer_notes: notes }),
+  });
 
-export function getSubmissionCount(): {
-  pending: number;
-  total: number;
-} {
-  const all = loadSubmissions();
-  return {
-    pending: all.filter((s) => s.status === "pending").length,
-    total: all.length,
-  };
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "Failed to update submission");
+  }
 }

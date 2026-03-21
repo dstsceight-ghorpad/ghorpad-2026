@@ -5,11 +5,11 @@ import {
   Inbox,
   CheckCircle2,
   XCircle,
-  Clock,
   FileText,
   Image as ImageIcon,
   Mail,
   X,
+  Loader2,
 } from "lucide-react";
 import {
   loadSubmissions,
@@ -34,21 +34,40 @@ const statusColors: Record<SubmissionStatus, string> = {
 
 export default function SubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const [updating, setUpdating] = useState(false);
 
-  const loadData = () => {
-    setSubmissions(loadSubmissions());
+  const loadData = async () => {
+    try {
+      setError("");
+      const data = await loadSubmissions();
+      setSubmissions(data);
+    } catch (err) {
+      setError("Failed to load submissions");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const handleUpdateStatus = (id: string, status: SubmissionStatus, notes?: string) => {
-    updateSubmissionStatus(id, status, notes);
-    loadData();
-    setSelectedSubmission(null);
+  const handleUpdateStatus = async (id: string, status: SubmissionStatus, notes?: string) => {
+    setUpdating(true);
+    try {
+      await updateSubmissionStatus(id, status, notes);
+      await loadData();
+      setSelectedSubmission(null);
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    } finally {
+      setUpdating(false);
+    }
   };
 
   const filtered = submissions.filter((s) => {
@@ -114,89 +133,112 @@ export default function SubmissionsPage() {
         ))}
       </div>
 
-      {/* Submissions table */}
-      <div className="bg-surface border border-border-subtle rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-border-subtle">
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  TYPE
-                </th>
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  TITLE
-                </th>
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  AUTHOR
-                </th>
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  DATE
-                </th>
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  STATUS
-                </th>
-                <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
-                  ACTION
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {filtered.map((sub) => {
-                const TypeIcon = typeIcons[sub.type] || FileText;
-                return (
-                  <tr key={sub.id} className="hover:bg-surface-light/50 transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <TypeIcon size={14} className="text-muted" />
-                        <span className="font-mono text-[10px] text-muted uppercase">
-                          {sub.type}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-sm font-medium truncate block max-w-[200px]">
-                        {sub.title}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="text-xs text-muted">{sub.author_name}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="font-mono text-[10px] text-muted">
-                        {formatDateShort(sub.created_at)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`font-mono text-[10px] px-2 py-0.5 rounded ${statusColors[sub.status]}`}
-                      >
-                        {sub.status.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => setSelectedSubmission(sub)}
-                        className="font-mono text-[10px] text-gold hover:text-gold/80 transition-colors"
-                      >
-                        VIEW
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {/* Loading state */}
+      {loading && (
+        <div className="text-center py-16">
+          <Loader2 size={32} className="mx-auto text-gold animate-spin mb-3" />
+          <p className="font-mono text-xs text-muted">Loading submissions...</p>
         </div>
+      )}
 
-        {filtered.length === 0 && (
-          <div className="text-center py-16">
-            <Inbox size={32} className="mx-auto text-muted/20 mb-3" />
-            <p className="font-mono text-xs text-muted">
-              No submissions in this category.
-            </p>
+      {/* Error state */}
+      {error && !loading && (
+        <div className="text-center py-16">
+          <p className="font-mono text-xs text-red-400 mb-3">{error}</p>
+          <button
+            onClick={() => { setLoading(true); loadData(); }}
+            className="font-mono text-xs text-gold hover:text-gold/80 transition-colors"
+          >
+            RETRY
+          </button>
+        </div>
+      )}
+
+      {/* Submissions table */}
+      {!loading && !error && (
+        <div className="bg-surface border border-border-subtle rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-border-subtle">
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    TYPE
+                  </th>
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    TITLE
+                  </th>
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    AUTHOR
+                  </th>
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    DATE
+                  </th>
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    STATUS
+                  </th>
+                  <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
+                    ACTION
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {filtered.map((sub) => {
+                  const TypeIcon = typeIcons[sub.type] || FileText;
+                  return (
+                    <tr key={sub.id} className="hover:bg-surface-light/50 transition-colors">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          <TypeIcon size={14} className="text-muted" />
+                          <span className="font-mono text-[10px] text-muted uppercase">
+                            {sub.type}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm font-medium truncate block max-w-[200px]">
+                          {sub.title}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-muted">{sub.author_name}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="font-mono text-[10px] text-muted">
+                          {formatDateShort(sub.created_at)}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`font-mono text-[10px] px-2 py-0.5 rounded ${statusColors[sub.status]}`}
+                        >
+                          {sub.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelectedSubmission(sub)}
+                          className="font-mono text-[10px] text-gold hover:text-gold/80 transition-colors"
+                        >
+                          VIEW
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {filtered.length === 0 && (
+            <div className="text-center py-16">
+              <Inbox size={32} className="mx-auto text-muted/20 mb-3" />
+              <p className="font-mono text-xs text-muted">
+                No submissions in this category.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Detail Modal */}
       {selectedSubmission && (
@@ -250,7 +292,7 @@ export default function SubmissionsPage() {
                 <span className="font-mono text-[10px] text-muted block mb-1">
                   CONTENT
                 </span>
-                <div className="p-3 bg-surface-light rounded-lg text-sm leading-relaxed max-h-48 overflow-y-auto">
+                <div className="p-3 bg-surface-light rounded-lg text-sm leading-relaxed max-h-48 overflow-y-auto whitespace-pre-line">
                   {selectedSubmission.content}
                 </div>
               </div>
@@ -281,10 +323,11 @@ export default function SubmissionsPage() {
                   onClick={() =>
                     handleUpdateStatus(selectedSubmission.id, "approved")
                   }
-                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-green-500/10 text-green-400 rounded hover:bg-green-500/20 transition-colors"
+                  disabled={updating}
+                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-green-500/10 text-green-400 rounded hover:bg-green-500/20 transition-colors disabled:opacity-50"
                 >
                   <CheckCircle2 size={14} />
-                  APPROVE
+                  {updating ? "UPDATING..." : "APPROVE"}
                 </button>
                 <button
                   onClick={() => {
@@ -297,7 +340,8 @@ export default function SubmissionsPage() {
                       );
                     }
                   }}
-                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition-colors"
+                  disabled={updating}
+                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition-colors disabled:opacity-50"
                 >
                   <XCircle size={14} />
                   REJECT
