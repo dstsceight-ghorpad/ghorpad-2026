@@ -951,7 +951,7 @@ const _rawPersonnel: Personnel[] = [
     ["Harpreet Singh", "Major", "Infantry"],
     ["Ravi Prakash Singh", "Major", "Mechanised Infantry"],
     ["Vinay Prakash", "Major", "Infantry"],
-    ["Amit Kumar Gill", "Major", "Infantry"],
+    ["Amit Gill", "Major", "Infantry"],
     ["Deepak Yadav", "Major", "Mechanised Infantry"],
     ["Harshdeep Singh", "Major", "Regiment of Artillery"],
     ["Rohit Seth", "Major", "Infantry"],
