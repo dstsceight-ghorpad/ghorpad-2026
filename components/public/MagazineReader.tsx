@@ -22,6 +22,7 @@ import {
   Mail,
 } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
+import TipTapRenderer from "./TipTapRenderer";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import { getDisplayName } from "@/lib/personnel";
 import type {
@@ -608,30 +609,21 @@ function ArticlePage({ article }: { article: Article }) {
         {article.excerpt}
       </p>
 
-      {/* Content or placeholder */}
+      {/* Article content */}
       {article.content ? (
-        <div className="prose-editorial text-sm leading-relaxed text-muted">
-          <p className="text-muted">
-            Full article content available in the editor.
-          </p>
+        <div className="text-sm leading-relaxed">
+          <TipTapRenderer content={article.content} />
         </div>
       ) : (
-        <div className="space-y-3 text-sm text-muted leading-relaxed">
-          <p>
-            This article is part of the GHORPAD 2025-26 magazine. The full
-            content will be available once the editorial team publishes it
-            through the editorial dashboard.
-          </p>
-          <div className="flex flex-wrap gap-2 mt-4">
-            {article.tags?.map((tag) => (
-              <span
-                key={tag}
-                className="font-mono text-[10px] text-gold/70 border border-gold/20 px-2 py-0.5 rounded"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          {article.tags?.map((tag) => (
+            <span
+              key={tag}
+              className="font-mono text-[10px] text-gold/70 border border-gold/20 px-2 py-0.5 rounded"
+            >
+              #{tag}
+            </span>
+          ))}
         </div>
       )}
     </div>
