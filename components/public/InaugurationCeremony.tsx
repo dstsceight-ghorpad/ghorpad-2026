@@ -10,7 +10,7 @@ function seeded(seed: number) {
   return x - Math.floor(x);
 }
 
-/* No audio — ceremony is silent */
+/* Applause audio on curtain open */
 
 /* ── Confetti piece ── */
 function ConfettiPiece({ index, active }: { index: number; active: boolean }) {
@@ -144,6 +144,13 @@ export default function InaugurationCeremony({
 
   const handleUnveil = useCallback(() => {
     if (curtainOpen) return;
+
+    // Play applause audio
+    try {
+      const audio = new Audio("/applause.mp3");
+      audio.volume = 0.8;
+      audio.play().catch(() => {});
+    } catch {}
 
     setShowConfetti(true);
     setCurtainOpen(true);
