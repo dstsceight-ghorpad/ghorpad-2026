@@ -591,17 +591,13 @@ function ArticlePage({ article }: { article: Article }) {
         </div>
       </div>
 
-      {/* Cover image placeholder */}
-      {article.cover_image_url ? (
+      {/* Cover image — only shown if one exists */}
+      {article.cover_image_url && (
         <img
           src={article.cover_image_url}
           alt={article.title}
           className="w-full aspect-video object-cover rounded-lg mb-6"
         />
-      ) : (
-        <div className="w-full aspect-video bg-surface-light rounded-lg mb-6 flex items-center justify-center border border-border-subtle">
-          <ImageIcon size={32} className="text-muted/30" />
-        </div>
       )}
 
       {/* Excerpt */}
