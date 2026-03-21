@@ -970,48 +970,13 @@ export const samplePersonnel: Personnel[] = _rawPersonnel.map((p) => ({
 }));
 
 // --- Table of Contents Data ---
+// Fixed section entries that don't come from articles (Leadership, special sections)
+// Article/poem entries are generated dynamically from published Supabase articles in app/page.tsx
 
-export const sampleTocEntries: TocEntry[] = [
+export const fixedTocEntries: TocEntry[] = [
   // ── Leadership ──
   { id: "toc-1", title: "Commandant's Message", page_label: "01", category: "Leadership", type: "feature" },
   { id: "toc-2", title: "Who is Who", page_label: "02", category: "Leadership", type: "section" },
-
-  // ── Articles ──
-  { id: "toc-a01", title: "She Loves Me, She Loves Me Not", page_label: "09", category: "Articles", type: "article", author: "Wg Cdr Shivam Trivedi" },
-  { id: "toc-a02", title: "Mantra Behind Longevity: Be a Traveller", page_label: "16", category: "Articles", type: "article" },
-  { id: "toc-a03", title: "A Ride to Nowhere… That Took Us Everywhere", page_label: "20", category: "Articles", type: "article", author: "Sqn Ldr Sumit Singh Sidhu" },
-  { id: "toc-a05", title: "Swing, Slice and Sanity: Tales from the Greens of JFC Training Area (NDA)", page_label: "26", category: "Articles", type: "article", author: "Maj Devidas Amale" },
-  { id: "toc-a06", title: "Life at the Military Institute of Technology (MILIT): Where Learning Meets Leadership", page_label: "28", category: "Articles", type: "article" },
-  { id: "toc-a07", title: "The Girinagar Grind: A Scholar-Warrior's Guide to the DSTSC", page_label: "33", category: "Articles", type: "article" },
-  { id: "toc-a10", title: "When Protocol Takes Flight: The Salute No General Saw", page_label: "45", category: "Articles", type: "article" },
-  { id: "toc-a16", title: "The Uniformed Innovators", page_label: "60", category: "Articles", type: "article" },
-  { id: "toc-a20", title: "Life at MILIT – In Step, Out of Step, Together!!!!", page_label: "64", category: "Articles", type: "article", author: "Maj Lokesh Singh Tanwar" },
-  { id: "toc-a23", title: "The Khadakwasla Crucible", page_label: "67", category: "Articles", type: "article" },
-  { id: "toc-a30", title: "Confessions of a Battle-Weary Laptop: Because Even Laptops Aren't Spared at Staff College", page_label: "74", category: "Articles", type: "article", author: "Wg Cdr Rahul Nair" },
-
-  // ── International Perspectives ──
-  { id: "toc-a08", title: "India–Tanzania Defence Education and Strategic Cooperation in East Africa and the Indian Ocean", page_label: "36", category: "International Perspectives", type: "article", author: "Maj David Vitus Chitumbi" },
-  { id: "toc-a09", title: "From the Land of Maasai Mara to Pune: A Kenyan Officer's Techno-Military Journey at MILIT", page_label: "40", category: "International Perspectives", type: "article", author: "Maj Samuel Munyasa Eratsia" },
-  { id: "toc-a12", title: "India's Growing Defence Technology and Its Impacts on Tanzania's Defence Sector", page_label: "50", category: "International Perspectives", type: "article", author: "Maj Faida John Manyama" },
-
-  // ── Ladies Corner ──
-  { id: "toc-a04", title: "Posted, Packed & Pandemonium: Chronicles of the Officer on Course", page_label: "22", category: "Ladies Corner", type: "article", author: "Mrs Rashmi Mishra" },
-  { id: "toc-a11", title: "A Wife Between Bugles and Dreams", page_label: "48", category: "Ladies Corner", type: "article", author: "Mrs Maitri" },
-  { id: "toc-a13", title: "Behind the Screens: Raising Grounded Children in a Digital World", page_label: "53", category: "Ladies Corner", type: "article" },
-  { id: "toc-a14", title: "A Journey Back to the Mountains: From Posting to Pilgrimage", page_label: "56", category: "Ladies Corner", type: "article" },
-  { id: "toc-a21", title: "The Art of Living", page_label: "65", category: "Ladies Corner", type: "article", author: "Mrs Ekta Sharma" },
-
-  // ── Poems ──
-  { id: "toc-p01", title: "रक्षककी दीपावली", page_label: "59", category: "Poems", type: "poem", author: "Sqn Ldr Lokesh Mahalan" },
-  { id: "toc-p02", title: "मिलिट का जीवन", page_label: "62", category: "Poems", type: "poem" },
-  { id: "toc-p03", title: "जब राम लौटे, मैं अडिग रहा", page_label: "63", category: "Poems", type: "poem" },
-  { id: "toc-p04", title: "एक मुझ वर्दी प्यारी", page_label: "66", category: "Poems", type: "poem", author: "Maj Ajatashatru Rampal" },
-  { id: "toc-p05", title: "MILIT की कहानी, स्टूडेंट अफ़सर की ज़ुबानी", page_label: "71", category: "Poems", type: "poem", author: "Maj Robin" },
-  { id: "toc-p06", title: "Marching with Data and Discipline – A MILIT Ode", page_label: "72", category: "Poems", type: "poem" },
-  { id: "toc-p07", title: "Victory Through Technology", page_label: "73", category: "Poems", type: "poem" },
-
-  // ── Social Discourse ──
-  { id: "toc-a17", title: "Between Ranks and Realms: The Social Dilemma", page_label: "61", category: "Social Discourse", type: "article", author: "Lt Col Shashank Kapil" },
 
   // ── Sketches & Paintings ──
   { id: "toc-sk", title: "Sketches & Paintings", page_label: "—", category: "Sketches & Paintings", type: "section" },
@@ -1025,6 +990,9 @@ export const sampleTocEntries: TocEntry[] = [
   // ── Media ──
   { id: "toc-media", title: "Media Vault", page_label: "—", category: "Media", type: "section" },
 ];
+
+// Keep sampleTocEntries as alias for backward compatibility (MagazineTrigger etc.)
+export const sampleTocEntries: TocEntry[] = fixedTocEntries;
 
 // --- Alumni Data for Alumni Spotlight ---
 

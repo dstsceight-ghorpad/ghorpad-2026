@@ -14,14 +14,46 @@ import SplashGate from "@/components/public/SplashGate";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import {
   samplePersonnel,
-  sampleTocEntries,
   sampleCampusLocations,
   sampleGalleryItems,
   tickerHeadlines,
+  fixedTocEntries,
 } from "@/lib/sample-data";
-import type { Article } from "@/types";
+import type { Article, TocEntry } from "@/types";
 
 export const revalidate = 60; // revalidate every 60 seconds
+
+/**
+ * Build Table of Contents entries from published articles.
+ * Fixed section entries (Leadership, Sketches, etc.) come from sample-data.
+ * Article/poem entries are generated dynamically from Supabase.
+ */
+function buildTocEntries(articles: Article[]): TocEntry[] {
+  // Start with fixed section entries
+  const entries: TocEntry[] = [...fixedTocEntries];
+
+  // Add published articles as TOC entries, grouped by category
+  let pageNum = fixedTocEntries.length + 1;
+
+  for (const article of articles) {
+    const type: TocEntry["type"] =
+      article.category === "Poems" ? "poem" : "article";
+
+    entries.push({
+      id: `toc-${article.id}`,
+      title: article.title,
+      page_label: String(pageNum).padStart(2, "0"),
+      category: article.category,
+      slug: article.slug,
+      type,
+      author: article.contributor_name || article.author?.full_name,
+    });
+
+    pageNum++;
+  }
+
+  return entries;
+}
 
 export default async function HomePage() {
   // Fetch published articles from Supabase
@@ -34,6 +66,7 @@ export default async function HomePage() {
 
   const articles: Article[] = data || [];
   const featuredArticle = articles.find((a) => a.is_featured) || articles[0] || null;
+  const tocEntries = buildTocEntries(articles);
 
   return (
     <>
@@ -42,7 +75,7 @@ export default async function HomePage() {
         <Navbar />
         <HeroSection headlines={tickerHeadlines} />
         {featuredArticle && <SpotlightSection article={featuredArticle} />}
-        <TableOfContents entries={sampleTocEntries} />
+        <TableOfContents entries={tocEntries} />
         <WhoIsWho personnel={samplePersonnel} />
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={sampleGalleryItems} />
@@ -53,7 +86,7 @@ export default async function HomePage() {
         <MagazineTrigger
           articles={articles}
           personnel={samplePersonnel}
-          tocEntries={sampleTocEntries}
+          tocEntries={tocEntries}
           galleryItems={sampleGalleryItems}
           campusLocations={sampleCampusLocations}
         />
