@@ -53,6 +53,7 @@ export default function EditArticlePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [contributorName, setContributorName] = useState("");
 
   // New feature states
   const [showPublishChecklist, setShowPublishChecklist] = useState(false);
@@ -80,6 +81,7 @@ export default function EditArticlePage() {
         setIsFeatured(article.is_featured);
         setStatus(article.status);
         setContent(article.content);
+        setContributorName(article.contributor_name || "");
       }
       setLoading(false);
     }
@@ -117,6 +119,7 @@ export default function EditArticlePage() {
             .filter(Boolean),
           status: statusToSave,
           is_featured: isFeatured,
+          contributor_name: contributorName || null,
           read_time_minutes: estimateReadTime(content),
           updated_at: new Date().toISOString(),
           ...(statusToSave === "published"
@@ -133,8 +136,26 @@ export default function EditArticlePage() {
         router.push("/editorial/dashboard");
       }
     },
-    [title, slug, excerpt, content, coverImageUrl, category, tags, isFeatured, status, profile, articleId, router]
+    [title, slug, excerpt, content, coverImageUrl, category, tags, isFeatured, contributorName, status, profile, articleId, router]
   );
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const supabase = createBrowserSupabaseClient();
+    const filename = `${Date.now()}-${file.name}`;
+    const { error: uploadError } = await supabase.storage
+      .from("article-covers")
+      .upload(filename, file, { contentType: file.type, upsert: false });
+
+    if (!uploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from("article-covers")
+        .getPublicUrl(filename);
+      setCoverImageUrl(publicUrl);
+    }
+  };
 
   const handlePublishClick = () => {
     const text = editorTextRef.current;
@@ -286,6 +307,53 @@ export default function EditArticlePage() {
               className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gold transition-all"
             />
           </div>
+          {/* Cover Image */}
+          <div>
+            <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+              COVER IMAGE
+            </label>
+            {coverImageUrl && (
+              <div className="relative mb-2 rounded-lg overflow-hidden border border-border-subtle">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverImageUrl}
+                  alt="Cover"
+                  className="w-full h-32 object-cover"
+                />
+                <button
+                  onClick={() => setCoverImageUrl("")}
+                  className="absolute top-1 right-1 p-1 bg-background/80 rounded-full text-muted hover:text-foreground transition-colors"
+                >
+                  <span className="font-mono text-[9px]">✕</span>
+                </button>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCoverUpload}
+              className="w-full text-sm text-muted file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-surface-light file:text-sm file:text-foreground file:cursor-pointer cursor-pointer"
+            />
+          </div>
+
+          {/* Contributor / Author Name */}
+          {contributorName && (
+            <div>
+              <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                CONTRIBUTOR
+              </label>
+              <input
+                type="text"
+                value={contributorName}
+                onChange={(e) => setContributorName(e.target.value)}
+                className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gold transition-all"
+              />
+              <p className="font-mono text-[9px] text-muted mt-1">
+                This name will appear as the article author
+              </p>
+            </div>
+          )}
+
           <div>
             <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
               STATUS
