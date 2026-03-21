@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion, useScroll } from "framer-motion";
-import { ArrowLeft, Twitter, Share2, Link as LinkIcon, MessageCircle } from "lucide-react";
+import { ArrowLeft, Twitter, Link as LinkIcon, MessageCircle } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
-import { sampleArticles } from "@/lib/sample-data";
+import TipTapRenderer from "@/components/public/TipTapRenderer";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { formatDate } from "@/lib/utils";
 import { getCategoryColor, getCategoryBadgeClasses } from "@/lib/category-colors";
 import type { Article } from "@/types";
@@ -35,22 +36,58 @@ export default function ArticlePage() {
   const { scrollYProgress } = useScroll();
 
   const [article, setArticle] = useState<Article | null>(null);
+  const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const found = sampleArticles.find((a) => a.slug === slug);
-    setArticle(found || null);
-  }, [slug]);
+    async function fetchArticle() {
+      const supabase = createBrowserSupabaseClient();
 
-  const relatedArticles = sampleArticles
-    .filter((a) => a.slug !== slug && a.status === "published")
-    .slice(0, 3);
+      // Fetch the article by slug
+      const { data } = await supabase
+        .from("articles")
+        .select("*, author:profiles!articles_author_id_fkey(*)")
+        .eq("slug", slug)
+        .eq("status", "published")
+        .single();
+
+      if (data) {
+        setArticle(data as Article);
+
+        // Fetch related articles (same category, different slug)
+        const { data: related } = await supabase
+          .from("articles")
+          .select("*, author:profiles!articles_author_id_fkey(*)")
+          .eq("status", "published")
+          .neq("slug", slug)
+          .limit(3);
+
+        setRelatedArticles((related as Article[]) || []);
+      }
+
+      setLoading(false);
+    }
+
+    fetchArticle();
+  }, [slug]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="font-mono text-xs text-muted animate-pulse">Loading...</div>
+        </div>
+      </main>
+    );
+  }
 
   if (!article) {
     return (
@@ -68,6 +105,8 @@ export default function ArticlePage() {
       </main>
     );
   }
+
+  const authorName = article.contributor_name || article.author?.full_name;
 
   return (
     <main className="min-h-screen bg-background">
@@ -135,9 +174,9 @@ export default function ArticlePage() {
                   color: getCategoryColor(article.category).hex,
                 }}
               >
-                {(article.contributor_name || article.author?.full_name)?.charAt(0) || "?"}
+                {authorName?.charAt(0) || "?"}
               </div>
-              <span>{article.contributor_name || article.author?.full_name}</span>
+              <span>{authorName}</span>
             </div>
             <span className="text-border-subtle">|</span>
             <span>
@@ -156,6 +195,20 @@ export default function ArticlePage() {
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Cover image */}
+      {article.cover_image_url && (
+        <section className="px-4 sm:px-6 pb-8">
+          <div className="max-w-4xl mx-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.cover_image_url}
+              alt={article.title}
+              className="w-full rounded-lg object-cover max-h-[500px]"
+            />
+          </div>
+        </section>
+      )}
 
       {/* Article body */}
       <section className="px-4 sm:px-6 pb-20">
@@ -199,58 +252,8 @@ export default function ArticlePage() {
             </button>
           </div>
 
-          {/* Article content */}
-          <div className="prose-editorial">
-            <p className="text-lg leading-relaxed text-foreground/90 mb-6">
-              {article.excerpt}
-            </p>
-
-            <p>
-              The event, which was organized by the student council in
-              collaboration with the department heads, brought together
-              participants from across the region. Students showcased innovative
-              projects ranging from renewable energy solutions to community health
-              applications.
-            </p>
-
-            <h2>A New Chapter for Student Innovation</h2>
-
-            <p>
-              This year&apos;s edition marked a significant departure from previous
-              formats. The organizing committee introduced an open-mic session
-              where students could pitch ideas directly to a panel of industry
-              mentors. The response was overwhelming, with over 60 pitches
-              submitted in the first hour alone.
-            </p>
-
-            <blockquote>
-              &ldquo;We wanted to create a space where students feel empowered to share
-              their ideas without fear of judgment. The results exceeded our
-              expectations.&rdquo; — Student Council President
-            </blockquote>
-
-            <p>
-              Faculty advisors noted that the quality of submissions has improved
-              consistently over the past three years, reflecting the growing
-              emphasis on practical learning and interdisciplinary collaboration.
-            </p>
-
-            <h2>Looking Ahead</h2>
-
-            <p>
-              The organizing committee has already begun planning for next year,
-              with proposals to expand the event to include workshops on emerging
-              technologies such as quantum computing and bioinformatics. Alumni
-              engagement is also expected to increase, with several successful
-              graduates expressing interest in mentoring current students.
-            </p>
-
-            <p>
-              For students interested in participating in future events, the
-              council encourages early registration and recommends forming
-              interdisciplinary teams to maximize creative potential.
-            </p>
-          </div>
+          {/* Article content — rendered from TipTap JSON */}
+          <TipTapRenderer content={article.content} />
 
           {/* Mobile share bar */}
           <div className="lg:hidden flex gap-3 mt-8 pt-6 border-t border-border-subtle">
@@ -276,40 +279,51 @@ export default function ArticlePage() {
       </section>
 
       {/* Related articles */}
-      <section className="px-4 sm:px-6 pb-20">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-8">
-            // YOU MAY ALSO LIKE
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {relatedArticles.map((ra) => (
-              <Link
-                key={ra.id}
-                href={`/articles/${ra.slug}`}
-                className="group bg-surface border border-border-subtle rounded-lg overflow-hidden hover:border-gold/30 transition-all"
-              >
-                <div className="aspect-video bg-surface-light relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent" />
-                  <div className="absolute top-3 left-3">
-                    <span className={`font-mono text-[10px] px-2 py-0.5 rounded ${getCategoryBadgeClasses(ra.category)}`}>
-                      {ra.category.toUpperCase()}
-                    </span>
+      {relatedArticles.length > 0 && (
+        <section className="px-4 sm:px-6 pb-20">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-8">
+              // YOU MAY ALSO LIKE
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedArticles.map((ra) => (
+                <Link
+                  key={ra.id}
+                  href={`/articles/${ra.slug}`}
+                  className="group bg-surface border border-border-subtle rounded-lg overflow-hidden hover:border-gold/30 transition-all"
+                >
+                  <div className="aspect-video bg-surface-light relative overflow-hidden">
+                    {ra.cover_image_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={ra.cover_image_url}
+                        alt={ra.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 bg-gradient-to-br from-gold/5 to-transparent" />
+                    )}
+                    <div className="absolute top-3 left-3">
+                      <span className={`font-mono text-[10px] px-2 py-0.5 rounded ${getCategoryBadgeClasses(ra.category)}`}>
+                        {ra.category.toUpperCase()}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-serif text-base font-semibold group-hover:text-gold transition-colors leading-snug mb-2">
-                    {ra.title}
-                  </h3>
-                  <p className="font-mono text-[10px] text-muted">
-                    {ra.contributor_name || ra.author?.full_name} &middot;{" "}
-                    {ra.read_time_minutes} min read
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  <div className="p-4">
+                    <h3 className="font-serif text-base font-semibold group-hover:text-gold transition-colors leading-snug mb-2">
+                      {ra.title}
+                    </h3>
+                    <p className="font-mono text-[10px] text-muted">
+                      {ra.contributor_name || ra.author?.full_name} &middot;{" "}
+                      {ra.read_time_minutes} min read
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <Footer />
     </main>

@@ -11,20 +11,29 @@ import CampusMap from "@/components/public/CampusMap";
 import Footer from "@/components/public/Footer";
 import MagazineTrigger from "@/components/public/MagazineTrigger";
 import SplashGate from "@/components/public/SplashGate";
+import { createServerSupabaseClient } from "@/lib/supabase";
 import {
-  sampleArticles,
   samplePersonnel,
   sampleTocEntries,
-
   sampleCampusLocations,
   sampleGalleryItems,
   tickerHeadlines,
 } from "@/lib/sample-data";
+import type { Article } from "@/types";
 
-export default function HomePage() {
-  const featuredArticle =
-    sampleArticles.find((a) => a.is_featured) || sampleArticles[0];
-  const articles = sampleArticles.filter((a) => a.status === "published");
+export const revalidate = 60; // revalidate every 60 seconds
+
+export default async function HomePage() {
+  // Fetch published articles from Supabase
+  const supabase = createServerSupabaseClient();
+  const { data } = await supabase
+    .from("articles")
+    .select("*, author:profiles!articles_author_id_fkey(*)")
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
+
+  const articles: Article[] = data || [];
+  const featuredArticle = articles.find((a) => a.is_featured) || articles[0] || null;
 
   return (
     <>
@@ -32,10 +41,10 @@ export default function HomePage() {
       <main className="min-h-screen bg-background">
         <Navbar />
         <HeroSection headlines={tickerHeadlines} />
-        <SpotlightSection article={featuredArticle} />
+        {featuredArticle && <SpotlightSection article={featuredArticle} />}
         <TableOfContents entries={sampleTocEntries} />
         <WhoIsWho personnel={samplePersonnel} />
-        <ArticlesGrid articles={articles} />
+        {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={sampleGalleryItems} />
 
         <MastheadStrip />
@@ -45,7 +54,6 @@ export default function HomePage() {
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={sampleTocEntries}
-
           galleryItems={sampleGalleryItems}
           campusLocations={sampleCampusLocations}
         />
