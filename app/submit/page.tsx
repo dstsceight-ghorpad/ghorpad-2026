@@ -13,6 +13,10 @@ import {
   Tag,
   User,
   Users,
+  Upload,
+  Loader2,
+  X,
+  Paperclip,
 } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
@@ -205,6 +209,10 @@ export default function SubmitPage() {
   const [contributorType, setContributorType] = useState<ContributorType>("officer");
   const [relation, setRelation] = useState("");
   const [officerName, setOfficerName] = useState("");
+  const [attachmentUrl, setAttachmentUrl] = useState("");
+  const [attachmentName, setAttachmentName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -219,8 +227,60 @@ export default function SubmitPage() {
     return [...CATEGORIES];
   };
 
+  // File upload handler
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/submissions/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setUploadError(data.error || "Upload failed");
+        return;
+      }
+
+      setAttachmentUrl(data.url);
+      setAttachmentName(file.name);
+    } catch {
+      setUploadError("Upload failed. Please try again.");
+    } finally {
+      setUploading(false);
+      // Reset the input so the same file can be re-selected
+      e.target.value = "";
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachmentUrl("");
+    setAttachmentName("");
+    setUploadError("");
+  };
+
+  // Whether this type accepts images or documents
+  const isImageType = type === "photo" || type === "sketch";
+  const acceptedFileTypes = isImageType
+    ? ".jpg,.jpeg,.png"
+    : ".pdf,.doc,.docx";
+  const fileTypeLabel = isImageType
+    ? "Upload Image (JPEG or PNG)"
+    : "Upload Document (PDF or Word)";
+
   const handleSubmit = async () => {
-    if (!type || !category || !title || !content || !authorName) return;
+    if (!type || !category || !title || !authorName) return;
+    // Require either content or attachment
+    if (!content && !attachmentUrl) return;
     if (submitting) return;
 
     setSubmitting(true);
@@ -245,7 +305,8 @@ export default function SubmitPage() {
       contributor_type: contributorType,
       relation: contributorType === "family" ? relation || undefined : undefined,
       officer_name: contributorType === "family" ? officerName || undefined : undefined,
-      content,
+      content: content || `[See attached file: ${attachmentName}]`,
+      attachment_url: attachmentUrl || undefined,
       status: "pending",
       created_at: new Date().toISOString(),
     };
@@ -292,7 +353,7 @@ export default function SubmitPage() {
   const canProceedStep3 = category !== null;
   const canProceedStep4 =
     title &&
-    content &&
+    (content || attachmentUrl) &&
     authorName &&
     (contributorType === "officer" || (relation && officerName));
 
@@ -571,19 +632,105 @@ export default function SubmitPage() {
               />
             </div>
 
+            {/* File Upload */}
+            <div>
+              <label className="font-mono text-[10px] text-muted tracking-widest block mb-1.5">
+                {fileTypeLabel.toUpperCase()} *
+              </label>
+
+              {!attachmentUrl ? (
+                <div className="relative">
+                  <label
+                    className={`flex flex-col items-center justify-center gap-3 p-6 rounded-lg border-2 border-dashed transition-all cursor-pointer ${
+                      uploading
+                        ? "border-gold/30 bg-gold/5"
+                        : "border-border-subtle hover:border-gold/50 hover:bg-surface-light"
+                    }`}
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 size={28} className="text-gold animate-spin" />
+                        <span className="font-mono text-xs text-muted">
+                          Uploading...
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload size={28} className="text-muted" />
+                        <div className="text-center">
+                          <span className="text-sm font-medium block">
+                            Click to browse and upload
+                          </span>
+                          <span className="font-mono text-[10px] text-muted mt-1 block">
+                            {isImageType
+                              ? "JPEG or PNG • Max 10 MB"
+                              : "PDF or Word (.doc, .docx) • Max 10 MB"}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept={acceptedFileTypes}
+                      onChange={handleFileUpload}
+                      disabled={uploading}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-3 bg-green-500/5 border border-green-500/20 rounded-lg">
+                  {isImageType ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={attachmentUrl}
+                      alt="Upload preview"
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center shrink-0">
+                      <Paperclip size={18} className="text-gold" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium block truncate">
+                      {attachmentName}
+                    </span>
+                    <span className="font-mono text-[10px] text-green-400">
+                      Uploaded successfully
+                    </span>
+                  </div>
+                  <button
+                    onClick={removeAttachment}
+                    className="p-1.5 rounded-full text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0"
+                    title="Remove file"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+
+              {uploadError && (
+                <p className="font-mono text-[10px] text-red-400 mt-1.5">
+                  {uploadError}
+                </p>
+              )}
+            </div>
+
+            {/* Text Content */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="font-mono text-[10px] text-muted tracking-widest">
                   {type === "photo"
-                    ? "DESCRIPTION"
+                    ? "CAPTION / DESCRIPTION"
                     : type === "poem"
-                      ? "YOUR POEM"
+                      ? "YOUR POEM (or upload above)"
                       : type === "sketch"
-                        ? "DESCRIPTION"
-                        : "ARTICLE CONTENT"}{" "}
-                  *
+                        ? "CAPTION / DESCRIPTION"
+                        : "ARTICLE CONTENT (or upload above)"}{" "}
+                  {attachmentUrl ? "" : "*"}
                 </label>
-                {(type === "article" || type === "poem") && (
+                {(type === "article" || type === "poem") && !attachmentUrl && (
                   <span className="font-mono text-[9px] text-muted/60">
                     Follow the template for best results
                   </span>
@@ -592,17 +739,19 @@ export default function SubmitPage() {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                rows={type === "photo" || type === "sketch" ? 6 : 16}
+                rows={type === "photo" || type === "sketch" ? 4 : attachmentUrl ? 4 : 16}
                 placeholder={
-                  type === "photo"
-                    ? "Describe the photo — event, date, people pictured, and context"
-                    : type === "sketch"
-                      ? "Describe your sketch — inspiration, medium used, and any context"
-                      : undefined
+                  attachmentUrl
+                    ? "Add an optional caption or note about your uploaded file"
+                    : type === "photo"
+                      ? "Describe the photo — event, date, people pictured, and context"
+                      : type === "sketch"
+                        ? "Describe your sketch — inspiration, medium used, and any context"
+                        : undefined
                 }
                 className="w-full bg-surface border border-border-subtle rounded-lg px-3 py-2.5 text-sm resize-none focus:outline-none focus:border-gold transition-all font-mono leading-relaxed"
               />
-              {(type === "article" || type === "poem") && content.startsWith("[") && (
+              {(type === "article" || type === "poem") && !attachmentUrl && content.startsWith("[") && (
                 <p className="font-mono text-[9px] text-muted/50 mt-1.5">
                   Replace the [bracketed prompts] with your content. You may add
                   or remove sections as needed.
@@ -788,14 +937,27 @@ export default function SubmitPage() {
                 </span>
                 <span className="text-sm font-medium">{title}</span>
               </div>
-              <div>
-                <span className="font-mono text-[10px] text-muted block mb-1">
-                  CONTENT PREVIEW
-                </span>
-                <p className="text-sm text-muted leading-relaxed line-clamp-6 whitespace-pre-line">
-                  {content}
-                </p>
-              </div>
+              {attachmentUrl && (
+                <div>
+                  <span className="font-mono text-[10px] text-muted block mb-1">
+                    ATTACHMENT
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Paperclip size={14} className="text-gold shrink-0" />
+                    <span className="text-sm text-gold truncate">{attachmentName}</span>
+                  </div>
+                </div>
+              )}
+              {content && (
+                <div>
+                  <span className="font-mono text-[10px] text-muted block mb-1">
+                    {attachmentUrl ? "NOTES" : "CONTENT PREVIEW"}
+                  </span>
+                  <p className="text-sm text-muted leading-relaxed line-clamp-6 whitespace-pre-line">
+                    {content}
+                  </p>
+                </div>
+              )}
               <div className="border-t border-border-subtle pt-4">
                 <span className="font-mono text-[10px] text-muted block mb-1">
                   CONTRIBUTED BY

@@ -30,10 +30,11 @@ export async function POST(request: NextRequest) {
       relation,
       officer_name,
       content,
+      attachment_url,
     } = body;
 
-    // Basic validation
-    if (!id || !type || !title || !author_name || !content) {
+    // Basic validation — require either content or attachment
+    if (!id || !type || !title || !author_name || (!content && !attachment_url)) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -61,7 +62,8 @@ export async function POST(request: NextRequest) {
       contributor_type: contributor_type || "officer",
       relation: relation || null,
       officer_name: officer_name || null,
-      content,
+      content: content || "",
+      attachment_url: attachment_url || null,
       status: "pending",
       created_at: new Date().toISOString(),
     });

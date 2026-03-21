@@ -288,14 +288,44 @@ export default function SubmissionsPage() {
                 )}
               </div>
 
-              <div>
-                <span className="font-mono text-[10px] text-muted block mb-1">
-                  CONTENT
-                </span>
-                <div className="p-3 bg-surface-light rounded-lg text-sm leading-relaxed max-h-48 overflow-y-auto whitespace-pre-line">
-                  {selectedSubmission.content}
+              {selectedSubmission.attachment_url && (
+                <div>
+                  <span className="font-mono text-[10px] text-muted block mb-1">
+                    ATTACHMENT
+                  </span>
+                  {/\.(jpg|jpeg|png)$/i.test(selectedSubmission.attachment_url) ? (
+                    <div className="rounded-lg overflow-hidden border border-border-subtle">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={selectedSubmission.attachment_url}
+                        alt="Submission attachment"
+                        className="w-full max-h-64 object-contain bg-black/20"
+                      />
+                    </div>
+                  ) : (
+                    <a
+                      href={selectedSubmission.attachment_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-3 py-2 bg-gold/10 text-gold rounded-lg font-mono text-xs hover:bg-gold/20 transition-colors"
+                    >
+                      <FileText size={14} />
+                      Download Attachment
+                    </a>
+                  )}
                 </div>
-              </div>
+              )}
+
+              {selectedSubmission.content && (
+                <div>
+                  <span className="font-mono text-[10px] text-muted block mb-1">
+                    {selectedSubmission.attachment_url ? "NOTES" : "CONTENT"}
+                  </span>
+                  <div className="p-3 bg-surface-light rounded-lg text-sm leading-relaxed max-h-48 overflow-y-auto whitespace-pre-line">
+                    {selectedSubmission.content}
+                  </div>
+                </div>
+              )}
 
               {selectedSubmission.reviewer_notes && (
                 <div>
