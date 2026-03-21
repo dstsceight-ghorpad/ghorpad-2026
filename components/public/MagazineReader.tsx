@@ -796,12 +796,9 @@ function CampusMapPage({ locations }: { locations: CampusLocation[] }) {
 
 function MediaPage() {
   const mediaItems = [
-    { id: "m1", title: "Tech Fest Opening Ceremony", type: "image" },
-    { id: "m2", title: "Cricket Finals Highlights", type: "video" },
+    { id: "m1", title: "CAPSTAR", type: "image" },
     { id: "m3", title: "Cultural Night Performances", type: "image" },
-    { id: "m4", title: "Lab Inauguration", type: "image" },
-    { id: "m5", title: "Student Panel Discussion", type: "video" },
-    { id: "m6", title: "Campus Drone View", type: "image" },
+    { id: "m4", title: "AI Lab Inauguration", type: "image" },
   ];
 
   return (
