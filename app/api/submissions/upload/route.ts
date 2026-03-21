@@ -5,16 +5,21 @@ import { rateLimit, getClientIp } from "@/lib/rate-limit";
 const BUCKET = "submission-attachments";
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
-const ALLOWED_TYPES: Record<string, string> = {
-  "application/pdf": "pdf",
-  "application/msword": "doc",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-  "image/jpeg": "jpg",
-  "image/png": "png",
+const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "jpg", "jpeg", "png"];
+
+const MIME_MAP: Record<string, string> = {
+  pdf: "application/pdf",
+  doc: "application/msword",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  png: "image/png",
 };
 
 /**
- * POST /api/submissions/upload — Public. Uploads a file for a submission.
+ * POST /api/submissions/upload — Public.
+ * Returns a signed upload URL so the browser can upload directly to Supabase
+ * Storage (bypasses Vercel's 4.5 MB body size limit).
  */
 export async function POST(request: NextRequest) {
   try {
@@ -28,27 +33,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
+    const body = await request.json();
+    const { filename, size, type } = body as {
+      filename: string;
+      size: number;
+      type: string;
+    };
 
-    if (!file) {
+    if (!filename || !size) {
       return NextResponse.json(
-        { error: "No file provided" },
+        { error: "Missing filename or size" },
         { status: 400 }
       );
     }
 
     // Validate file size
-    if (file.size > MAX_SIZE) {
+    if (size > MAX_SIZE) {
       return NextResponse.json(
         { error: "File too large. Maximum size is 10 MB." },
         { status: 400 }
       );
     }
 
-    // Validate file type
-    const ext = ALLOWED_TYPES[file.type];
-    if (!ext) {
+    // Validate file extension
+    const ext = filename.split(".").pop()?.toLowerCase() || "";
+    if (!ALLOWED_EXTENSIONS.includes(ext)) {
       return NextResponse.json(
         {
           error:
@@ -58,47 +67,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Read file into buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const contentType = type || MIME_MAP[ext] || "application/octet-stream";
 
     const supabase = createServiceRoleClient();
 
-    // Ensure bucket exists (idempotent)
+    // Ensure bucket exists (idempotent — no-ops if already exists)
     await supabase.storage.createBucket(BUCKET, {
       public: true,
       fileSizeLimit: MAX_SIZE,
     });
 
-    // Generate unique filename
-    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const filename = `${Date.now()}-${safeName}`;
+    // Generate unique storage path
+    const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const storagePath = `${Date.now()}-${safeName}`;
 
-    const { error: uploadError } = await supabase.storage
+    // Create a signed upload URL (valid for 5 minutes)
+    const { data: signedData, error: signedError } = await supabase.storage
       .from(BUCKET)
-      .upload(filename, buffer, {
-        contentType: file.type,
-        upsert: false,
-      });
+      .createSignedUploadUrl(storagePath);
 
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
+    if (signedError || !signedData) {
+      console.error("Signed URL error:", signedError);
       return NextResponse.json(
-        { error: "Failed to upload file" },
+        { error: "Failed to prepare upload" },
         { status: 500 }
       );
     }
 
-    // Get public URL
+    // Get the public URL for after upload completes
     const {
       data: { publicUrl },
-    } = supabase.storage.from(BUCKET).getPublicUrl(filename);
+    } = supabase.storage.from(BUCKET).getPublicUrl(storagePath);
 
     return NextResponse.json({
-      success: true,
-      url: publicUrl,
-      filename: file.name,
-      size: file.size,
-      type: file.type,
+      signedUrl: signedData.signedUrl,
+      token: signedData.token,
+      path: signedData.path,
+      publicUrl,
+      contentType,
     });
   } catch (err) {
     console.error("Submission upload error:", err);

@@ -227,7 +227,7 @@ export default function SubmitPage() {
     return [...CATEGORIES];
   };
 
-  // File upload handler
+  // File upload handler — two-step: get signed URL from API, then upload directly to Supabase
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -236,12 +236,15 @@ export default function SubmitPage() {
     setUploadError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
+      // Step 1: Get a signed upload URL from our API
       const res = await fetch("/api/submissions/upload", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: file.name,
+          size: file.size,
+          type: file.type,
+        }),
       });
 
       const data = await res.json();
@@ -251,7 +254,21 @@ export default function SubmitPage() {
         return;
       }
 
-      setAttachmentUrl(data.url);
+      // Step 2: Upload the file directly to Supabase Storage (bypasses Vercel size limit)
+      const uploadRes = await fetch(data.signedUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": data.contentType,
+        },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        setUploadError("File upload failed. Please try again.");
+        return;
+      }
+
+      setAttachmentUrl(data.publicUrl);
       setAttachmentName(file.name);
     } catch {
       setUploadError("Upload failed. Please try again.");
