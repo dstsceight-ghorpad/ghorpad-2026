@@ -300,25 +300,26 @@ export default function SubmitPage() {
           </div>
 
           {/* ── Meme Toggle ── */}
-          {isImageFile && (
-            <div className="flex items-center gap-3 p-3 rounded-lg border border-border-subtle">
-              <button
-                onClick={() => setIsMeme(!isMeme)}
-                className={`relative w-10 h-5 rounded-full transition-colors ${
-                  isMeme ? "bg-lime-500" : "bg-muted/30"
+          <div className="flex items-center gap-3 p-3 rounded-lg border border-border-subtle">
+            <button
+              onClick={() => setIsMeme(!isMeme)}
+              className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
+                isMeme ? "bg-lime-500" : "bg-muted/30"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                  isMeme ? "translate-x-5" : ""
                 }`}
-              >
-                <span
-                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
-                    isMeme ? "translate-x-5" : ""
-                  }`}
-                />
-              </button>
-              <span className="font-mono text-xs text-foreground">
-                Submit as a <strong className="text-lime-400">Meme</strong>
+              />
+            </button>
+            <span className="font-mono text-xs text-foreground">
+              Submit as a <strong className="text-lime-400">Meme</strong>
+              <span className="text-muted text-[10px] block mt-0.5">
+                Toggle ON for memes &amp; funny images
               </span>
-            </div>
-          )}
+            </span>
+          </div>
 
           {/* ── Contributor Info ── */}
           <div className="border-t border-border-subtle pt-5">
