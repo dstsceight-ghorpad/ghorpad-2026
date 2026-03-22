@@ -8,6 +8,7 @@ import {
   Eye,
   Pencil,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { formatDateShort } from "@/lib/utils";
@@ -198,6 +199,25 @@ export default function ArticlesPage() {
                             <Eye size={12} />
                             VIEW
                           </Link>
+                        )}
+                        {article.status === "draft" && (
+                          <button
+                            onClick={async () => {
+                              if (!confirm(`Delete "${article.title}"? This cannot be undone.`)) return;
+                              const supabase = createBrowserSupabaseClient();
+                              const { error } = await supabase
+                                .from("articles")
+                                .delete()
+                                .eq("id", article.id);
+                              if (!error) {
+                                setArticles((prev) => prev.filter((a) => a.id !== article.id));
+                              }
+                            }}
+                            className="font-mono text-[10px] text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"
+                          >
+                            <Trash2 size={12} />
+                            DELETE
+                          </button>
                         )}
                       </div>
                     </td>
