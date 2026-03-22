@@ -933,7 +933,7 @@ const _rawPersonnel: Personnel[] = [
     ["Ankit Gaur", "Wg Cdr", "F(P)"],
     ["Himanshu Singh", "Wg Cdr", "AE (L)"],
     ["Deepak Sharma", "Lt Col", "Corps of Signals"],
-    ["Piyush Chavan", "Major", "Regiment of Artillery"],
+    ["Piyush Chavan", "Lt Col", "Regiment of Artillery"],
     ["Dhairya Kumar", "Lt Col", "Infantry"],
     ["Ravindra Kumar", "Lt Col", "Corps of Engineers"],
     ["Trimohan", "Wg Cdr", "Logistics"],
