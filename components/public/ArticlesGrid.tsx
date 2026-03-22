@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 import type { Article } from "@/types";
 import { formatDate } from "@/lib/utils";
 import {
@@ -11,7 +11,6 @@ import {
   getCategoryColor,
 } from "@/lib/category-colors";
 import { SectionHeading } from "@/components/ui/RevealText";
-import TiltCard from "@/components/ui/TiltCard";
 
 import { CATEGORIES } from "@/types";
 
@@ -91,74 +90,81 @@ export default function ArticlesGrid({ articles }: ArticlesGridProps) {
 }
 
 function ArticleCard({ article }: { article: Article }) {
+  const router = useRouter();
   const catColor = getCategoryColor(article.category);
   const badgeClasses = getCategoryBadgeClasses(article.category);
+  const articleUrl = `/articles/${article.slug}`;
 
   return (
-    <TiltCard maxTilt={5} hoverScale={1.01} className="h-full">
-    <Link href={`/articles/${article.slug}`} className="block h-full cursor-pointer">
-      <div
-        className="group bg-surface border border-border-subtle rounded-lg overflow-hidden transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-gold/30 cursor-pointer"
-        style={{
-          ["--cat-hex" as string]: catColor.hex,
-        }}
-      >
-        {/* Cover image — uniform aspect-video for all cards */}
-        <div className="aspect-video bg-surface-light relative overflow-hidden">
-          {article.cover_image_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={article.cover_image_url}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div
-              className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity duration-300"
-              style={{
-                background: `linear-gradient(135deg, ${catColor.hex}33 0%, transparent 60%)`,
-              }}
-            />
-          )}
-          <div className="absolute top-3 left-3">
-            <span
-              className={`font-mono text-[10px] px-2 py-0.5 rounded ${badgeClasses}`}
-            >
-              {article.category.toUpperCase()}
-            </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-5 flex flex-col flex-1">
-          <h3
-            className={`font-serif text-lg font-semibold mb-2 transition-colors leading-snug ${catColor.textOnDark} opacity-100 group-hover:opacity-100`}
-            style={{ color: undefined }}
+    <div
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(articleUrl)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          router.push(articleUrl);
+        }
+      }}
+      className="group bg-surface border border-border-subtle rounded-lg overflow-hidden transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-gold/30 cursor-pointer hover:scale-[1.01]"
+      style={{
+        ["--cat-hex" as string]: catColor.hex,
+      }}
+    >
+      {/* Cover image — uniform aspect-video for all cards */}
+      <div className="aspect-video bg-surface-light relative overflow-hidden">
+        {article.cover_image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={article.cover_image_url}
+            alt={article.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity duration-300"
+            style={{
+              background: `linear-gradient(135deg, ${catColor.hex}33 0%, transparent 60%)`,
+            }}
+          />
+        )}
+        <div className="absolute top-3 left-3">
+          <span
+            className={`font-mono text-[10px] px-2 py-0.5 rounded ${badgeClasses}`}
           >
-            <span className="text-foreground group-hover:text-[var(--cat-hex)] transition-colors duration-300">
-              {article.title}
-            </span>
-          </h3>
-          <p className="text-muted text-sm mb-4 line-clamp-2 flex-1">
-            {article.excerpt}
-          </p>
-          <div className="flex items-center justify-between font-mono text-[10px] text-muted">
-            <span>{article.contributor_name || article.author?.full_name}</span>
-            <span className="flex items-center gap-2">
-              <span>{article.read_time_minutes} min</span>
-              <span className="text-border-subtle">|</span>
-              <span>{article.published_at ? formatDate(article.published_at) : ""}</span>
-            </span>
-          </div>
+            {article.category.toUpperCase()}
+          </span>
         </div>
-
-        {/* Bottom accent bar — category coloured */}
-        <div
-          className="h-0.5 w-0 group-hover:w-full transition-all duration-500 ease-out"
-          style={{ backgroundColor: catColor.hex }}
-        />
       </div>
-    </Link>
-    </TiltCard>
+
+      {/* Content */}
+      <div className="p-5 flex flex-col flex-1">
+        <h3
+          className={`font-serif text-lg font-semibold mb-2 transition-colors leading-snug ${catColor.textOnDark} opacity-100 group-hover:opacity-100`}
+          style={{ color: undefined }}
+        >
+          <span className="text-foreground group-hover:text-[var(--cat-hex)] transition-colors duration-300">
+            {article.title}
+          </span>
+        </h3>
+        <p className="text-muted text-sm mb-4 line-clamp-2 flex-1">
+          {article.excerpt}
+        </p>
+        <div className="flex items-center justify-between font-mono text-[10px] text-muted">
+          <span>{article.contributor_name || article.author?.full_name}</span>
+          <span className="flex items-center gap-2">
+            <span>{article.read_time_minutes} min</span>
+            <span className="text-border-subtle">|</span>
+            <span>{article.published_at ? formatDate(article.published_at) : ""}</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Bottom accent bar — category coloured */}
+      <div
+        className="h-0.5 w-0 group-hover:w-full transition-all duration-500 ease-out"
+        style={{ backgroundColor: catColor.hex }}
+      />
+    </div>
   );
 }
