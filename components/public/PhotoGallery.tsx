@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Camera, Play } from "lucide-react";
 import { SectionHeading, RevealOnScroll } from "@/components/ui/RevealText";
 import type { GalleryItem, GalleryCategory } from "@/types";
@@ -18,6 +18,13 @@ const ALL_CATEGORIES: GalleryCategory[] = [
   "Creative",
 ];
 
+/** Extract the sport/event name from a title like "MILIT Run — Starting Line" → "MILIT Run" */
+function getSportEvent(title: string): string {
+  const dash = title.indexOf("—");
+  if (dash > 0) return title.substring(0, dash).trim();
+  return "Other";
+}
+
 interface PhotoGalleryProps {
   items: GalleryItem[];
 }
@@ -26,6 +33,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory | "All">(
     "All"
   );
+  const [activeSport, setActiveSport] = useState<string | "All">("All");
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
 
   // Listen for TOC "gallery-filter" events to auto-select a category
@@ -34,16 +42,33 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
       const cat = (e as CustomEvent).detail as GalleryCategory;
       if (ALL_CATEGORIES.includes(cat)) {
         setActiveCategory(cat);
+        setActiveSport("All");
       }
     };
     window.addEventListener("gallery-filter", handler);
     return () => window.removeEventListener("gallery-filter", handler);
   }, []);
 
-  const filtered =
-    activeCategory === "All"
-      ? items
-      : items.filter((item) => item.category === activeCategory);
+  // Derive unique sport sub-events from Sports items
+  const sportsEvents = useMemo(() => {
+    const sportsItems = items.filter((i) => i.category === "Sports");
+    const events = new Set(sportsItems.map((i) => getSportEvent(i.title)));
+    return Array.from(events).sort();
+  }, [items]);
+
+  const filtered = useMemo(() => {
+    let result =
+      activeCategory === "All"
+        ? items
+        : items.filter((item) => item.category === activeCategory);
+
+    // Apply sport sub-filter when viewing Sports
+    if (activeCategory === "Sports" && activeSport !== "All") {
+      result = result.filter((item) => getSportEvent(item.title) === activeSport);
+    }
+
+    return result;
+  }, [items, activeCategory, activeSport]);
 
   const getAspectClass = (ratio: string) => {
     switch (ratio) {
@@ -79,7 +104,10 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
             {ALL_CATEGORIES.map((cat) => (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat)}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setActiveSport("All");
+                }}
                 className={`font-mono text-[10px] tracking-widest px-3 py-1.5 rounded transition-all ${
                   activeCategory === cat
                     ? "bg-gold text-background"
@@ -91,6 +119,38 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
             ))}
           </div>
         </RevealOnScroll>
+
+        {/* Sports sub-event filter */}
+        {activeCategory === "Sports" && sportsEvents.length > 1 && (
+          <RevealOnScroll>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-8 -mt-4">
+              <span className="font-mono text-[9px] text-muted/60 tracking-widest mr-1">EVENT:</span>
+              <button
+                onClick={() => setActiveSport("All")}
+                className={`font-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full transition-all ${
+                  activeSport === "All"
+                    ? "bg-teal-500 text-white"
+                    : "text-muted border border-border-subtle hover:border-teal-500/50 hover:text-teal-400"
+                }`}
+              >
+                ALL EVENTS
+              </button>
+              {sportsEvents.map((event) => (
+                <button
+                  key={event}
+                  onClick={() => setActiveSport(event)}
+                  className={`font-mono text-[9px] tracking-wider px-2.5 py-1 rounded-full transition-all ${
+                    activeSport === event
+                      ? "bg-teal-500 text-white"
+                      : "text-muted border border-border-subtle hover:border-teal-500/50 hover:text-teal-400"
+                  }`}
+                >
+                  {event.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          </RevealOnScroll>
+        )}
 
         {/* Masonry Grid */}
         <div className="masonry-grid">
@@ -140,7 +200,9 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                       {item.title}
                     </h4>
                     <span className="font-mono text-[9px] text-gold">
-                      {item.category.toUpperCase()}
+                      {item.category === "Sports"
+                        ? getSportEvent(item.title).toUpperCase()
+                        : item.category.toUpperCase()}
                     </span>
                   </div>
 
