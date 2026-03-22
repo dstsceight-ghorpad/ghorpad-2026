@@ -994,8 +994,6 @@ const noPhotoIds = new Set([
   "pers-so-26",  // BP Tripathy
   "pers-so-27",  // Rachit Ahluwalia
   "pers-so-29",  // Rahul Inamdar
-  // Pereira division (all except pers-per-6 Solanki)
-  ...Array.from({ length: 45 }, (_, i) => `pers-per-${i + 1}`).filter(id => id !== "pers-per-6"),
 ]);
 
 // Auto-fill avatar_url for all personnel from Supabase storage (skip removed photos)
