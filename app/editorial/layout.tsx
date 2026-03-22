@@ -41,7 +41,6 @@ export function useUser() {
 const sidebarLinks = [
   { label: "Dashboard", href: "/editorial/dashboard", icon: LayoutDashboard },
   { label: "Articles", href: "/editorial/articles", icon: FileText },
-  { label: "Media", href: "/editorial/media", icon: ImageIcon },
   { label: "Gallery", href: "/editorial/gallery", icon: Camera },
   { label: "Submissions", href: "/editorial/submissions", icon: Inbox },
   { label: "Personnel", href: "/editorial/personnel", icon: Users2 },
