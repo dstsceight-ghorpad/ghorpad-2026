@@ -87,6 +87,14 @@ export async function POST(request: NextRequest) {
       ? `${parentName.trim()} | ${division} Division, DSTSC-08`
       : `${parentName.trim()} | DSTSC-08`;
 
+    // Get any editor user ID for the uploaded_by FK constraint
+    const { data: anyEditor } = await supabase
+      .from("profiles")
+      .select("id")
+      .in("role", ["super_editor", "editor"])
+      .limit(1)
+      .single();
+
     // Insert gallery item
     const { data, error: insertError } = await supabase
       .from("gallery_items")
@@ -97,7 +105,7 @@ export async function POST(request: NextRequest) {
         url: publicUrl,
         aspect_ratio: "portrait",
         description: desc,
-        uploaded_by: "00000000-0000-0000-0000-000000000000", // system upload
+        uploaded_by: anyEditor?.id || null,
       })
       .select("id")
       .single();
