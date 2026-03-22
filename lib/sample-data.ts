@@ -967,7 +967,9 @@ const _rawPersonnel: Personnel[] = [
 ];
 
 // Personnel IDs whose photos have been removed (wrong/mismatched uploads)
+// Includes all Pereira division except pers-per-6 (Raghavendra Pratap Solanki)
 const noPhotoIds = new Set([
+  // Staff officers
   "pers-2",      // Saurabh Bhargava
   "pers-so-2",   // G Mahesh Kumar
   "pers-so-3",   // Ramesh S Bhat
@@ -992,6 +994,8 @@ const noPhotoIds = new Set([
   "pers-so-26",  // BP Tripathy
   "pers-so-27",  // Rachit Ahluwalia
   "pers-so-29",  // Rahul Inamdar
+  // Pereira division (all except pers-per-6 Solanki)
+  ...Array.from({ length: 45 }, (_, i) => `pers-per-${i + 1}`).filter(id => id !== "pers-per-6"),
 ]);
 
 // Auto-fill avatar_url for all personnel from Supabase storage (skip removed photos)
