@@ -63,7 +63,7 @@ function renderMarks(
   return node;
 }
 
-function renderNode(node: TipTapNode, index: number): React.ReactNode {
+function renderNode(node: TipTapNode, index: number, skipImageUrl?: string): React.ReactNode {
   // Text node
   if (node.type === "text") {
     return (
@@ -73,7 +73,7 @@ function renderNode(node: TipTapNode, index: number): React.ReactNode {
     );
   }
 
-  const children = node.content?.map((child, i) => renderNode(child, i));
+  const children = node.content?.map((child, i) => renderNode(child, i, skipImageUrl));
 
   switch (node.type) {
     case "doc":
@@ -140,6 +140,8 @@ function renderNode(node: TipTapNode, index: number): React.ReactNode {
 
     case "image": {
       const imgSrc = String(node.attrs?.src || "");
+      // Skip this image if it matches the cover image (prevents duplicate display)
+      if (skipImageUrl && imgSrc === skipImageUrl) return null;
       const imgAlt = String(node.attrs?.alt || "");
       const imgTitle = node.attrs?.title ? String(node.attrs.title) : null;
       return (
@@ -199,9 +201,11 @@ function renderNode(node: TipTapNode, index: number): React.ReactNode {
 
 interface TipTapRendererProps {
   content: Record<string, unknown> | null;
+  /** If provided, any image node matching this URL will be skipped (to avoid duplicate with cover image) */
+  skipImageUrl?: string;
 }
 
-export default function TipTapRenderer({ content }: TipTapRendererProps) {
+export default function TipTapRenderer({ content, skipImageUrl }: TipTapRendererProps) {
   if (!content) {
     return (
       <p className="text-muted italic">No content available.</p>
@@ -210,7 +214,7 @@ export default function TipTapRenderer({ content }: TipTapRendererProps) {
 
   return (
     <div className="prose-editorial">
-      {renderNode(content as unknown as TipTapNode, 0)}
+      {renderNode(content as unknown as TipTapNode, 0, skipImageUrl)}
     </div>
   );
 }

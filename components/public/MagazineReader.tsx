@@ -608,7 +608,7 @@ function ArticlePage({ article }: { article: Article }) {
       {/* Article content */}
       {article.content ? (
         <div className="text-sm leading-relaxed">
-          <TipTapRenderer content={article.content} />
+          <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
         </div>
       ) : (
         <div className="flex flex-wrap gap-2 mt-4">

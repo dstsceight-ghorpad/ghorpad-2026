@@ -14,13 +14,8 @@ function buildArticleContent(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const nodes: any[] = [];
 
-  // Add image node if attachment is an image
-  if (attachmentUrl && isImage) {
-    nodes.push({
-      type: "image",
-      attrs: { src: attachmentUrl, alt: "Submitted image", title: null },
-    });
-  }
+  // For image attachments, skip adding to content — they'll be shown via cover_image_url
+  // This prevents the same image from appearing twice (once as cover, once in content)
 
   // Embed PDF directly if attachment is a PDF
   const isPdf = /\.pdf$/i.test(attachmentUrl || "");

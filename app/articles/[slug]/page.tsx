@@ -206,7 +206,7 @@ export default function ArticlePage() {
       <section className="px-4 sm:px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           {/* Article content — rendered from TipTap JSON */}
-          <TipTapRenderer content={article.content} />
+          <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
         </div>
       </section>
 

@@ -111,9 +111,8 @@ export default function SubmissionsPage() {
     // Build TipTap content
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nodes: any[] = [];
-    if (sub.attachment_url && isImage) {
-      nodes.push({ type: "image", attrs: { src: sub.attachment_url, alt: "Submitted image", title: null } });
-    }
+    // For image attachments, skip adding to content — they'll be shown via cover_image_url
+    // This prevents the same image from appearing twice (once as cover, once in content)
     if (sub.attachment_url && isPdf) {
       nodes.push({ type: "pdf", attrs: { src: sub.attachment_url, title: sub.title || "Document" } });
     }
