@@ -295,17 +295,9 @@ body {
   -webkit-user-select: none;
 }
 
-/* Prevent image dragging and direct interaction */
+/* Prevent image dragging (pointer-events left intact so clickable cards work) */
 img {
   -webkit-user-drag: none;
-  pointer-events: none;
-}
-
-/* Re-enable pointer events on images inside clickable elements (links, buttons) */
-a img,
-button img {
-  pointer-events: auto;
-  cursor: pointer;
 }
 
 /* Re-enable selection for form inputs (login, upload, editorial) */

@@ -110,7 +110,7 @@ function ArticleCard({ article }: { article: Article }) {
             <img
               src={article.cover_image_url}
               alt={article.title}
-              className="w-full h-full object-cover pointer-events-auto"
+              className="w-full h-full object-cover"
             />
           ) : (
             <div
