@@ -1,6 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
 
+/** Helper: validate auth + editor role. Returns { user, supabase } or a Response. */
+async function authenticateEditor(request: NextRequest) {
+  const { createServerClient } = await import("@supabase/ssr");
+  const supabaseAuth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return request.cookies.getAll(); },
+        setAll() {},
+      },
+    }
+  );
+  const { data: { user } } = await supabaseAuth.auth.getUser();
+  if (!user) {
+    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  }
+
+  const supabase = createServiceRoleClient();
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile || (profile.role !== "super_editor" && profile.role !== "editor")) {
+    return { error: NextResponse.json({ error: "Insufficient permissions" }, { status: 403 }) };
+  }
+
+  return { user, supabase };
+}
+
 /**
  * POST /api/gallery — Upload a gallery image (server-side with service role).
  * Expects multipart/form-data with:
@@ -12,41 +44,9 @@ import { createServiceRoleClient } from "@/lib/supabase";
  */
 export async function POST(request: NextRequest) {
   try {
-    // Validate user session via Supabase auth cookies
-    const { createServerClient } = await import("@supabase/ssr");
-    const supabaseAuth = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {},
-        },
-      }
-    );
-    const {
-      data: { user },
-    } = await supabaseAuth.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check role
-    const supabase = createServiceRoleClient();
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
-
-    if (
-      !profile ||
-      (profile.role !== "super_editor" && profile.role !== "editor")
-    ) {
-      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
-    }
+    const auth = await authenticateEditor(request);
+    if ("error" in auth) return auth.error;
+    const { user, supabase } = auth;
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -130,5 +130,55 @@ export async function POST(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * DELETE /api/gallery — Delete a gallery item (server-side with auth).
+ * Expects JSON body: { id: string }
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const auth = await authenticateEditor(request);
+    if ("error" in auth) return auth.error;
+    const { supabase } = auth;
+
+    const { id } = (await request.json()) as { id?: string };
+    if (!id) {
+      return NextResponse.json({ error: "Missing gallery item id" }, { status: 400 });
+    }
+
+    // Fetch the item to get the storage path
+    const { data: item, error: fetchError } = await supabase
+      .from("gallery_items")
+      .select("url")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !item) {
+      return NextResponse.json({ error: "Gallery item not found" }, { status: 404 });
+    }
+
+    // Extract storage path from public URL
+    const url = item.url as string;
+    const pathMatch = url.match(/\/media\/(.+)$/);
+    if (pathMatch) {
+      await supabase.storage.from("media").remove([pathMatch[1]]);
+    }
+
+    // Delete the DB record
+    const { error: deleteError } = await supabase
+      .from("gallery_items")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Gallery delete error:", err);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -17,17 +17,28 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createBrowserSupabaseClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Use rate-limited server endpoint
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (authError) {
-        setError(authError.message);
-      } else {
-        router.push("/editorial/dashboard");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Login failed");
+        return;
       }
+
+      // Set the session on the client
+      const supabase = createBrowserSupabaseClient();
+      await supabase.auth.setSession({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      });
+
+      router.push("/editorial/dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
       setError(message);

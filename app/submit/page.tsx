@@ -27,12 +27,13 @@ const RELATIONS = ["Wife of", "Son of", "Daughter of"];
 /** Detect submission type from file extension */
 function detectType(filename: string): SubmissionType {
   const ext = filename.toLowerCase().split(".").pop() || "";
-  if (["jpg", "jpeg", "png"].includes(ext)) return "photo";
+  if (["jpg", "jpeg", "png", "gif"].includes(ext)) return "photo";
   return "article";
 }
 
 /** Detect category from type */
 function detectCategory(type: SubmissionType): string {
+  if (type === "meme") return "Memes";
   if (type === "photo" || type === "sketch") return "Creative";
   if (type === "poem") return "Poems";
   return "Campus";
@@ -52,6 +53,7 @@ export default function SubmitPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submissionId, setSubmissionId] = useState("");
+  const [isMeme, setIsMeme] = useState(false);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,7 +107,7 @@ export default function SubmitPage() {
     setUploadError("");
   };
 
-  const isImageFile = /\.(jpg|jpeg|png)$/i.test(attachmentName);
+  const isImageFile = /\.(jpg|jpeg|png|gif)$/i.test(attachmentName);
 
   const canSubmit =
     attachmentUrl &&
@@ -119,7 +121,7 @@ export default function SubmitPage() {
     setSubmitError("");
 
     const id = `sub-${Date.now()}`;
-    const type = detectType(attachmentName);
+    const type: SubmissionType = isMeme ? "meme" : detectType(attachmentName);
     const category = detectCategory(type);
 
     // Use filename (without extension) as title
@@ -207,7 +209,7 @@ export default function SubmitPage() {
             Contribute
           </h1>
           <p className="text-muted leading-relaxed text-sm">
-            Upload your article, poem, sketch, or photo for GHORPAD 2026.
+            Upload your article, poem, sketch, photo, or meme for GHORPAD 2026.
             <br />
             Our editorial team will review and publish it.
           </p>
@@ -244,14 +246,14 @@ export default function SubmitPage() {
                           Click to upload your file
                         </span>
                         <span className="font-mono text-[10px] text-muted mt-1 block">
-                          JPEG, PNG, PDF, DOC, DOCX &bull; Max 10 MB
+                          JPEG, PNG, GIF, PDF, DOC, DOCX &bull; Max 10 MB
                         </span>
                       </div>
                     </>
                   )}
                   <input
                     type="file"
-                    accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
+                    accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx"
                     onChange={handleFileUpload}
                     disabled={uploading}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -296,6 +298,27 @@ export default function SubmitPage() {
               </p>
             )}
           </div>
+
+          {/* ── Meme Toggle ── */}
+          {isImageFile && (
+            <div className="flex items-center gap-3 p-3 rounded-lg border border-border-subtle">
+              <button
+                onClick={() => setIsMeme(!isMeme)}
+                className={`relative w-10 h-5 rounded-full transition-colors ${
+                  isMeme ? "bg-lime-500" : "bg-muted/30"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                    isMeme ? "translate-x-5" : ""
+                  }`}
+                />
+              </button>
+              <span className="font-mono text-xs text-foreground">
+                Submit as a <strong className="text-lime-400">Meme</strong>
+              </span>
+            </div>
+          )}
 
           {/* ── Contributor Info ── */}
           <div className="border-t border-border-subtle pt-5">

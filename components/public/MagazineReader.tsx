@@ -139,20 +139,26 @@ function compilePages(
     pages.push({ type: "article", title: article.title, data: article });
   }
 
-  // 8. Photo Gallery — paginate at 9 items per page
+  // 8. Photo Gallery — group by category, paginate at 9 items per page
   const GALLERY_PAGE_SIZE = 9;
-  const totalGalleryPages = Math.ceil(galleryItems.length / GALLERY_PAGE_SIZE);
-  for (let i = 0; i < galleryItems.length; i += GALLERY_PAGE_SIZE) {
-    const chunk = galleryItems.slice(i, i + GALLERY_PAGE_SIZE);
-    const pageNum = Math.floor(i / GALLERY_PAGE_SIZE) + 1;
-    pages.push({
-      type: "gallery",
-      title:
-        totalGalleryPages > 1
-          ? `Photo Gallery (${pageNum}/${totalGalleryPages})`
-          : "Photo Gallery",
-      data: chunk,
-    });
+  const galleryByCategory = new Map<string, GalleryItem[]>();
+  for (const item of galleryItems) {
+    const cat = item.category || "Uncategorised";
+    if (!galleryByCategory.has(cat)) galleryByCategory.set(cat, []);
+    galleryByCategory.get(cat)!.push(item);
+  }
+  for (const [category, catItems] of galleryByCategory) {
+    const totalCatPages = Math.ceil(catItems.length / GALLERY_PAGE_SIZE);
+    for (let i = 0; i < catItems.length; i += GALLERY_PAGE_SIZE) {
+      const chunk = catItems.slice(i, i + GALLERY_PAGE_SIZE);
+      const pageNum = Math.floor(i / GALLERY_PAGE_SIZE) + 1;
+      const suffix = totalCatPages > 1 ? ` (${pageNum}/${totalCatPages})` : "";
+      pages.push({
+        type: "gallery",
+        title: `${category}${suffix}`,
+        data: chunk,
+      });
+    }
   }
 
   // 9. Campus Map
@@ -630,7 +636,7 @@ function ArticlePage({ article }: { article: Article }) {
   );
 }
 
-function GalleryPage({ items }: { items: GalleryItem[] }) {
+function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) {
   const aspectClass = (ratio: string) => {
     switch (ratio) {
       case "portrait":
@@ -650,7 +656,7 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
       </h2>
       <div className="w-16 h-0.5 bg-gold mb-10" />
       <h3 className="font-serif text-3xl sm:text-4xl font-bold mb-8 text-foreground">
-        Through the Lens
+        {title}
       </h3>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -662,7 +668,15 @@ function GalleryPage({ items }: { items: GalleryItem[] }) {
             <div
               className={`relative bg-surface-light flex items-center justify-center ${aspectClass(item.aspect_ratio)}`}
             >
-              {item.type === "video" ? (
+              {item.url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={item.url}
+                  alt={item.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : item.type === "video" ? (
                 <div className="w-10 h-10 rounded-full bg-red-accent/80 flex items-center justify-center">
                   <Play size={16} className="text-white ml-0.5" />
                 </div>
@@ -863,7 +877,7 @@ function PageRenderer({
     case "article":
       return <ArticlePage article={page.data as Article} />;
     case "gallery":
-      return <GalleryPage items={page.data as GalleryItem[]} />;
+      return <GalleryPage items={page.data as GalleryItem[]} title={page.title} />;
     case "campus-map":
       return <CampusMapPage locations={page.data as CampusLocation[]} />;
     case "media":

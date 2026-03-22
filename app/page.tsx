@@ -5,6 +5,7 @@ import TableOfContents from "@/components/public/TableOfContents";
 import WhoIsWho from "@/components/public/WhoIsWho";
 import ArticlesGrid from "@/components/public/ArticlesGrid";
 import PhotoGallery from "@/components/public/PhotoGallery";
+import MemesCorner from "@/components/public/MemesCorner";
 
 import MastheadStrip from "@/components/public/MastheadStrip";
 import CampusMap from "@/components/public/CampusMap";
@@ -16,7 +17,6 @@ import {
   samplePersonnel,
   sampleCampusLocations,
   sampleGalleryItems,
-  tickerHeadlines,
   fixedTocEntries,
 } from "@/lib/sample-data";
 import type { Article, TocEntry, GalleryItem } from "@/types";
@@ -65,8 +65,19 @@ export default async function HomePage() {
     .order("published_at", { ascending: false });
 
   const articles: Article[] = data || [];
-  const featuredArticle = articles.find((a) => a.is_featured) || articles[0] || null;
+
+  // Rotate featured article: cycle through all articles based on the hour
+  // Each article gets featured for ~1 hour, then it moves to the next
+  const hourOfDay = new Date().getHours();
+  const rotationIndex = articles.length > 0 ? hourOfDay % articles.length : 0;
+  const featuredArticle = articles.length > 0 ? articles[rotationIndex] : null;
   const tocEntries = buildTocEntries(articles);
+
+  // Generate ticker headlines from published articles (title + author)
+  const tickerHeadlines = articles.map((a) => {
+    const author = a.contributor_name || a.author?.full_name;
+    return author ? `${a.title} — ${author}` : a.title;
+  });
 
   // Fetch gallery items from database, fall back to sample data
   const { data: galleryData } = await supabase
@@ -75,10 +86,14 @@ export default async function HomePage() {
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
-  const galleryItems: GalleryItem[] =
+  const allGalleryItems: GalleryItem[] =
     galleryData && galleryData.length > 0
       ? (galleryData as GalleryItem[])
       : sampleGalleryItems;
+
+  // Separate meme items from regular gallery items
+  const galleryItems = allGalleryItems.filter((i) => i.category !== "Memes");
+  const memeItems = allGalleryItems.filter((i) => i.category === "Memes");
 
   return (
     <>
@@ -91,6 +106,7 @@ export default async function HomePage() {
         <WhoIsWho personnel={samplePersonnel} />
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={galleryItems} />
+        <MemesCorner items={memeItems} />
 
         <MastheadStrip />
         <CampusMap locations={sampleCampusLocations} />
@@ -99,7 +115,7 @@ export default async function HomePage() {
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={tocEntries}
-          galleryItems={galleryItems}
+          galleryItems={allGalleryItems}
           campusLocations={sampleCampusLocations}
         />
       </main>

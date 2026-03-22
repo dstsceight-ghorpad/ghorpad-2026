@@ -43,6 +43,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Only super_editor can modify site settings
+    const serviceClient = createServiceRoleClient();
+    const { data: profile } = await serviceClient
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (!profile || profile.role !== "super_editor") {
+      return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
+    }
+
     const body = await request.json();
     const { key, value } = body as { key: string; value: string };
 

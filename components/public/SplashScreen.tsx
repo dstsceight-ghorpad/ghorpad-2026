@@ -12,13 +12,23 @@ function seededRandom(seed: number) {
 
 export default function SplashScreen() {
   const [dismissing, setDismissing] = useState(false);
-  const [removed, setRemoved] = useState(false);
+  const [removed, setRemoved] = useState(() => {
+    // Skip splash if already dismissed this session
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("splashDismissed") === "1";
+    }
+    return false;
+  });
   const [logoSize, setLogoSize] = useState(400);
   const [showHint, setShowHint] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Also check on mount for SSR safety
+    if (sessionStorage.getItem("splashDismissed") === "1") {
+      setRemoved(true);
+    }
   }, []);
 
   // Pre-compute particle positions deterministically
@@ -60,6 +70,7 @@ export default function SplashScreen() {
   const handleDismiss = useCallback(() => {
     if (dismissing) return;
     setDismissing(true);
+    sessionStorage.setItem("splashDismissed", "1");
     // After CSS transition completes, remove from DOM
     setTimeout(() => setRemoved(true), 900);
   }, [dismissing]);

@@ -64,6 +64,7 @@ export default function EditArticlePage() {
   useEffect(() => {
     async function fetchArticle() {
       const supabase = createBrowserSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
       const { data } = await supabase
         .from("articles")
         .select("*")
@@ -72,6 +73,15 @@ export default function EditArticlePage() {
 
       if (data) {
         const article = data as Article;
+
+        // Auth check: contributors can only edit their own articles
+        const isOwner = user && article.author_id === user.id;
+        const isEditorOrAbove = profile?.role === "editor" || profile?.role === "super_editor";
+        if (!isOwner && !isEditorOrAbove) {
+          router.push("/editorial/dashboard");
+          return;
+        }
+
         setTitle(article.title);
         setSlug(article.slug);
         setExcerpt(article.excerpt);
@@ -86,8 +96,8 @@ export default function EditArticlePage() {
       setLoading(false);
     }
 
-    fetchArticle();
-  }, [articleId]);
+    if (profile) fetchArticle();
+  }, [articleId, profile, router]);
 
   // Keep editor text ref updated
   useEffect(() => {

@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validTypes = ["article", "photo", "poem", "sketch"];
+    const validTypes = ["article", "photo", "poem", "sketch", "meme"];
     if (!validTypes.includes(type)) {
       return NextResponse.json(
         { error: "Invalid submission type" },

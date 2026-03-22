@@ -115,6 +115,14 @@ const palette: Record<string, CategoryColor> = {
     textOnDark: "text-indigo-400",
     hex: "#6366f1",
   },
+  memes: {
+    bg: "bg-lime-500",
+    text: "text-lime-500",
+    border: "border-lime-500/40",
+    bgGlow: "bg-lime-500/10",
+    textOnDark: "text-lime-400",
+    hex: "#84cc16",
+  },
 };
 
 /** Default fallback — uses gold accent */

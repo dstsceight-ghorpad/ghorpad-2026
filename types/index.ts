@@ -211,7 +211,7 @@ export interface ReviewDecision {
 
 // --- Photo Gallery types ---
 
-export type GalleryCategory = "Ceremonies" | "CAPSTAR" | "Cultural" | "Social" | "Guest Lectures" | "Sports" | "Campus" | "Adventures" | "Families" | "Creative";
+export type GalleryCategory = "Ceremonies" | "CAPSTAR" | "Cultural" | "Social" | "Guest Lectures" | "Sports" | "Campus" | "Adventures" | "Families" | "Creative" | "Memes";
 
 export interface GalleryItem {
   id: string;
@@ -229,7 +229,7 @@ export interface GalleryItem {
 
 // --- Submission Portal types ---
 
-export type SubmissionType = "article" | "photo" | "poem" | "sketch";
+export type SubmissionType = "article" | "photo" | "poem" | "sketch" | "meme";
 export type SubmissionStatus = "pending" | "approved" | "rejected";
 export type ContributorType = "officer" | "family";
 

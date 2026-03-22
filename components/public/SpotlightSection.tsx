@@ -80,15 +80,27 @@ export default function SpotlightSection({ article }: SpotlightSectionProps) {
           </Link>
         </div>
 
-        {/* Article cover placeholder — category-tinted */}
+        {/* Article cover — shows actual image or category-tinted placeholder */}
         <div className="hidden lg:block">
           <div className="aspect-[4/3] rounded-lg bg-surface-light border border-border-subtle overflow-hidden relative">
-            <div
-              className="absolute inset-0"
-              style={{
-                background: `linear-gradient(135deg, ${catColor.hex}1a 0%, transparent 70%)`,
-              }}
-            />
+            {article.cover_image_url ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={article.cover_image_url}
+                  alt={article.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+              </>
+            ) : (
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, ${catColor.hex}1a 0%, transparent 70%)`,
+                }}
+              />
+            )}
             <div className="absolute bottom-4 left-4 right-4">
               <div className="font-mono text-[10px] text-muted bg-background/80 backdrop-blur px-3 py-2 rounded">
                 // COVER STORY &middot; VOL. XII

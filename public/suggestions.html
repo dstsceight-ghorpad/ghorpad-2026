@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GHORPAD 2026 - Comprehensive Website Audit & Suggestions</title>
+<style>
+  :root {
+    --gold: #e8c84a;
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --border: #2a2a2a;
+    --text: #e0e0e0;
+    --muted: #888;
+    --green: #27ae60;
+    --red: #c0392b;
+    --orange: #f39c12;
+    --blue: #3498db;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a0a 0%, #0a0a0a 50%, #0a0a1a 100%);
+    border-bottom: 2px solid var(--gold);
+    padding: 40px 20px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 2.5rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+  }
+  .header .date {
+    color: var(--gold);
+    opacity: 0.6;
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .summary-card .number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .summary-card .label {
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+
+  /* Sections */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-header:hover { background: rgba(232,200,74,0.03); }
+  .section-header h2 {
+    font-size: 1.3rem;
+    color: var(--gold);
+    flex: 1;
+  }
+  .section-header .badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-working { background: rgba(39,174,96,0.15); color: var(--green); }
+  .badge-issue { background: rgba(192,57,43,0.15); color: var(--red); }
+  .badge-improvement { background: rgba(243,156,18,0.15); color: var(--orange); }
+  .badge-new { background: rgba(52,152,219,0.15); color: var(--blue); }
+  .section-body { padding: 24px; }
+
+  /* Feature table */
+  .feature-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+  .feature-table th {
+    text-align: left;
+    padding: 10px 12px;
+    background: rgba(232,200,74,0.05);
+    color: var(--gold);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--border);
+  }
+  .feature-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(42,42,42,0.5);
+    font-size: 0.9rem;
+    vertical-align: top;
+  }
+  .feature-table tr:hover td { background: rgba(232,200,74,0.02); }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .status-ok::before { background: var(--green); }
+  .status-warn::before { background: var(--orange); }
+  .status-error::before { background: var(--red); }
+  .status-info::before { background: var(--blue); }
+
+  /* Issue cards */
+  .issue-card {
+    background: rgba(0,0,0,0.3);
+    border-left: 3px solid var(--orange);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+    margin: 12px 0;
+  }
+  .issue-card.critical { border-left-color: var(--red); }
+  .issue-card.suggestion { border-left-color: var(--blue); }
+  .issue-card.done { border-left-color: var(--green); }
+  .issue-card h4 {
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .issue-card p { color: var(--muted); font-size: 0.88rem; }
+  .issue-card .fix {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(232,200,74,0.05);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .issue-card .fix strong { color: var(--gold); }
+
+  .priority-tag {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+  }
+  .p-critical { background: rgba(192,57,43,0.2); color: var(--red); }
+  .p-high { background: rgba(243,156,18,0.2); color: var(--orange); }
+  .p-medium { background: rgba(52,152,219,0.2); color: var(--blue); }
+  .p-low { background: rgba(136,136,136,0.2); color: var(--muted); }
+
+  /* New feature cards */
+  .feature-card {
+    background: rgba(52,152,219,0.05);
+    border: 1px solid rgba(52,152,219,0.2);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 12px 0;
+  }
+  .feature-card h4 { color: var(--blue); margin-bottom: 8px; }
+  .feature-card ul { margin-left: 20px; color: var(--muted); font-size: 0.9rem; }
+  .feature-card ul li { margin: 4px 0; }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 30px;
+  }
+  .toc h3 { color: var(--gold); margin-bottom: 12px; font-size: 1.1rem; }
+  .toc ol { margin-left: 20px; }
+  .toc li { margin: 6px 0; }
+  .toc a { color: var(--text); text-decoration: none; font-size: 0.9rem; }
+  .toc a:hover { color: var(--gold); }
+
+  code {
+    background: rgba(232,200,74,0.08);
+    color: var(--gold);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  @media (max-width: 768px) {
+    .header h1 { font-size: 1.5rem; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-table { font-size: 0.8rem; }
+    .section-body { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>GHORPAD 2026</h1>
+  <p>Comprehensive Website Audit & Suggestions Report</p>
+  <div class="date">Generated: 22 March 2026 | Auditor: Claude Code</div>
+</div>
+
+<div class="container">
+
+<!-- Summary Cards -->
+<div class="summary-grid">
+  <div class="summary-card">
+    <div class="number">20+</div>
+    <div class="label">Components</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">6</div>
+    <div class="label">API Routes</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">5</div>
+    <div class="label">Public Pages</div>
+  </div>
+  <div class="summary-card">
+    <div class="number">8</div>
+    <div class="label">Editorial Pages</div>
+  </div>
+  <div class="summary-card">
+    <div class="number" style="color: var(--green);">14</div>
+    <div class="label">Working Features</div>
+  </div>
+  <div class="summary-card">
+    <div class="number" style="color: var(--orange);">20</div>
+    <div class="label">Issues Found</div>
+  </div>
+</div>
+
+<!-- Table of Contents -->
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#features">All Features & Status</a></li>
+    <li><a href="#public">Public Pages Audit</a></li>
+    <li><a href="#editorial">Editorial Dashboard Audit</a></li>
+    <li><a href="#api">API Routes & Security</a></li>
+    <li><a href="#issues">Issues & Resolutions</a></li>
+    <li><a href="#ux">UX & Design Improvements</a></li>
+    <li><a href="#performance">Performance Optimization</a></li>
+    <li><a href="#seo">SEO & Metadata</a></li>
+    <li><a href="#memes">Memes Corner Plan</a></li>
+    <li><a href="#contributions">Contributions Flow Improvements</a></li>
+    <li><a href="#standardization">Section Standardization</a></li>
+    <li><a href="#roadmap">Feature Roadmap</a></li>
+  </ol>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 1: ALL FEATURES & STATUS -->
+<!-- ============================================== -->
+<div class="section" id="features">
+  <div class="section-header">
+    <h2>1. All Features & Status Overview</h2>
+    <span class="badge badge-working">14 Working</span>
+    <span class="badge badge-issue">20 Issues</span>
+  </div>
+  <div class="section-body">
+    <table class="feature-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Component</th>
+          <th>Status</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Splash Screen</td>
+          <td><code>SplashScreen.tsx</code></td>
+          <td><span class="status status-warn">Working (UX Issue)</span></td>
+          <td>Shows on every page load - no session persistence via localStorage</td>
+        </tr>
+        <tr>
+          <td>Navigation Bar</td>
+          <td><code>Navbar.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Theme toggle, hamburger menu, editorial login link all functional</td>
+        </tr>
+        <tr>
+          <td>Hero Section</td>
+          <td><code>HeroSection.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Animated logo, parallax, particle effects</td>
+        </tr>
+        <tr>
+          <td>Breaking News Ticker</td>
+          <td><code>HeroSection.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Auto-scrolling headlines from sample data</td>
+        </tr>
+        <tr>
+          <td>Spotlight Article</td>
+          <td><code>SpotlightSection.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Featured article with parallax and category colors</td>
+        </tr>
+        <tr>
+          <td>Table of Contents</td>
+          <td><code>TableOfContents.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Dynamic from articles + fixed sections, anchor links work</td>
+        </tr>
+        <tr>
+          <td>Who is Who</td>
+          <td><code>WhoIsWho.tsx</code></td>
+          <td><span class="status status-warn">Working (Placeholders)</span></td>
+          <td>Many personnel have placeholder avatars - needs photo uploads</td>
+        </tr>
+        <tr>
+          <td>Articles Grid</td>
+          <td><code>ArticlesGrid.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Category filters, card clicks navigate to article pages</td>
+        </tr>
+        <tr>
+          <td>Article Detail Page</td>
+          <td><code>articles/[slug]/page.tsx</code></td>
+          <td><span class="status status-warn">Working (Slow ISR)</span></td>
+          <td>First load can be slow due to ISR build; client-side rendering</td>
+        </tr>
+        <tr>
+          <td>Photo Gallery</td>
+          <td><code>PhotoGallery.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>10 categories, masonry layout, lightbox, real images from DB</td>
+        </tr>
+        <tr>
+          <td>Campus Map</td>
+          <td><code>CampusMap.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Interactive SVG grid with 6 location types</td>
+        </tr>
+        <tr>
+          <td>Magazine Reader</td>
+          <td><code>MagazineTrigger.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Flip-book compilation of articles, gallery, personnel</td>
+        </tr>
+        <tr>
+          <td>Dark/Light Theme</td>
+          <td><code>ThemeProvider</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Toggle in navbar, persisted via class on html element</td>
+        </tr>
+        <tr>
+          <td>Contribution Submission</td>
+          <td><code>/submit</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>File upload, type detection, division selection, preview</td>
+        </tr>
+        <tr>
+          <td>Photo Upload (Token)</td>
+          <td><code>/upload/photos</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Token-gated, division filtering, progress tracking</td>
+        </tr>
+        <tr>
+          <td>Editorial Login</td>
+          <td><code>/editorial/login</code></td>
+          <td><span class="status status-warn">Working (No Rate Limit)</span></td>
+          <td>Supabase auth, no brute-force protection on login</td>
+        </tr>
+        <tr>
+          <td>Article Editor (TipTap)</td>
+          <td><code>/editorial/articles</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Rich text editing, image insertion, publish workflow</td>
+        </tr>
+        <tr>
+          <td>Gallery Management</td>
+          <td><code>/editorial/gallery</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Upload via API route (service role), category assignment</td>
+        </tr>
+        <tr>
+          <td>Media Manager</td>
+          <td><code>/editorial/media</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Drag-drop uploads, file management</td>
+        </tr>
+        <tr>
+          <td>Submission Review</td>
+          <td><code>/editorial/submissions</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Approve/reject with auto-article creation</td>
+        </tr>
+        <tr>
+          <td>Personnel Manager</td>
+          <td><code>/editorial/team</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Add/edit/delete personnel profiles</td>
+        </tr>
+        <tr>
+          <td>Inauguration Mode</td>
+          <td><code>InaugurationCeremony.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Confetti/ceremony mode toggleable from settings</td>
+        </tr>
+        <tr>
+          <td>Masthead / Stats</td>
+          <td><code>MastheadStrip.tsx</code></td>
+          <td><span class="status status-ok">Working</span></td>
+          <td>Visit counter (localStorage), animated stats</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 2: PUBLIC PAGES AUDIT -->
+<!-- ============================================== -->
+<div class="section" id="public">
+  <div class="section-header">
+    <h2>2. Public Pages Audit</h2>
+    <span class="badge badge-working">Verified Live</span>
+  </div>
+  <div class="section-body">
+    <h3 style="color:var(--gold); margin-bottom:12px;">Homepage Sections (Top to Bottom)</h3>
+    <table class="feature-table">
+      <thead>
+        <tr><th>#</th><th>Section</th><th>Verified</th><th>Observations</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Splash Screen</td><td><span class="status status-ok">Yes</span></td><td>Animated logo, "Click to Enter" hint, keyboard dismiss. Shows every load.</td></tr>
+        <tr><td>2</td><td>Hero + Ticker</td><td><span class="status status-ok">Yes</span></td><td>Full-width animated crest, scrolling headlines, particles</td></tr>
+        <tr><td>3</td><td>Spotlight</td><td><span class="status status-ok">Yes</span></td><td>Featured article with cover image, category badge</td></tr>
+        <tr><td>4</td><td>Table of Contents</td><td><span class="status status-ok">Yes</span></td><td>Two-column layout, clickable links to articles and sections</td></tr>
+        <tr><td>5</td><td>Who is Who</td><td><span class="status status-ok">Yes</span></td><td>Commandant, staff, division carousels. Some placeholder avatars.</td></tr>
+        <tr><td>6</td><td>Articles Grid</td><td><span class="status status-ok">Yes</span></td><td>10 category filters, cards are clickable, cover images display</td></tr>
+        <tr><td>7</td><td>Photo Gallery</td><td><span class="status status-ok">Yes</span></td><td>MILIT Babies photos showing, Families filter works, masonry layout</td></tr>
+        <tr><td>8</td><td>Masthead/Stats</td><td><span class="status status-ok">Yes</span></td><td>Animated counters for articles, contributors, pages</td></tr>
+        <tr><td>9</td><td>Campus Map</td><td><span class="status status-ok">Yes</span></td><td>Interactive grid map with color-coded location types</td></tr>
+        <tr><td>10</td><td>Footer</td><td><span class="status status-ok">Yes</span></td><td>Navigation links, social links, copyright</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="color:var(--gold); margin:20px 0 12px;">Other Public Pages</h3>
+    <table class="feature-table">
+      <thead>
+        <tr><th>Page</th><th>URL</th><th>Verified</th><th>Observations</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Article Detail</td><td><code>/articles/[slug]</code></td><td><span class="status status-ok">Yes</span></td><td>Cover image, TipTap content, related articles, progress bar</td></tr>
+        <tr><td>Submit Content</td><td><code>/submit</code></td><td><span class="status status-ok">Yes</span></td><td>File upload, contributor type toggle, division dropdown</td></tr>
+        <tr><td>Photo Upload</td><td><code>/upload/photos</code></td><td><span class="status status-info">Token Required</span></td><td>Token-gated access for batch photo uploads</td></tr>
+        <tr><td>Access Gate</td><td><code>/access</code></td><td><span class="status status-info">Not Tested</span></td><td>Access code verification page</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 3: EDITORIAL DASHBOARD AUDIT -->
+<!-- ============================================== -->
+<div class="section" id="editorial">
+  <div class="section-header">
+    <h2>3. Editorial Dashboard Audit</h2>
+    <span class="badge badge-working">8 Pages</span>
+  </div>
+  <div class="section-body">
+    <table class="feature-table">
+      <thead>
+        <tr><th>Page</th><th>Features</th><th>Role Access</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dashboard Home</td>
+          <td>Overview stats, quick actions</td>
+          <td>All editors</td>
+          <td><span class="status status-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td>Articles</td>
+          <td>Create/edit with TipTap, publish workflow (draft > review > published)</td>
+          <td>All editors (publish: super_editor/editor only)</td>
+          <td><span class="status status-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td>Media</td>
+          <td>Drag-drop file upload, grid view, delete</td>
+          <td>All editors (delete: super_editor/editor)</td>
+          <td><span class="status status-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td>Gallery</td>
+          <td>Upload images with category/aspect ratio, grid management</td>
+          <td>Editor/Super Editor</td>
+          <td><span class="status status-ok">Working (via API route)</span></td>
+        </tr>
+        <tr>
+          <td>Submissions</td>
+          <td>Review contributions, approve/reject, auto-create articles</td>
+          <td>Editor/Super Editor</td>
+          <td><span class="status status-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td>Team/Personnel</td>
+          <td>Add/edit/delete personnel profiles, photo management</td>
+          <td>Super Editor only</td>
+          <td><span class="status status-ok">Working</span></td>
+        </tr>
+        <tr>
+          <td>Settings</td>
+          <td>Inauguration mode toggle, site-wide settings</td>
+          <td>All authenticated (should be super_editor only)</td>
+          <td><span class="status status-warn">Missing Role Check</span></td>
+        </tr>
+        <tr>
+          <td>Login</td>
+          <td>Email/password auth via Supabase</td>
+          <td>Public</td>
+          <td><span class="status status-warn">No Rate Limiting</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="color:var(--gold); margin:20px 0 12px;">Sidebar Navigation Links</h3>
+    <p style="color:var(--muted);">Dashboard, Articles, Submissions, Media, Gallery, Team, Settings</p>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 4: API ROUTES & SECURITY -->
+<!-- ============================================== -->
+<div class="section" id="api">
+  <div class="section-header">
+    <h2>4. API Routes & Security Audit</h2>
+    <span class="badge badge-issue">3 Issues</span>
+  </div>
+  <div class="section-body">
+    <table class="feature-table">
+      <thead>
+        <tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Rate Limit</th><th>Issues</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>/api/gallery</code></td>
+          <td>POST</td>
+          <td>Session + Role Check</td>
+          <td>None</td>
+          <td>No category enum validation</td>
+        </tr>
+        <tr>
+          <td><code>/api/upload-photo</code></td>
+          <td>POST</td>
+          <td>Token OR Session</td>
+          <td>10/min per IP</td>
+          <td>None (well-secured)</td>
+        </tr>
+        <tr>
+          <td><code>/api/submissions/upload</code></td>
+          <td>POST</td>
+          <td>Public</td>
+          <td>5/min per IP</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/api/submissions</code></td>
+          <td>POST/GET/PATCH/DELETE</td>
+          <td>Public POST, Session for others</td>
+          <td>5/min (POST only)</td>
+          <td>No email validation</td>
+        </tr>
+        <tr>
+          <td><code>/api/settings</code></td>
+          <td>GET/POST</td>
+          <td>Session (no role check on POST)</td>
+          <td>None</td>
+          <td>Missing role restriction</td>
+        </tr>
+        <tr>
+          <td><code>/api/validate-upload-token</code></td>
+          <td>POST</td>
+          <td>Token</td>
+          <td>20/min per IP</td>
+          <td>None</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="issue-card critical">
+      <h4><span class="priority-tag p-critical">Critical</span> Settings API Missing Role Check</h4>
+      <p><code>/api/settings</code> POST endpoint checks for authenticated user but does NOT verify role. Any authenticated user (including contributors) can toggle site settings like inauguration_mode.</p>
+      <div class="fix"><strong>Fix:</strong> Add role check for <code>super_editor</code> on POST endpoint, matching the pattern used in <code>/api/gallery</code>.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-high">High</span> Gallery Delete is Client-Side</h4>
+      <p>Gallery item deletion happens directly from the browser using <code>supabase.storage.from("media").remove()</code>. URL manipulation could allow deleting arbitrary files from storage.</p>
+      <div class="fix"><strong>Fix:</strong> Move delete operation to a <code>DELETE /api/gallery</code> endpoint with server-side auth and path validation.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> No Input Validation for Gallery Categories</h4>
+      <p>Gallery upload accepts any string for category and aspect_ratio without server-side enum validation. Invalid values can be stored in the database.</p>
+      <div class="fix"><strong>Fix:</strong> Validate against the <code>CATEGORIES</code> constant array and <code>['portrait','landscape','square']</code> before insert.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 5: ISSUES & RESOLUTIONS -->
+<!-- ============================================== -->
+<div class="section" id="issues">
+  <div class="section-header">
+    <h2>5. Issues Found & Resolutions</h2>
+    <span class="badge badge-issue">20 Issues</span>
+  </div>
+  <div class="section-body">
+
+    <div class="issue-card critical">
+      <h4><span class="priority-tag p-critical">Critical</span> Settings API: Any Authenticated User Can Change Site Settings</h4>
+      <p>The <code>/api/settings</code> POST endpoint only checks for a valid session but doesn't verify the user's role. Contributors can toggle inauguration mode and other settings.</p>
+      <div class="fix"><strong>Fix:</strong> Add profile role check: <code>if (profile.role !== 'super_editor') return 403</code></div>
+    </div>
+
+    <div class="issue-card critical">
+      <h4><span class="priority-tag p-high">High</span> Splash Screen Shows on Every Visit</h4>
+      <p>The splash screen renders on every homepage load with no session memory. Users must click through it each time, creating friction.</p>
+      <div class="fix"><strong>Fix:</strong> Use <code>sessionStorage</code> or <code>localStorage</code> to track if user has seen the splash this session. Skip it on subsequent visits.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-high">High</span> No Login Rate Limiting</h4>
+      <p>The editorial login page has no rate limiting, allowing unlimited password attempts. This makes brute-force attacks possible.</p>
+      <div class="fix"><strong>Fix:</strong> Add IP-based rate limiting (5 attempts/min) to the login form or create a <code>/api/auth/login</code> endpoint with rate limiting.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-high">High</span> Client-Side Gallery Deletion (Path Traversal Risk)</h4>
+      <p>Gallery deletion extracts storage path from URL client-side and calls <code>supabase.storage.remove()</code> directly. Malicious URL manipulation could delete arbitrary files.</p>
+      <div class="fix"><strong>Fix:</strong> Create a <code>DELETE /api/gallery</code> server endpoint that validates the item belongs to gallery_items table before deleting from storage.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> Article Pages Use Client-Side Rendering</h4>
+      <p>Article detail pages use <code>createBrowserSupabaseClient()</code> for data fetching, meaning content loads after JavaScript hydration. This hurts SEO and initial load time.</p>
+      <div class="fix"><strong>Fix:</strong> Convert to server-side rendering with <code>createServerSupabaseClient()</code> and use <code>generateStaticParams</code> for pre-rendering popular articles.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> No Accessibility: prefers-reduced-motion</h4>
+      <p>Multiple simultaneous animations (hero-drift, particles, curtain-wave, pulse-live) run continuously. Users who prefer reduced motion have no option to disable them.</p>
+      <div class="fix"><strong>Fix:</strong> Add <code>@media (prefers-reduced-motion: reduce)</code> CSS to disable/simplify animations. Add Framer Motion's <code>useReducedMotion()</code> hook.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> Missing SEO: Open Graph & Twitter Cards</h4>
+      <p>No Open Graph or Twitter Card metadata configured. Shared links on social media won't show preview images or descriptions.</p>
+      <div class="fix"><strong>Fix:</strong> Add <code>openGraph</code> and <code>twitter</code> metadata in <code>app/layout.tsx</code> and per-article dynamic metadata in <code>articles/[slug]/page.tsx</code>.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-low">Low</span> No Image Optimization Configuration</h4>
+      <p>Uses raw <code>&lt;img&gt;</code> tags instead of Next.js <code>&lt;Image&gt;</code> component. No <code>remotePatterns</code> configured in next.config for Supabase images.</p>
+      <div class="fix"><strong>Fix:</strong> Add Supabase domain to <code>next.config.ts</code> remotePatterns and migrate key images to <code>next/image</code> for automatic optimization.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-low">Low</span> No Testing Framework</h4>
+      <p>No test runner (Jest/Vitest), no E2E tests (Playwright/Cypress), no pre-commit hooks. Changes are deployed without automated verification.</p>
+      <div class="fix"><strong>Fix:</strong> Add Vitest for unit tests, Playwright for E2E tests, and Husky for pre-commit hooks.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> SecurityShield Breaks Accessibility</h4>
+      <p>The <code>SecurityShield.tsx</code> component blocks right-click, copy/paste, and keyboard shortcuts globally. This breaks assistive technology users who rely on these features and may violate WCAG accessibility guidelines.</p>
+      <div class="fix"><strong>Fix:</strong> Remove or significantly tone down SecurityShield. Content protection via JS is easily bypassed anyway. Focus on watermarking images instead.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> Related Articles Query Not Category-Filtered</h4>
+      <p>The article detail page's "Related Articles" section fetches ANY 3 published articles instead of filtering by the same category as the current article.</p>
+      <div class="fix"><strong>Fix:</strong> Add <code>.eq('category', article.category)</code> to the related articles Supabase query in <code>articles/[slug]/page.tsx</code>.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-low">Low</span> Hardcoded Sample Data in Production</h4>
+      <p>Personnel data, campus locations, ticker headlines, and masthead stats are all from hardcoded sample data (<code>lib/sample-data.ts</code>), not fetched from the database. This means content updates require code changes and redeployment.</p>
+      <div class="fix"><strong>Fix:</strong> Migrate personnel, campus locations, and stats to Supabase tables with editorial management pages. Keep sample data as fallback only.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-low">Low</span> No Pagination on Articles Grid</h4>
+      <p>All published articles render at once in the Articles Grid. As content grows, this will cause performance issues and long initial load times.</p>
+      <div class="fix"><strong>Fix:</strong> Add "Load More" button or infinite scroll with a limit of 9-12 articles per page.</div>
+    </div>
+
+    <div class="issue-card critical">
+      <h4><span class="priority-tag p-critical">Critical</span> localStorage Used as Database for Critical Data</h4>
+      <p>Author profiles, personnel edits, and review comments/decisions are all stored in <code>localStorage</code> instead of Supabase. This data is lost on browser clear, device switch, or incognito mode. Multiple editors cannot see each other's changes.</p>
+      <div class="fix"><strong>Fix:</strong> Migrate author profiles to <code>profiles</code> table, personnel edits to a <code>personnel</code> table, and review comments to a <code>review_comments</code> table in Supabase.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-high">High</span> Team Invite Feature is Broken</h4>
+      <p>The Team Management page calls <code>supabase.auth.admin.inviteUserByEmail()</code> from the browser client. This requires the service role key and will always fail from the frontend.</p>
+      <div class="fix"><strong>Fix:</strong> Create a <code>POST /api/team/invite</code> server endpoint that uses <code>createServiceRoleClient()</code> to send invitations.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-high">High</span> Fix Buckets API Has No Auth</h4>
+      <p>The <code>/api/fix-buckets</code> endpoint has NO authentication. Anyone can call it to create/modify storage bucket configurations. Should be removed or protected.</p>
+      <div class="fix"><strong>Fix:</strong> Either remove this endpoint entirely (it's a one-time setup utility) or add super_editor role verification.</div>
+    </div>
+
+    <div class="issue-card">
+      <h4><span class="priority-tag p-medium">Medium</span> Review Workflow Uses Hardcoded Sample Data</h4>
+      <p>The editorial review queue (<code>/editorial/review</code>) loads articles from hardcoded <code>sampleArticles</code> and stores review decisions in localStorage. It doesn't integrate with the real article database.</p>
+      <div class="fix"><strong>Fix:</strong> Query articles with <code>status='review'</code> from Supabase and store review decisions in a database table.</div>
+    </div>
+
+    <div class="issue-card critical">
+      <h4><span class="priority-tag p-critical">Critical</span> Missing Auth Check on Article Edit Page</h4>
+      <p>The <code>/editorial/articles/[id]/edit</code> page does NOT verify that the current user is the article author. Contributors can edit ANY article by navigating directly to the URL. The frontend hides the edit button, but there's no server-side enforcement.</p>
+      <div class="fix"><strong>Fix:</strong> Add authorization check: verify <code>article.author_id === currentUser.id</code> or user has editor/super_editor role before allowing edits.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 6: UX & DESIGN IMPROVEMENTS -->
+<!-- ============================================== -->
+<div class="section" id="ux">
+  <div class="section-header">
+    <h2>6. UX & Design Improvements</h2>
+    <span class="badge badge-improvement">Suggestions</span>
+  </div>
+  <div class="section-body">
+
+    <div class="issue-card suggestion">
+      <h4>Splash Screen: Add "Skip" Memory</h4>
+      <p>Store dismissal in <code>sessionStorage</code> so the splash only shows once per browser session. Optional: add a "Don't show again" checkbox that uses <code>localStorage</code>.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Article Cards: Add Hover Preview</h4>
+      <p>On desktop, show a quick preview tooltip or expanded card on hover with the first 2 lines of excerpt and read time. This gives users more info before clicking.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Gallery: Add Image Count per Category</h4>
+      <p>Show count badges on each category filter button (e.g., "FAMILIES (5)") so users know which categories have content.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Mobile Navigation: Add Bottom Tab Bar</h4>
+      <p>On mobile, add a fixed bottom navigation bar with icons for Home, Articles, Gallery, Submit, and Menu. This is more accessible than a hamburger menu.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Personnel Section: Add Search/Filter</h4>
+      <p>The Who is Who section has 200+ personnel. Add a search bar to quickly find a person by name, rank, or unit. Currently requires scrolling through carousels.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Article Reading: Add Estimated Reading Progress</h4>
+      <p>Show "X min left" indicator alongside the progress bar. Add a "Back to Top" floating button when scrolled down.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Footer: Add Quick Section Links</h4>
+      <p>Add direct links to all homepage sections (Table of Contents, Who is Who, Gallery, Campus Map) in the footer for quick navigation from any scroll position.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Loading States: Replace Gecko with Skeleton</h4>
+      <p>The gecko loading spinner is charming but gives no sense of progress. Consider adding skeleton loading states for content areas (articles grid, gallery, personnel) for better perceived performance.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 7: PERFORMANCE -->
+<!-- ============================================== -->
+<div class="section" id="performance">
+  <div class="section-header">
+    <h2>7. Performance Optimization</h2>
+    <span class="badge badge-improvement">Suggestions</span>
+  </div>
+  <div class="section-body">
+
+    <div class="issue-card suggestion">
+      <h4>Image Optimization</h4>
+      <p>Gallery and article images use raw <code>&lt;img&gt;</code> tags. Switch to Next.js <code>&lt;Image&gt;</code> with automatic WebP/AVIF conversion, lazy loading, and responsive srcsets. Configure Supabase domain in <code>next.config.ts</code>:</p>
+      <div class="fix"><strong>Config:</strong> <code>images: { remotePatterns: [{ hostname: 'psdwcxefdgncntvnitwf.supabase.co' }] }</code></div>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Bundle Size: Lazy Load Heavy Components</h4>
+      <p>Components like <code>MagazineReader</code>, <code>CampusMap</code>, and <code>InaugurationCeremony</code> are large but not visible initially. Use <code>next/dynamic</code> with <code>ssr: false</code> to lazy-load them.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Animation Performance</h4>
+      <p>Multiple simultaneous CSS animations (hero-drift, curtain-wave, particles) can cause jank on lower-end devices. Use <code>will-change: transform</code> on animated elements and ensure animations use GPU-accelerated properties (transform, opacity only).</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>ISR: Increase Revalidation for Static Content</h4>
+      <p>Homepage revalidation is set to 60 seconds. For mostly-static content like personnel and campus map, consider longer revalidation (300-600s) or on-demand revalidation via webhook.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Font Loading: Subset Fonts</h4>
+      <p>Three Google Fonts are loaded (Playfair Display, Inter, JetBrains Mono). Consider subsetting to Latin-only if Devanagari isn't needed, reducing font file sizes by 50-70%.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 8: SEO & METADATA -->
+<!-- ============================================== -->
+<div class="section" id="seo">
+  <div class="section-header">
+    <h2>8. SEO & Metadata</h2>
+    <span class="badge badge-improvement">Missing</span>
+  </div>
+  <div class="section-body">
+    <table class="feature-table">
+      <thead>
+        <tr><th>Item</th><th>Current Status</th><th>Action Needed</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Title Tag</td>
+          <td><span class="status status-ok">Present</span></td>
+          <td>"GHORPAD 2026 | MILIT" - Good</td>
+        </tr>
+        <tr>
+          <td>Meta Description</td>
+          <td><span class="status status-ok">Present</span></td>
+          <td>Present in layout.tsx</td>
+        </tr>
+        <tr>
+          <td>Open Graph Tags</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Add og:title, og:description, og:image, og:url</td>
+        </tr>
+        <tr>
+          <td>Twitter Cards</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Add twitter:card, twitter:title, twitter:description, twitter:image</td>
+        </tr>
+        <tr>
+          <td>Canonical URL</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Add canonical link for each page</td>
+        </tr>
+        <tr>
+          <td>Structured Data (JSON-LD)</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Add Organization and Website schema</td>
+        </tr>
+        <tr>
+          <td>Sitemap</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Generate sitemap.xml for articles and pages</td>
+        </tr>
+        <tr>
+          <td>Robots.txt</td>
+          <td><span class="status status-info">Default</span></td>
+          <td>Add explicit robots.txt with editorial pages blocked</td>
+        </tr>
+        <tr>
+          <td>Article-specific Meta</td>
+          <td><span class="status status-error">Missing</span></td>
+          <td>Dynamic OG tags per article with cover image</td>
+        </tr>
+        <tr>
+          <td>Security Headers</td>
+          <td><span class="status status-ok">Present</span></td>
+          <td>X-Frame-Options, HSTS, CSP partially configured</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 9: MEMES CORNER PLAN -->
+<!-- ============================================== -->
+<div class="section" id="memes">
+  <div class="section-header">
+    <h2>9. Memes Corner - Feature Plan</h2>
+    <span class="badge badge-new">New Feature</span>
+  </div>
+  <div class="section-body">
+
+    <div class="feature-card">
+      <h4>Overview</h4>
+      <p style="color:var(--muted);">A dedicated "Memes Corner" section on the homepage for humorous images, memes, and cartoons contributed by students and families. This adds a lighter, fun element to the magazine.</p>
+    </div>
+
+    <div class="feature-card">
+      <h4>Implementation Plan</h4>
+      <ul>
+        <li><strong>Database:</strong> Add <code>memes</code> table with fields: id, title, image_url, caption, author_name, division, status (pending/approved/rejected), created_at, likes_count</li>
+        <li><strong>Public Section:</strong> New <code>MemesCorner.tsx</code> component on homepage between Gallery and Campus Map sections</li>
+        <li><strong>Layout:</strong> Masonry/Pinterest-style grid with infinite scroll or "Load More" button. Cards show image, caption, author name, and like count</li>
+        <li><strong>Submission:</strong> Add "Meme" type option to existing <code>/submit</code> page. Accept JPEG/PNG/GIF up to 5MB. Require title and optional caption</li>
+        <li><strong>Editorial Review:</strong> Memes go through same approval flow as other submissions in <code>/editorial/submissions</code></li>
+        <li><strong>Lightbox:</strong> Click to expand meme with full caption, author info, and share buttons</li>
+        <li><strong>Like System:</strong> Anonymous likes stored in localStorage to prevent spam (no login required)</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>Category in Existing System</h4>
+      <ul>
+        <li>Add "Memes" to <code>CATEGORIES</code> array in <code>types/index.ts</code></li>
+        <li>Add <code>memes</code> to the gallery_items category CHECK constraint</li>
+        <li>Option 1: Use existing gallery_items table with "Memes" category (simplest)</li>
+        <li>Option 2: Create dedicated memes table for likes/voting features (more flexible)</li>
+        <li><strong>Recommended:</strong> Option 1 for MVP, migrate to Option 2 if engagement is high</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>TOC Integration</h4>
+      <ul>
+        <li>Add "Memes Corner" entry to <code>fixedTocEntries</code> in <code>lib/sample-data.ts</code></li>
+        <li>Link to <code>#memes</code> section anchor on homepage</li>
+        <li>Add to hamburger menu navigation</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <h4>Design Notes</h4>
+      <ul>
+        <li>Use a playful section header: "// MEMES CORNER" with a laughing emoji or jest icon</li>
+        <li>Cards with rounded corners, subtle shadow, and a "watermark" overlay with GHORPAD branding</li>
+        <li>Show "Top Memes" (most liked) at the top, then chronological</li>
+        <li>Mobile: 2-column grid. Desktop: 3-4 column masonry</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 10: CONTRIBUTIONS FLOW -->
+<!-- ============================================== -->
+<div class="section" id="contributions">
+  <div class="section-header">
+    <h2>10. Contributions Flow Improvements</h2>
+    <span class="badge badge-improvement">Suggestions</span>
+  </div>
+  <div class="section-body">
+
+    <h3 style="color:var(--gold); margin-bottom:12px;">Current Flow</h3>
+    <p style="color:var(--muted); margin-bottom:16px;">
+      User visits <code>/submit</code> &rarr; uploads file (JPEG/PNG/PDF/DOC/DOCX) &rarr; fills name, division, type &rarr; auto-detects category &rarr; submits &rarr; editors review in dashboard &rarr; approve creates article automatically.
+    </p>
+
+    <div class="issue-card suggestion">
+      <h4>Add Contribution Type Selector</h4>
+      <p>Currently, the type (article/poem/photo/sketch) is auto-detected from file extension. Allow users to explicitly select their contribution type for better categorization. Add a dropdown: Article, Poem, Meme, Photo/Sketch, Painting, Other.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Add Category Selection for Contributors</h4>
+      <p>Let contributors suggest a category (Campus, Culture, Sports, etc.) during submission. Editors can change it during review, but the suggestion helps with initial categorization.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Submission Status Tracking</h4>
+      <p>Give contributors a submission ID and a way to check their submission status. Add a simple <code>/submission/[id]</code> page showing: Pending Review / Approved / Published / Rejected (with reason).</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Rich Text Submission</h4>
+      <p>For articles and poems, allow inline text submission (not just file upload). Add a simple TipTap editor in the submit form for direct text entry. This avoids the file conversion step during editorial review.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Email Notifications</h4>
+      <p>If the contributor provides an email, send notifications when their submission is approved or published. Use Supabase Edge Functions or a simple email service integration.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Bulk Upload for Gallery Photos</h4>
+      <p>Allow uploading multiple photos at once with shared metadata (category, event name). Useful for uploading entire event photo albums.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 11: SECTION STANDARDIZATION -->
+<!-- ============================================== -->
+<div class="section" id="standardization">
+  <div class="section-header">
+    <h2>11. Section Standardization</h2>
+    <span class="badge badge-improvement">Consistency</span>
+  </div>
+  <div class="section-body">
+
+    <h3 style="color:var(--gold); margin-bottom:12px;">Current Section Headers</h3>
+    <table class="feature-table">
+      <thead>
+        <tr><th>Section</th><th>Label Pattern</th><th>Title</th><th>Consistent?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Table of Contents</td><td><code>// INDEX</code></td><td>Table of Contents</td><td><span class="status status-ok">Yes</span></td></tr>
+        <tr><td>Who is Who</td><td><code>// LEADERSHIP</code></td><td>(varies by sub-section)</td><td><span class="status status-warn">Partial</span></td></tr>
+        <tr><td>Articles</td><td><code>// LATEST DISPATCHES</code></td><td>(no title)</td><td><span class="status status-warn">Missing title</span></td></tr>
+        <tr><td>Gallery</td><td><code>// PHOTO GALLERY</code></td><td>Through the Lens</td><td><span class="status status-ok">Yes</span></td></tr>
+        <tr><td>Campus Map</td><td><code>// CAMPUS</code></td><td>Navigate the Grounds</td><td><span class="status status-ok">Yes</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="issue-card suggestion">
+      <h4>Standardize All Section Headers</h4>
+      <p>Use consistent pattern across all sections:</p>
+      <div class="fix">
+        <strong>Pattern:</strong> <code>// LABEL</code> + Descriptive Title<br>
+        <strong>Articles:</strong> <code>// LATEST DISPATCHES</code> + "Voices of the Campus"<br>
+        <strong>Who is Who:</strong> <code>// WHO IS WHO</code> + "The People Behind MILIT"<br>
+        <strong>Memes (new):</strong> <code>// MEMES CORNER</code> + "Campus Humor"<br>
+        <strong>Masthead:</strong> <code>// BY THE NUMBERS</code> + "GHORPAD at a Glance"
+      </div>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Standardize Category Colors</h4>
+      <p>Category colors are defined in <code>lib/category-colors.ts</code> with hex values and Tailwind classes. Ensure all 10+ categories have consistent color assignments across Articles Grid, Gallery, TOC, and Magazine Reader. Currently some components use different color lookup methods.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Standardize Card Designs</h4>
+      <p>Article cards, gallery items, and personnel cards all use slightly different styling patterns (border-radius, padding, hover effects). Create a shared <code>ContentCard</code> component for visual consistency.</p>
+    </div>
+
+    <div class="issue-card suggestion">
+      <h4>Standardize Loading States</h4>
+      <p>Some sections show the gecko spinner, some show nothing while loading. Create a unified skeleton loading pattern for all data-dependent sections.</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================== -->
+<!-- SECTION 12: FEATURE ROADMAP -->
+<!-- ============================================== -->
+<div class="section" id="roadmap">
+  <div class="section-header">
+    <h2>12. Feature Roadmap & Priorities</h2>
+    <span class="badge badge-new">Roadmap</span>
+  </div>
+  <div class="section-body">
+
+    <h3 style="color:var(--red); margin-bottom:16px;">Priority 1: Critical Fixes (Do Now)</h3>
+    <div class="feature-card" style="border-color:rgba(192,57,43,0.3); background:rgba(192,57,43,0.05);">
+      <h4 style="color:var(--red);">Security & UX Fixes</h4>
+      <ul>
+        <li>Fix Settings API role check (add super_editor validation)</li>
+        <li>Move gallery deletion to server-side API endpoint</li>
+        <li>Add splash screen session persistence (sessionStorage)</li>
+        <li>Add login rate limiting</li>
+        <li>Migrate localStorage data (profiles, personnel, reviews) to Supabase</li>
+        <li>Remove or auth-protect /api/fix-buckets endpoint</li>
+        <li>Fix team invite to use server-side API with service role</li>
+        <li>Add auth check on article edit page (verify author or editor role)</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--orange); margin:24px 0 16px;">Priority 2: Quick Wins (This Week)</h3>
+    <div class="feature-card" style="border-color:rgba(243,156,18,0.3); background:rgba(243,156,18,0.05);">
+      <h4 style="color:var(--orange);">Improvements</h4>
+      <ul>
+        <li>Add Open Graph / Twitter Card metadata</li>
+        <li>Add gallery category input validation on API</li>
+        <li>Add <code>prefers-reduced-motion</code> CSS support</li>
+        <li>Configure Next.js image optimization for Supabase</li>
+        <li>Standardize section headers across homepage</li>
+        <li>Add sitemap.xml generation</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--blue); margin:24px 0 16px;">Priority 3: New Features (Next Sprint)</h3>
+    <div class="feature-card">
+      <h4>New Features</h4>
+      <ul>
+        <li><strong>Memes Corner</strong> - New homepage section with masonry grid, likes, and submission integration</li>
+        <li><strong>Submission Status Tracking</strong> - Public status page for contributors</li>
+        <li><strong>Rich Text Submission</strong> - Inline TipTap editor on submit page</li>
+        <li><strong>Email Notifications</strong> - Notify contributors when submissions are approved</li>
+        <li><strong>Gallery Bulk Upload</strong> - Multiple photos per upload with shared metadata</li>
+        <li><strong>Personnel Search</strong> - Search/filter in Who is Who section</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--muted); margin:24px 0 16px;">Priority 4: Long-term (Future)</h3>
+    <div class="feature-card" style="border-color:rgba(136,136,136,0.2); background:rgba(136,136,136,0.05);">
+      <h4 style="color:var(--muted);">Future Enhancements</h4>
+      <ul>
+        <li>Server-side rendering for article pages (SEO improvement)</li>
+        <li>PWA support (offline reading, push notifications)</li>
+        <li>Testing framework setup (Vitest + Playwright)</li>
+        <li>CI/CD pipeline with pre-commit hooks</li>
+        <li>Analytics dashboard for editors (page views, popular articles)</li>
+        <li>Comment system for articles</li>
+        <li>Alumni spotlight section with dynamic data</li>
+        <li>Events calendar integration</li>
+        <li>PDF export for magazine compilation</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div style="text-align:center; padding:40px 20px; color:var(--muted); font-size:0.85rem; border-top:1px solid var(--border);">
+  <p>GHORPAD 2026 Website Audit Report</p>
+  <p style="margin-top:4px;">Generated by Claude Code on 22 March 2026</p>
+  <p style="margin-top:4px; color:var(--gold); opacity:0.4;">Victory through Technology</p>
+</div>
+
+</body>
+</html>

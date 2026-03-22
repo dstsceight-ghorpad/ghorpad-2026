@@ -8,6 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import TipTapRenderer from "@/components/public/TipTapRenderer";
+import ArticleComments from "@/components/public/ArticleComments";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { formatDate } from "@/lib/utils";
 import { getCategoryColor, getCategoryBadgeClasses } from "@/lib/category-colors";
@@ -211,6 +212,9 @@ export default function ArticlePage() {
         <div className="max-w-4xl mx-auto">
           {/* Article content — rendered from TipTap JSON */}
           <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
+
+          {/* Comments section */}
+          <ArticleComments articleId={article.id} />
         </div>
       </section>
 
