@@ -178,6 +178,13 @@ export default function NewArticlePage() {
     if (!file) return;
 
     const supabase = createBrowserSupabaseClient();
+
+    // Ensure bucket exists as public (idempotent)
+    await supabase.storage.createBucket("article-covers", {
+      public: true,
+      fileSizeLimit: 10 * 1024 * 1024,
+    });
+
     const filename = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
       .from("article-covers")

@@ -35,6 +35,12 @@ export default function MediaLibraryPage() {
 
     const supabase = createBrowserSupabaseClient();
 
+    // Ensure bucket exists as public (idempotent)
+    await supabase.storage.createBucket("media", {
+      public: true,
+      fileSizeLimit: 50 * 1024 * 1024,
+    });
+
     for (const file of Array.from(files)) {
       const isVideo = file.type.startsWith("video/");
       const filename = `${Date.now()}-${file.name}`;

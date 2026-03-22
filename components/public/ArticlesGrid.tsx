@@ -13,7 +13,9 @@ import {
 import { SectionHeading } from "@/components/ui/RevealText";
 import TiltCard from "@/components/ui/TiltCard";
 
-const filters = ["ALL", "CAMPUS", "CULTURE", "OPINION", "SPORTS", "TECH", "ACHIEVEMENTS"];
+import { CATEGORIES } from "@/types";
+
+const filters = ["ALL", ...CATEGORIES.map((c) => c.toUpperCase())];
 
 interface ArticlesGridProps {
   articles: Article[];
@@ -102,14 +104,23 @@ function ArticleCard({ article }: { article: Article }) {
           ["--cat-hex" as string]: catColor.hex,
         }}
       >
-        {/* Image placeholder with category-tinted gradient */}
+        {/* Cover image or gradient placeholder */}
         <div className="aspect-video bg-surface-light relative overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity duration-300"
-            style={{
-              background: `linear-gradient(135deg, ${catColor.hex}33 0%, transparent 60%)`,
-            }}
-          />
+          {article.cover_image_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={article.cover_image_url}
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div
+              className="absolute inset-0 opacity-5 group-hover:opacity-15 transition-opacity duration-300"
+              style={{
+                background: `linear-gradient(135deg, ${catColor.hex}33 0%, transparent 60%)`,
+              }}
+            />
+          )}
           <div className="absolute top-3 left-3">
             <span
               className={`font-mono text-[10px] px-2 py-0.5 rounded ${badgeClasses}`}

@@ -83,6 +83,38 @@ const palette: Record<string, CategoryColor> = {
     textOnDark: "text-rose-400",
     hex: "#f43f5e",
   },
+  poems: {
+    bg: "bg-pink-500",
+    text: "text-pink-500",
+    border: "border-pink-500/40",
+    bgGlow: "bg-pink-500/10",
+    textOnDark: "text-pink-400",
+    hex: "#ec4899",
+  },
+  "sketches & paintings": {
+    bg: "bg-orange-500",
+    text: "text-orange-500",
+    border: "border-orange-500/40",
+    bgGlow: "bg-orange-500/10",
+    textOnDark: "text-orange-400",
+    hex: "#f97316",
+  },
+  "ladies corner": {
+    bg: "bg-fuchsia-500",
+    text: "text-fuchsia-500",
+    border: "border-fuchsia-500/40",
+    bgGlow: "bg-fuchsia-500/10",
+    textOnDark: "text-fuchsia-400",
+    hex: "#d946ef",
+  },
+  "international perspectives": {
+    bg: "bg-indigo-500",
+    text: "text-indigo-500",
+    border: "border-indigo-500/40",
+    bgGlow: "bg-indigo-500/10",
+    textOnDark: "text-indigo-400",
+    hex: "#6366f1",
+  },
 };
 
 /** Default fallback — uses gold accent */
