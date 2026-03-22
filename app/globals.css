@@ -301,6 +301,13 @@ img {
   pointer-events: none;
 }
 
+/* Re-enable pointer events on images inside clickable elements (links, buttons) */
+a img,
+button img {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 /* Re-enable selection for form inputs (login, upload, editorial) */
 input,
 textarea,

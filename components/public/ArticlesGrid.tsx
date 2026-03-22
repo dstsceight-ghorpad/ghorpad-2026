@@ -94,32 +94,23 @@ function ArticleCard({ article }: { article: Article }) {
   const catColor = getCategoryColor(article.category);
   const badgeClasses = getCategoryBadgeClasses(article.category);
 
-  // Sketches & Paintings / photos should show the full image without cropping
-  const isVisual = article.category === "Sketches & Paintings" || article.category === "Culture";
-
   return (
     <TiltCard maxTilt={5} hoverScale={1.01} className="h-full">
-    <Link href={`/articles/${article.slug}`}>
+    <Link href={`/articles/${article.slug}`} className="block h-full cursor-pointer">
       <div
-        className={`group bg-surface border border-border-subtle rounded-lg overflow-hidden transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-gold/30`}
+        className="group bg-surface border border-border-subtle rounded-lg overflow-hidden transition-all duration-300 h-full flex flex-col hover:shadow-lg hover:border-gold/30 cursor-pointer"
         style={{
-          // Dynamic category-coloured border & shadow on hover
           ["--cat-hex" as string]: catColor.hex,
         }}
       >
-        {/* Cover image or gradient placeholder */}
-        <div className={`bg-surface-light relative overflow-hidden ${
-          article.cover_image_url && isVisual ? "" : "aspect-video"
-        }`}>
+        {/* Cover image — uniform aspect-video for all cards */}
+        <div className="aspect-video bg-surface-light relative overflow-hidden">
           {article.cover_image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={article.cover_image_url}
               alt={article.title}
-              className={isVisual
-                ? "w-full h-auto object-contain"
-                : "w-full h-full object-cover"
-              }
+              className="w-full h-full object-cover pointer-events-auto"
             />
           ) : (
             <div
@@ -157,16 +148,6 @@ function ArticleCard({ article }: { article: Article }) {
               <span>{article.read_time_minutes} min</span>
               <span className="text-border-subtle">|</span>
               <span>{article.published_at ? formatDate(article.published_at) : ""}</span>
-            </span>
-          </div>
-
-          {/* Read button */}
-          <div className="mt-4 pt-3 border-t border-border-subtle">
-            <span
-              className="font-mono text-[11px] font-semibold tracking-wide group-hover:text-[var(--cat-hex)] transition-colors duration-300 flex items-center gap-1.5"
-              style={{ color: catColor.hex }}
-            >
-              READ {isVisual ? "MORE" : "ARTICLE"} &rarr;
             </span>
           </div>
         </div>
