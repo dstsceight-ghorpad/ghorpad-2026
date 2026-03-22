@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
       .upload(storagePath, buffer, {
         contentType: ext === "png" ? "image/png" : "image/jpeg",
         upsert: true,
+        cacheControl: "86400",
       });
 
     if (uploadError) {

@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
       .upload(filename, buffer, {
         contentType: file.type,
         upsert: true,
+        cacheControl: "86400",
       });
 
     if (uploadError) {

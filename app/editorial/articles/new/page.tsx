@@ -188,7 +188,7 @@ export default function NewArticlePage() {
     const filename = `${Date.now()}-${file.name}`;
     const { data, error } = await supabase.storage
       .from("article-covers")
-      .upload(filename, file);
+      .upload(filename, file, { cacheControl: "86400" });
 
     if (data && !error) {
       const {

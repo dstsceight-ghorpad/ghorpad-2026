@@ -166,7 +166,7 @@ export default function EditArticlePage() {
     const filename = `${Date.now()}-${file.name}`;
     const { error: uploadError } = await supabase.storage
       .from("article-covers")
-      .upload(filename, file, { contentType: file.type, upsert: false });
+      .upload(filename, file, { contentType: file.type, upsert: false, cacheControl: "86400" });
 
     if (!uploadError) {
       const { data: { publicUrl } } = supabase.storage
