@@ -93,24 +93,34 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                     item.aspect_ratio
                   )} bg-surface-light rounded-lg overflow-hidden border border-border-subtle hover:border-gold/30 transition-all`}
                 >
-                  {/* Placeholder content */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    {item.type === "video" ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-gold/30 flex items-center justify-center">
-                          <Play size={20} className="text-gold ml-0.5" />
+                  {/* Image or placeholder */}
+                  {item.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.url}
+                      alt={item.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      {item.type === "video" ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-12 h-12 rounded-full bg-gold/30 flex items-center justify-center">
+                            <Play size={20} className="text-gold ml-0.5" />
+                          </div>
+                          <span className="font-mono text-[9px] text-muted">
+                            VIDEO
+                          </span>
                         </div>
-                        <span className="font-mono text-[9px] text-muted">
-                          VIDEO
-                        </span>
-                      </div>
-                    ) : (
-                      <Camera
-                        size={24}
-                        className="text-muted/40 group-hover:text-gold/50 transition-colors"
-                      />
-                    )}
-                  </div>
+                      ) : (
+                        <Camera
+                          size={24}
+                          className="text-muted/40 group-hover:text-gold/50 transition-colors"
+                        />
+                      )}
+                    </div>
+                  )}
 
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
@@ -166,20 +176,29 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                 lightboxItem.aspect_ratio
               )} bg-surface-light rounded-xl overflow-hidden border border-border-subtle mb-4`}
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                {lightboxItem.type === "video" ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 rounded-full bg-gold/30 flex items-center justify-center">
-                      <Play size={28} className="text-gold ml-1" />
+              {lightboxItem.url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={lightboxItem.url}
+                  alt={lightboxItem.title}
+                  className="absolute inset-0 w-full h-full object-contain"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {lightboxItem.type === "video" ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-16 h-16 rounded-full bg-gold/30 flex items-center justify-center">
+                        <Play size={28} className="text-gold ml-1" />
+                      </div>
+                      <span className="font-mono text-xs text-muted">
+                        VIDEO PREVIEW
+                      </span>
                     </div>
-                    <span className="font-mono text-xs text-muted">
-                      VIDEO PREVIEW
-                    </span>
-                  </div>
-                ) : (
-                  <Camera size={40} className="text-muted/20" />
-                )}
-              </div>
+                  ) : (
+                    <Camera size={40} className="text-muted/20" />
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="text-center">

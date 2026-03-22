@@ -218,9 +218,13 @@ export interface GalleryItem {
   title: string;
   category: GalleryCategory;
   type: "image" | "video";
+  url?: string;
   thumbnail?: string;
   aspect_ratio: "portrait" | "landscape" | "square";
   description?: string;
+  uploaded_by?: string;
+  created_at?: string;
+  sort_order?: number;
 }
 
 // --- Submission Portal types ---

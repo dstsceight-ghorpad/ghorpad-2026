@@ -19,7 +19,7 @@ import {
   tickerHeadlines,
   fixedTocEntries,
 } from "@/lib/sample-data";
-import type { Article, TocEntry } from "@/types";
+import type { Article, TocEntry, GalleryItem } from "@/types";
 
 export const revalidate = 60; // revalidate every 60 seconds
 
@@ -68,6 +68,18 @@ export default async function HomePage() {
   const featuredArticle = articles.find((a) => a.is_featured) || articles[0] || null;
   const tocEntries = buildTocEntries(articles);
 
+  // Fetch gallery items from database, fall back to sample data
+  const { data: galleryData } = await supabase
+    .from("gallery_items")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  const galleryItems: GalleryItem[] =
+    galleryData && galleryData.length > 0
+      ? (galleryData as GalleryItem[])
+      : sampleGalleryItems;
+
   return (
     <>
       <SplashGate />
@@ -78,7 +90,7 @@ export default async function HomePage() {
         <TableOfContents entries={tocEntries} />
         <WhoIsWho personnel={samplePersonnel} />
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
-        <PhotoGallery items={sampleGalleryItems} />
+        <PhotoGallery items={galleryItems} />
 
         <MastheadStrip />
         <CampusMap locations={sampleCampusLocations} />
@@ -87,7 +99,7 @@ export default async function HomePage() {
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={tocEntries}
-          galleryItems={sampleGalleryItems}
+          galleryItems={galleryItems}
           campusLocations={sampleCampusLocations}
         />
       </main>

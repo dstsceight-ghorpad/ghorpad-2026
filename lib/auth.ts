@@ -12,6 +12,10 @@ export function canDeleteMedia(role: Role): boolean {
   return role === "super_editor" || role === "editor";
 }
 
+export function canManageGallery(role: Role): boolean {
+  return role === "super_editor" || role === "editor";
+}
+
 export function canEditArticle(role: Role, authorId: string, userId: string): boolean {
   if (role === "super_editor") return true;
   if (role === "editor") return true;
