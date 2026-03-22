@@ -200,8 +200,7 @@ export default function ArticlesPage() {
                             VIEW
                           </Link>
                         )}
-                        {article.status === "draft" && (
-                          <button
+                        <button
                             onClick={async () => {
                               if (!confirm(`Delete "${article.title}"? This cannot be undone.`)) return;
                               const supabase = createBrowserSupabaseClient();
@@ -218,7 +217,6 @@ export default function ArticlesPage() {
                             <Trash2 size={12} />
                             DELETE
                           </button>
-                        )}
                       </div>
                     </td>
                   </tr>

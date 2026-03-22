@@ -165,6 +165,29 @@ export default function SubmissionsPage() {
         await updateSubmissionStatus(sub.id, "approved");
       }
 
+      // ── MEME submissions go to gallery_items, not articles ──
+      if (sub.type === "meme") {
+        const { error: memeErr } = await supabase
+          .from("gallery_items")
+          .insert({
+            title: sub.title,
+            category: "Memes",
+            type: "image",
+            url: sub.attachment_url,
+            aspect_ratio: "square",
+            description: `By ${sub.author_name}`,
+            uploaded_by: user.id,
+            sort_order: 999,
+          });
+        if (memeErr) {
+          alert("Failed to add meme to gallery: " + memeErr.message);
+          return;
+        }
+        await loadData();
+        setSelectedSubmission(null);
+        return;
+      }
+
       // If already has an article, just publish it
       if (sub.article_id) {
         const { error: pubErr } = await supabase
