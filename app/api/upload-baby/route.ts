@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
-import { validateToken } from "@/lib/upload-token";
+import { validateUploadToken } from "@/lib/upload-token";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 /**
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate upload token
-    const tokenResult = validateToken(token);
+    const tokenResult = validateUploadToken(token);
     if (!tokenResult.valid) {
       return NextResponse.json(
         { error: tokenResult.expired ? "Token expired" : "Invalid token" },
