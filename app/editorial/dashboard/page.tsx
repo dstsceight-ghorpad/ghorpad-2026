@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { FileText, Image as ImageIcon, Users, Plus, Upload, Eye, Inbox, Sparkles } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>(
     { totalArticles: 0, published: 0, drafts: 0, mediaFiles: 0, inReview: 0, submissions: 0, pendingSubmissions: 0 }
   );
+  const [recentActivity, setRecentActivity] = useState<{ action: string; title: string; time: string }[]>([]);
   const [inaugurationMode, setInaugurationMode] = useState(false);
   const [inaugurationLoading, setInaugurationLoading] = useState(true);
   const [inaugurationSaving, setInaugurationSaving] = useState(false);
@@ -96,6 +97,65 @@ export default function DashboardPage() {
     }
 
     fetchStats();
+
+    // Fetch real recent activity
+    async function fetchActivity() {
+      const supabase = createBrowserSupabaseClient();
+      const items: { action: string; title: string; time: string; at: string }[] = [];
+
+      // Recent articles (published, draft, review)
+      const { data: arts } = await supabase
+        .from("articles")
+        .select("title, status, updated_at")
+        .order("updated_at", { ascending: false })
+        .limit(5);
+      if (arts) {
+        for (const a of arts) {
+          const label = a.status === "published" ? "Published" : a.status === "review" ? "In Review" : "Draft saved";
+          items.push({ action: label, title: a.title, time: a.updated_at, at: a.updated_at });
+        }
+      }
+
+      // Recent submissions
+      const { data: subs } = await supabase
+        .from("submissions")
+        .select("title, status, type, created_at")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      if (subs) {
+        for (const s of subs) {
+          const label = s.status === "approved" ? "Approved" : s.status === "rejected" ? "Rejected" : "Submission";
+          const typeBadge = s.type === "meme" ? " (meme)" : "";
+          items.push({ action: label, title: s.title + typeBadge, time: s.created_at, at: s.created_at });
+        }
+      }
+
+      // Recent gallery uploads
+      const { data: gallery } = await supabase
+        .from("gallery_items")
+        .select("title, category, created_at")
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (gallery) {
+        for (const g of gallery) {
+          items.push({ action: "Gallery", title: g.title, time: g.created_at, at: g.created_at });
+        }
+      }
+
+      // Sort by time descending, take top 6
+      items.sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
+      const timeAgo = (d: string) => {
+        const diff = Date.now() - new Date(d).getTime();
+        const mins = Math.floor(diff / 60000);
+        if (mins < 60) return `${mins}m ago`;
+        const hrs = Math.floor(mins / 60);
+        if (hrs < 24) return `${hrs}h ago`;
+        const days = Math.floor(hrs / 24);
+        return `${days}d ago`;
+      };
+      setRecentActivity(items.slice(0, 6).map((i) => ({ action: i.action, title: i.title, time: timeAgo(i.at) })));
+    }
+    fetchActivity();
   }, []);
 
   const statCards = [
@@ -267,49 +327,39 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Recent Activity placeholder */}
+      {/* Recent Activity — live data */}
       <div>
         <h2 className="font-mono text-xs text-gold tracking-[0.2em] mb-4">
           // RECENT ACTIVITY
         </h2>
         <div className="bg-surface border border-border-subtle rounded-lg divide-y divide-border-subtle">
-          {[
-            {
-              action: "Published",
-              title: "Annual Tech Fest Draws Record Crowd",
-              time: "2 hours ago",
-            },
-            {
-              action: "Draft saved",
-              title: "Interview with the Dean of Sciences",
-              time: "5 hours ago",
-            },
-            {
-              action: "Media uploaded",
-              title: "campus-drone-view.jpg",
-              time: "1 day ago",
-            },
-            {
-              action: "Published",
-              title: "Cricket Team Clinches Trophy",
-              time: "2 days ago",
-            },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="flex items-center justify-between px-4 py-3"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <span className="font-mono text-[10px] text-gold bg-gold/10 px-2 py-0.5 rounded shrink-0">
-                  {item.action}
+          {recentActivity.length === 0 ? (
+            <div className="px-4 py-6 text-center text-muted text-sm">No recent activity</div>
+          ) : (
+            recentActivity.map((item, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between px-4 py-3"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className={`font-mono text-[10px] px-2 py-0.5 rounded shrink-0 ${
+                    item.action === "Published" ? "text-green-400 bg-green-500/10" :
+                    item.action === "Approved" ? "text-green-400 bg-green-500/10" :
+                    item.action === "Rejected" ? "text-red-400 bg-red-500/10" :
+                    item.action === "Submission" ? "text-yellow-400 bg-yellow-500/10" :
+                    item.action === "Gallery" ? "text-teal-400 bg-teal-500/10" :
+                    "text-gold bg-gold/10"
+                  }`}>
+                    {item.action}
+                  </span>
+                  <span className="text-sm truncate">{item.title}</span>
+                </div>
+                <span className="font-mono text-[10px] text-muted shrink-0 ml-4">
+                  {item.time}
                 </span>
-                <span className="text-sm truncate">{item.title}</span>
               </div>
-              <span className="font-mono text-[10px] text-muted shrink-0 ml-4">
-                {item.time}
-              </span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
