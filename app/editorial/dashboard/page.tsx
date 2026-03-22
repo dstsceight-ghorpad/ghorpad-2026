@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Image as ImageIcon, Users, Plus, Upload, Eye, ClipboardCheck, Inbox, Sparkles } from "lucide-react";
+import { FileText, Image as ImageIcon, Users, Plus, Upload, Eye, Inbox, Sparkles } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
 import { canManageTeam, canPublish } from "@/lib/auth";
@@ -130,7 +130,7 @@ export default function DashboardPage() {
     {
       label: "In Review",
       value: stats.inReview,
-      icon: ClipboardCheck,
+      icon: Eye,
       color: "text-orange-400",
       bg: "bg-orange-400/10",
     },
@@ -201,11 +201,11 @@ export default function DashboardPage() {
             UPLOAD MEDIA
           </Link>
           <Link
-            href="/editorial/review"
+            href="/editorial/articles"
             className="flex items-center gap-2 bg-surface border border-border-subtle font-mono text-xs px-4 py-2.5 rounded-lg hover:border-gold/50 hover:text-gold transition-all"
           >
-            <ClipboardCheck size={14} />
-            REVIEW QUEUE
+            <FileText size={14} />
+            ALL ARTICLES
           </Link>
           <Link
             href="/editorial/submissions"

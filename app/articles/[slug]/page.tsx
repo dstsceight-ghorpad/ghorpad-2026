@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion, useScroll } from "framer-motion";
-import { ArrowLeft, Twitter, Link as LinkIcon, MessageCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import TipTapRenderer from "@/components/public/TipTapRenderer";
@@ -38,8 +38,6 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<Article | null>(null);
   const [relatedArticles, setRelatedArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     async function fetchArticle() {
       const supabase = createBrowserSupabaseClient();
@@ -71,12 +69,6 @@ export default function ArticlePage() {
 
     fetchArticle();
   }, [slug]);
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   if (loading) {
     return (
@@ -212,69 +204,9 @@ export default function ArticlePage() {
 
       {/* Article body */}
       <section className="px-4 sm:px-6 pb-20">
-        <div className="max-w-4xl mx-auto relative">
-          {/* Share sidebar (desktop) */}
-          <div className="hidden lg:flex fixed left-[max(1rem,calc(50%-36rem))] top-1/2 -translate-y-1/2 flex-col gap-3 z-40">
-            <button
-              onClick={() =>
-                window.open(
-                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(window.location.href)}`,
-                  "_blank"
-                )
-              }
-              className="w-10 h-10 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-muted hover:text-gold hover:border-gold/50 transition-all"
-              title="Share on X"
-            >
-              <Twitter size={16} />
-            </button>
-            <button
-              onClick={() =>
-                window.open(
-                  `https://wa.me/?text=${encodeURIComponent(article.title + " " + window.location.href)}`,
-                  "_blank"
-                )
-              }
-              className="w-10 h-10 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-muted hover:text-gold hover:border-gold/50 transition-all"
-              title="Share on WhatsApp"
-            >
-              <MessageCircle size={16} />
-            </button>
-            <button
-              onClick={handleCopyLink}
-              className="w-10 h-10 rounded-full bg-surface border border-border-subtle flex items-center justify-center text-muted hover:text-gold hover:border-gold/50 transition-all"
-              title="Copy link"
-            >
-              {copied ? (
-                <span className="text-gold text-[10px] font-mono">OK</span>
-              ) : (
-                <LinkIcon size={16} />
-              )}
-            </button>
-          </div>
-
+        <div className="max-w-4xl mx-auto">
           {/* Article content — rendered from TipTap JSON */}
           <TipTapRenderer content={article.content} />
-
-          {/* Mobile share bar */}
-          <div className="lg:hidden flex gap-3 mt-8 pt-6 border-t border-border-subtle">
-            <button
-              onClick={() =>
-                window.open(
-                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}`,
-                  "_blank"
-                )
-              }
-              className="flex items-center gap-2 text-muted text-sm hover:text-gold transition-colors"
-            >
-              <Twitter size={16} /> Share
-            </button>
-            <button
-              onClick={handleCopyLink}
-              className="flex items-center gap-2 text-muted text-sm hover:text-gold transition-colors"
-            >
-              <LinkIcon size={16} /> {copied ? "Copied!" : "Copy Link"}
-            </button>
-          </div>
         </div>
       </section>
 

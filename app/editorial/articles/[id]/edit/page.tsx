@@ -128,12 +128,14 @@ export default function EditArticlePage() {
         })
         .eq("id", articleId);
 
+      setStatus(statusToSave);
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
 
-      if (statusToSave === "published") {
-        router.push("/editorial/dashboard");
+      // Only redirect on first-time publish (status was not already published)
+      if (statusToSave === "published" && status !== "published") {
+        router.push("/editorial/articles");
       }
     },
     [title, slug, excerpt, content, coverImageUrl, category, tags, isFeatured, contributorName, status, profile, articleId, router]
@@ -208,7 +210,14 @@ export default function EditArticlePage() {
             <ArrowLeft size={12} />
             BACK TO DASHBOARD
           </Link>
-          <h1 className="font-serif text-2xl font-bold">Edit Article</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="font-serif text-2xl font-bold">Edit Article</h1>
+            {status === "published" && (
+              <span className="font-mono text-[10px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded">
+                PUBLISHED
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -229,14 +238,14 @@ export default function EditArticlePage() {
           )}
 
           <button
-            onClick={() => handleSave("draft")}
+            onClick={() => handleSave(status)}
             className="flex items-center gap-2 bg-surface border border-border-subtle font-mono text-xs px-4 py-2.5 rounded-lg hover:border-gold/50 transition-all"
           >
             <Save size={14} />
             SAVE
           </button>
 
-          {profile?.role && canPublish(profile.role) && (
+          {profile?.role && canPublish(profile.role) && status !== "published" && (
             <button
               onClick={handlePublishClick}
               className="flex items-center gap-2 bg-gold text-background font-mono text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-gold/90 transition-colors"
@@ -244,6 +253,17 @@ export default function EditArticlePage() {
               <Eye size={14} />
               PUBLISH
             </button>
+          )}
+
+          {status === "published" && (
+            <Link
+              href={`/articles/${slug}`}
+              target="_blank"
+              className="flex items-center gap-2 bg-green-500/10 text-green-400 font-mono text-xs font-semibold px-4 py-2.5 rounded-lg hover:bg-green-500/20 transition-colors"
+            >
+              <Eye size={14} />
+              VIEW LIVE
+            </Link>
           )}
         </div>
       </div>

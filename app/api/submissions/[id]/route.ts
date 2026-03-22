@@ -4,7 +4,7 @@ import { generateSlug, estimateReadTime } from "@/lib/utils";
 import { parsePlainText } from "@/lib/article-parser";
 
 /**
- * Build TipTap JSON content from a submission's text and/or image attachment.
+ * Build TipTap JSON content from a submission's text and/or attachment.
  */
 function buildArticleContent(
   text: string | undefined,
@@ -19,6 +19,30 @@ function buildArticleContent(
     nodes.push({
       type: "image",
       attrs: { src: attachmentUrl, alt: "Submitted image", title: null },
+    });
+  }
+
+  // Embed PDF directly if attachment is a PDF
+  const isPdf = /\.pdf$/i.test(attachmentUrl || "");
+  if (attachmentUrl && isPdf) {
+    nodes.push({
+      type: "pdf",
+      attrs: { src: attachmentUrl, title: text || "Document" },
+    });
+  }
+
+  // Add download link if attachment is a Word doc
+  const isDoc = /\.(doc|docx)$/i.test(attachmentUrl || "");
+  if (attachmentUrl && isDoc) {
+    nodes.push({
+      type: "paragraph",
+      content: [
+        {
+          type: "text",
+          text: "Download Document",
+          marks: [{ type: "link", attrs: { href: attachmentUrl, target: "_blank" } }],
+        },
+      ],
     });
   }
 
@@ -41,7 +65,8 @@ function buildArticleContent(
  */
 function mapCategory(submissionType: string, submissionCategory: string): string {
   if (submissionType === "poem") return "Poems";
-  if (submissionType === "photo" || submissionType === "sketch") return "Culture";
+  if (submissionType === "sketch") return "Sketches & Paintings";
+  if (submissionType === "photo") return "Culture";
   // For articles, the submitter already chose from CATEGORIES
   return submissionCategory || "Campus";
 }
@@ -202,6 +227,74 @@ export async function PATCH(
     return NextResponse.json({ success: true, articleId });
   } catch (err) {
     console.error("Submissions PATCH error:", err);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/submissions/[id] — Authenticated. Deletes a submission.
+ * If the submission has an associated article, deletes that too.
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    // Validate auth
+    const { createServerClient } = await import("@supabase/ssr");
+    const supabaseAuth = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll() {},
+        },
+      }
+    );
+    const {
+      data: { user },
+    } = await supabaseAuth.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const supabase = createServiceRoleClient();
+
+    // Fetch the submission to check for linked article
+    const { data: submission } = await supabase
+      .from("submissions")
+      .select("article_id, attachment_url")
+      .eq("id", id)
+      .single();
+
+    // Delete linked article if exists
+    if (submission?.article_id) {
+      await supabase.from("articles").delete().eq("id", submission.article_id);
+    }
+
+    // Delete the submission
+    const { error } = await supabase.from("submissions").delete().eq("id", id);
+
+    if (error) {
+      console.error("Supabase delete error:", error);
+      return NextResponse.json(
+        { error: "Failed to delete submission" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Submissions DELETE error:", err);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

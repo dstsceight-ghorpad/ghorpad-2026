@@ -66,6 +66,7 @@ export const CATEGORIES = [
   "Ladies Corner",
   "International Perspectives",
   "Poems",
+  "Sketches & Paintings",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];

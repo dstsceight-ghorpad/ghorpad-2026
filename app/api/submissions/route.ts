@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       attachment_url,
     } = body;
 
-    // Basic validation — require either content or attachment
+    // Basic validation — require id, type, title, author, and either content or attachment
     if (!id || !type || !title || !author_name || (!content && !attachment_url)) {
       return NextResponse.json(
         { error: "Missing required fields" },

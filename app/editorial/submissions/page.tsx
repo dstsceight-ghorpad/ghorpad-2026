@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Inbox,
-  CheckCircle2,
   XCircle,
   FileText,
   Image as ImageIcon,
@@ -12,12 +11,18 @@ import {
   X,
   Loader2,
   ExternalLink,
+  Send,
+  Edit3,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import {
   loadSubmissions,
   updateSubmissionStatus,
 } from "@/lib/submissions";
-import { formatDateShort } from "@/lib/utils";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
+import { formatDateShort, generateSlug, estimateReadTime } from "@/lib/utils";
+import { parsePlainText } from "@/lib/article-parser";
 import type { Submission, SubmissionStatus } from "@/types";
 
 type FilterTab = "all" | "pending" | "approved" | "rejected";
@@ -69,6 +74,137 @@ export default function SubmissionsPage() {
       console.error("Failed to update status:", err);
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this submission? This will also remove any linked article.")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/submissions/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        alert("Failed to delete: " + (data.error || "Unknown error"));
+        return;
+      }
+      await loadData();
+      setSelectedSubmission(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Error deleting submission");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const [publishing, setPublishing] = useState(false);
+
+  /** Build article data from a submission */
+  const buildArticleData = (sub: Submission, userId: string) => {
+    const isImage = /\.(jpg|jpeg|png)$/i.test(sub.attachment_url || "");
+
+    const isPdf = /\.pdf$/i.test(sub.attachment_url || "");
+    const isDoc = /\.(doc|docx)$/i.test(sub.attachment_url || "");
+
+    // Build TipTap content
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nodes: any[] = [];
+    if (sub.attachment_url && isImage) {
+      nodes.push({ type: "image", attrs: { src: sub.attachment_url, alt: "Submitted image", title: null } });
+    }
+    if (sub.attachment_url && isPdf) {
+      nodes.push({ type: "pdf", attrs: { src: sub.attachment_url, title: sub.title || "Document" } });
+    }
+    if (sub.attachment_url && isDoc) {
+      nodes.push({ type: "paragraph", content: [{ type: "text", text: "Download Document", marks: [{ type: "link", attrs: { href: sub.attachment_url, target: "_blank" } }] }] });
+    }
+    if (sub.content && !sub.content.startsWith("[See attached file:")) {
+      const parsed = parsePlainText(sub.content);
+      nodes.push(...parsed.content);
+    }
+    if (nodes.length === 0) nodes.push({ type: "paragraph" });
+    const content = { type: "doc", content: nodes };
+
+    let contributorName = sub.author_name;
+    if (sub.relation && sub.officer_name) {
+      contributorName += ` (${sub.relation} ${sub.officer_name})`;
+    }
+
+    const slug = `${generateSlug(sub.title)}-${Date.now()}`;
+    const plainText = sub.content || "";
+    const excerpt = plainText && !plainText.startsWith("[See attached file:")
+      ? plainText.slice(0, 150).trim() + (plainText.length > 150 ? "…" : "")
+      : `Contributed by ${sub.author_name}`;
+
+    const categoryMap: Record<string, string> = { poem: "Poems", photo: "Culture", sketch: "Sketches & Paintings" };
+    const category = categoryMap[sub.type] || sub.category || "Campus";
+    const now = new Date().toISOString();
+
+    return {
+      title: sub.title, slug, excerpt, content,
+      cover_image_url: isImage ? sub.attachment_url : null,
+      category, tags: ["contribution"],
+      is_featured: false, author_id: userId,
+      contributor_name: contributorName,
+      read_time_minutes: estimateReadTime(content as Record<string, unknown>),
+      created_at: now, updated_at: now,
+    };
+  };
+
+  /** Approve and directly publish the submission */
+  const approveAndPublish = async (sub: Submission) => {
+    setPublishing(true);
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { alert("Not authenticated"); return; }
+
+      // Mark submission as approved
+      if (sub.status === "pending") {
+        await updateSubmissionStatus(sub.id, "approved");
+      }
+
+      // If already has an article, just publish it
+      if (sub.article_id) {
+        const { error: pubErr } = await supabase
+          .from("articles")
+          .update({ status: "published", published_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+          .eq("id", sub.article_id);
+        if (pubErr) {
+          alert("Failed to publish: " + pubErr.message);
+          return;
+        }
+      } else {
+        // Create article directly as published
+        const articleData = {
+          ...buildArticleData(sub, user.id),
+          status: "published",
+          published_at: new Date().toISOString(),
+        };
+
+        const { data: article, error: articleErr } = await supabase
+          .from("articles")
+          .insert(articleData)
+          .select("id")
+          .single();
+
+        if (articleErr) {
+          alert("Failed to publish: " + articleErr.message);
+          return;
+        }
+
+        await supabase.from("submissions").update({ article_id: article.id }).eq("id", sub.id);
+      }
+
+      await loadData();
+      setSelectedSubmission(null);
+    } catch (err) {
+      console.error(err);
+      alert("Error publishing");
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -217,12 +353,23 @@ export default function SubmissionsPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => setSelectedSubmission(sub)}
-                          className="font-mono text-[10px] text-gold hover:text-gold/80 transition-colors"
-                        >
-                          VIEW
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setSelectedSubmission(sub)}
+                            className="font-mono text-[10px] text-gold hover:text-gold/80 transition-colors"
+                          >
+                            VIEW
+                          </button>
+                          {sub.article_id && (
+                            <Link
+                              href={`/editorial/articles/${sub.article_id}/edit`}
+                              className="font-mono text-[10px] text-blue-400 hover:text-blue-400/80 transition-colors flex items-center gap-1"
+                            >
+                              <Pencil size={10} />
+                              EDIT
+                            </Link>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -318,10 +465,10 @@ export default function SubmissionsPage() {
                 </div>
               )}
 
-              {selectedSubmission.content && (
+              {selectedSubmission.content && !selectedSubmission.content.startsWith("[See attached file:") && (
                 <div>
                   <span className="font-mono text-[10px] text-muted block mb-1">
-                    {selectedSubmission.attachment_url ? "NOTES" : "CONTENT"}
+                    CONTENT
                   </span>
                   <div className="p-3 bg-surface-light rounded-lg text-sm leading-relaxed max-h-48 overflow-y-auto whitespace-pre-line">
                     {selectedSubmission.content}
@@ -346,49 +493,82 @@ export default function SubmissionsPage() {
                 >
                   {selectedSubmission.status.toUpperCase()}
                 </span>
-                {selectedSubmission.status === "approved" && selectedSubmission.article_id && (
+                {selectedSubmission.article_id && (
                   <Link
                     href={`/editorial/articles/${selectedSubmission.article_id}/edit`}
                     className="inline-flex items-center gap-1.5 font-mono text-[10px] px-3 py-1 bg-gold/10 text-gold rounded hover:bg-gold/20 transition-colors"
                   >
                     <ExternalLink size={12} />
-                    EDIT DRAFT
+                    EDIT ARTICLE
                   </Link>
                 )}
               </div>
             </div>
 
+            {/* ── Actions for PENDING submissions ── */}
             {selectedSubmission.status === "pending" && (
-              <div className="flex items-center gap-3 p-5 border-t border-border-subtle">
+              <div className="p-5 border-t border-border-subtle space-y-3">
                 <button
-                  onClick={() =>
-                    handleUpdateStatus(selectedSubmission.id, "approved")
-                  }
-                  disabled={updating}
-                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-green-500/10 text-green-400 rounded hover:bg-green-500/20 transition-colors disabled:opacity-50"
+                  onClick={() => approveAndPublish(selectedSubmission)}
+                  disabled={publishing || updating}
+                  className="w-full flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-3 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors disabled:opacity-50"
                 >
-                  <CheckCircle2 size={14} />
-                  {updating ? "UPDATING..." : "APPROVE"}
+                  {publishing ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Send size={14} />
+                  )}
+                  {publishing ? "PUBLISHING..." : "APPROVE & PUBLISH"}
                 </button>
                 <button
                   onClick={() => {
                     const notes = window.prompt("Reason for rejection:");
                     if (notes !== null) {
-                      handleUpdateStatus(
-                        selectedSubmission.id,
-                        "rejected",
-                        notes
-                      );
+                      handleUpdateStatus(selectedSubmission.id, "rejected", notes);
                     }
                   }}
                   disabled={updating}
-                  className="flex-1 flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2.5 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-2 bg-red-500/10 text-red-400 rounded hover:bg-red-500/20 transition-colors disabled:opacity-50"
                 >
                   <XCircle size={14} />
                   REJECT
                 </button>
               </div>
             )}
+
+            {/* ── Actions for APPROVED submissions without article yet ── */}
+            {selectedSubmission.status === "approved" && !selectedSubmission.article_id && (
+              <div className="p-5 border-t border-border-subtle">
+                <button
+                  onClick={() => approveAndPublish(selectedSubmission)}
+                  disabled={publishing}
+                  className="w-full flex items-center justify-center gap-1.5 font-mono text-xs px-4 py-3 bg-green-500/10 text-green-400 rounded-lg hover:bg-green-500/20 transition-colors disabled:opacity-50"
+                >
+                  {publishing ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Send size={14} />
+                  )}
+                  {publishing ? "PUBLISHING..." : "PUBLISH NOW"}
+                </button>
+              </div>
+            )}
+
+            {/* ── Delete button (always visible) ── */}
+            <div className="px-5 pb-5 pt-2">
+              <button
+                onClick={() => handleDelete(selectedSubmission.id)}
+                disabled={deleting}
+                className="w-full flex items-center justify-center gap-1.5 font-mono text-[10px] px-4 py-2 text-red-400/60 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors disabled:opacity-50"
+              >
+                {deleting ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Trash2 size={12} />
+                )}
+                {deleting ? "DELETING..." : "DELETE SUBMISSION"}
+              </button>
+            </div>
           </div>
         </div>
       )}

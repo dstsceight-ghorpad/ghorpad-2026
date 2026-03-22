@@ -960,6 +960,7 @@ const _rawPersonnel: Personnel[] = [
     ["Dickson Ayaa Afidra", "Major", "Uganda Air Force"],
     ["Ravishankar Rajaram Kadam", "Major", "Regiment of Artillery"],
     ["Ajinkya Arvind Powar", "Major", "Corps of Signals"],
+    ["Hassan", "Major", ""],
   ]),
 ];
 

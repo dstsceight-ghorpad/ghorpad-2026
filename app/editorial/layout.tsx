@@ -15,7 +15,6 @@ import {
   X,
   ChevronRight,
   UserCircle,
-  ClipboardCheck,
   Inbox,
 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
@@ -40,9 +39,8 @@ export function useUser() {
 
 const sidebarLinks = [
   { label: "Dashboard", href: "/editorial/dashboard", icon: LayoutDashboard },
-  { label: "Articles", href: "/editorial/articles/new", icon: FileText },
+  { label: "Articles", href: "/editorial/articles", icon: FileText },
   { label: "Media", href: "/editorial/media", icon: ImageIcon },
-  { label: "Review", href: "/editorial/review", icon: ClipboardCheck },
   { label: "Submissions", href: "/editorial/submissions", icon: Inbox },
   { label: "Personnel", href: "/editorial/personnel", icon: Users2 },
   { label: "My Profile", href: "/editorial/profile", icon: UserCircle },

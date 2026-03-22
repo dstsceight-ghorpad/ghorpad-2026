@@ -155,6 +155,31 @@ function renderNode(node: TipTapNode, index: number): React.ReactNode {
       );
     }
 
+    case "pdf": {
+      const pdfSrc = String(node.attrs?.src || "");
+      const pdfTitle = node.attrs?.title ? String(node.attrs.title) : "Document";
+      return (
+        <div key={index} className="my-6">
+          <iframe
+            src={`${pdfSrc}#toolbar=1&navpanes=0`}
+            title={pdfTitle}
+            className="w-full rounded-lg border border-border-subtle"
+            style={{ height: "80vh", minHeight: "600px" }}
+          />
+          <div className="flex items-center justify-center mt-3">
+            <a
+              href={pdfSrc}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 font-mono text-xs text-gold hover:text-gold/80 transition-colors"
+            >
+              Open PDF in new tab &rarr;
+            </a>
+          </div>
+        </div>
+      );
+    }
+
     case "codeBlock":
       return (
         <pre
