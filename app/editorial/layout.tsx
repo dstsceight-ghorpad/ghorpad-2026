@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   FileText,
-  Image as ImageIcon,
   Camera,
   Users,
   Users2,
