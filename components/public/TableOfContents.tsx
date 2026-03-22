@@ -73,13 +73,51 @@ export default function TableOfContents({ entries }: TableOfContentsProps) {
                     </div>
                   );
 
-                  return entry.slug ? (
-                    <Link key={entry.id} href={`/articles/${entry.slug}`}>
-                      {inner}
-                    </Link>
-                  ) : (
-                    <div key={entry.id}>{inner}</div>
-                  );
+                  if (entry.slug) {
+                    return (
+                      <Link key={entry.id} href={`/articles/${entry.slug}`}>
+                        {inner}
+                      </Link>
+                    );
+                  }
+
+                  if (entry.href) {
+                    const isAnchor = entry.href.startsWith("#");
+                    if (isAnchor) {
+                      const [anchor, query] = entry.href.split("?");
+                      return (
+                        <a
+                          key={entry.id}
+                          href={anchor}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const el = document.querySelector(anchor);
+                            if (el) {
+                              el.scrollIntoView({ behavior: "smooth" });
+                              if (query) {
+                                const params = new URLSearchParams(query);
+                                const cat = params.get("cat");
+                                if (cat) {
+                                  window.dispatchEvent(
+                                    new CustomEvent("gallery-filter", { detail: cat })
+                                  );
+                                }
+                              }
+                            }
+                          }}
+                        >
+                          {inner}
+                        </a>
+                      );
+                    }
+                    return (
+                      <Link key={entry.id} href={entry.href}>
+                        {inner}
+                      </Link>
+                    );
+                  }
+
+                  return <div key={entry.id}>{inner}</div>;
                 })}
               </div>
             </RevealOnScroll>

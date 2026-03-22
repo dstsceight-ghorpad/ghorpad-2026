@@ -262,6 +262,8 @@ export interface TocEntry {
   page_label: string;
   category: string;
   slug?: string;
+  /** Anchor or path link for section-type entries (e.g. "#gallery") */
+  href?: string;
   type: "article" | "section" | "feature" | "poem";
   author?: string;
 }

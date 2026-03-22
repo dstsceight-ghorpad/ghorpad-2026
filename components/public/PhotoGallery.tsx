@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Camera, Play } from "lucide-react";
 import { SectionHeading, RevealOnScroll } from "@/components/ui/RevealText";
 import type { GalleryItem, GalleryCategory } from "@/types";
@@ -27,6 +27,18 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
     "All"
   );
   const [lightboxItem, setLightboxItem] = useState<GalleryItem | null>(null);
+
+  // Listen for TOC "gallery-filter" events to auto-select a category
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const cat = (e as CustomEvent).detail as GalleryCategory;
+      if (ALL_CATEGORIES.includes(cat)) {
+        setActiveCategory(cat);
+      }
+    };
+    window.addEventListener("gallery-filter", handler);
+    return () => window.removeEventListener("gallery-filter", handler);
+  }, []);
 
   const filtered =
     activeCategory === "All"

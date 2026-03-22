@@ -983,7 +983,7 @@ export const fixedTocEntries: TocEntry[] = [
   { id: "toc-sk", title: "Sketches & Paintings", page_label: "—", category: "Sketches & Paintings", type: "section" },
 
   // ── MILIT Babies ──
-  { id: "toc-mb", title: "MILIT Babies", page_label: "—", category: "MILIT Babies", type: "section" },
+  { id: "toc-mb", title: "MILIT Babies", page_label: "—", category: "MILIT Babies", type: "section", href: "#gallery?cat=Families" },
 
   // ── Organised Events ──
   { id: "toc-ev", title: "Organised Events", page_label: "—", category: "Organised Events", type: "section" },
