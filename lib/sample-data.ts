@@ -966,10 +966,38 @@ const _rawPersonnel: Personnel[] = [
   ]),
 ];
 
-// Auto-fill avatar_url for all personnel from Supabase storage
+// Personnel IDs whose photos have been removed (wrong/mismatched uploads)
+const noPhotoIds = new Set([
+  "pers-2",      // Saurabh Bhargava
+  "pers-so-2",   // G Mahesh Kumar
+  "pers-so-3",   // Ramesh S Bhat
+  "pers-so-5",   // Alok Tomer
+  "pers-so-8",   // GM Tripathi
+  "pers-so-9",   // V Lakhanpal
+  "pers-so-10",  // Vishal Kapoor
+  "pers-so-11",  // Robin Panicker
+  "pers-so-12",  // Abhijeet Sawant
+  "pers-so-13",  // Gagan Deep Dhaliwal
+  "pers-so-14",  // Sumit Joshi
+  "pers-so-15",  // RK Bhardwaj
+  "pers-so-16",  // Suhrit Bhatia
+  "pers-so-17",  // Nikhil Tomar
+  "pers-so-18",  // Asif Sarkhawas
+  "pers-so-20",  // Deepak Kashyap
+  "pers-so-21",  // Sachin Tyagi
+  "pers-so-22",  // Manish Sharma
+  "pers-so-23",  // Pandurang M Nibandhe
+  "pers-so-24",  // AS Virdi
+  "pers-so-25",  // PM Abhyankar
+  "pers-so-26",  // BP Tripathy
+  "pers-so-27",  // Rachit Ahluwalia
+  "pers-so-29",  // Rahul Inamdar
+]);
+
+// Auto-fill avatar_url for all personnel from Supabase storage (skip removed photos)
 export const samplePersonnel: Personnel[] = _rawPersonnel.map((p) => ({
   ...p,
-  avatar_url: p.avatar_url || getPersonnelPhotoUrl(p.id),
+  avatar_url: noPhotoIds.has(p.id) ? null : (p.avatar_url || getPersonnelPhotoUrl(p.id)),
 }));
 
 // --- Table of Contents Data ---
