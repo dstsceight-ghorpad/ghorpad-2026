@@ -196,7 +196,11 @@ export default function ArticlePage() {
             <img
               src={article.cover_image_url}
               alt={article.title}
-              className="w-full rounded-lg object-cover max-h-[500px]"
+              className={`w-full rounded-lg ${
+                article.category === "Sketches & Paintings" || article.category === "Culture"
+                  ? "object-contain"
+                  : "object-cover max-h-[500px]"
+              }`}
             />
           </div>
         </section>

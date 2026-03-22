@@ -596,7 +596,11 @@ function ArticlePage({ article }: { article: Article }) {
         <img
           src={article.cover_image_url}
           alt={article.title}
-          className="w-full aspect-video object-cover rounded-lg mb-6"
+          className={`w-full rounded-lg mb-6 ${
+            article.category === "Sketches & Paintings" || article.category === "Culture"
+              ? "object-contain"
+              : "aspect-video object-cover"
+          }`}
         />
       )}
 
