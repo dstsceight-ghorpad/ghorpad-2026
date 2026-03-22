@@ -1027,8 +1027,6 @@ export const fixedTocEntries: TocEntry[] = [
   // ── Organised Events ──
   { id: "toc-ev", title: "Organised Events", page_label: "—", category: "Organised Events", type: "section" },
 
-  // ── Memes Corner ──
-  { id: "toc-memes", title: "Memes Corner", page_label: "—", category: "Memes", type: "section", href: "#memes" },
 ];
 
 // Keep sampleTocEntries as alias for backward compatibility (MagazineTrigger etc.)

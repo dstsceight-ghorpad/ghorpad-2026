@@ -39,6 +39,8 @@ function detectCategory(type: SubmissionType): string {
   return "Campus";
 }
 
+const SUBMISSION_CATEGORIES = ["Campus", "Culture", "Opinion", "Sports", "Tech", "Achievements", "Poems", "Memes"] as const;
+
 export default function SubmitPage() {
   const [authorName, setAuthorName] = useState("");
   const [authorDivision, setAuthorDivision] = useState<Division | "">("");
@@ -53,7 +55,7 @@ export default function SubmitPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submissionId, setSubmissionId] = useState("");
-  const [isMeme, setIsMeme] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -121,8 +123,8 @@ export default function SubmitPage() {
     setSubmitError("");
 
     const id = `sub-${Date.now()}`;
-    const type: SubmissionType = isMeme ? "meme" : detectType(attachmentName);
-    const category = detectCategory(type);
+    const type: SubmissionType = selectedCategory === "Memes" ? "meme" : detectType(attachmentName);
+    const category = selectedCategory || detectCategory(type);
 
     // Use filename (without extension) as title
     const title = attachmentName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
@@ -299,26 +301,21 @@ export default function SubmitPage() {
             )}
           </div>
 
-          {/* ── Meme Toggle ── */}
-          <div className="flex items-center gap-3 p-3 rounded-lg border border-border-subtle">
-            <button
-              onClick={() => setIsMeme(!isMeme)}
-              className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${
-                isMeme ? "bg-lime-500" : "bg-muted/30"
-              }`}
+          {/* ── Category Selector ── */}
+          <div>
+            <label className="font-mono text-[10px] text-muted tracking-widest block mb-2">
+              CATEGORY (OPTIONAL)
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full bg-surface-light border border-border-subtle rounded-lg px-3 py-2.5 text-sm text-foreground font-mono focus:border-gold/50 focus:outline-none"
             >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
-                  isMeme ? "translate-x-5" : ""
-                }`}
-              />
-            </button>
-            <span className="font-mono text-xs text-foreground">
-              Submit as a <strong className="text-lime-400">Meme</strong>
-              <span className="text-muted text-[10px] block mt-0.5">
-                Toggle ON for memes &amp; funny images
-              </span>
-            </span>
+              <option value="">Auto-detect</option>
+              {SUBMISSION_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
 
           {/* ── Contributor Info ── */}

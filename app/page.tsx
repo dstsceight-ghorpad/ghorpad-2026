@@ -5,8 +5,6 @@ import TableOfContents from "@/components/public/TableOfContents";
 import WhoIsWho from "@/components/public/WhoIsWho";
 import ArticlesGrid from "@/components/public/ArticlesGrid";
 import PhotoGallery from "@/components/public/PhotoGallery";
-import MemesCorner from "@/components/public/MemesCorner";
-
 import MastheadStrip from "@/components/public/MastheadStrip";
 import CampusMap from "@/components/public/CampusMap";
 import Footer from "@/components/public/Footer";
@@ -91,9 +89,7 @@ export default async function HomePage() {
       ? (galleryData as GalleryItem[])
       : sampleGalleryItems;
 
-  // Separate meme items from regular gallery items
-  const galleryItems = allGalleryItems.filter((i) => i.category !== "Memes");
-  const memeItems = allGalleryItems.filter((i) => i.category === "Memes");
+  const galleryItems = allGalleryItems;
 
   return (
     <>
@@ -106,7 +102,6 @@ export default async function HomePage() {
         <WhoIsWho personnel={samplePersonnel} />
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={galleryItems} />
-        <MemesCorner items={memeItems} />
 
         <MastheadStrip />
         <CampusMap locations={sampleCampusLocations} />
