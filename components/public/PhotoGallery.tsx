@@ -180,20 +180,18 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
           </button>
 
           <div
-            className="w-full max-w-3xl"
+            className="w-[90vw] max-h-[90vh] flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              className={`relative ${getAspectClass(
-                lightboxItem.aspect_ratio
-              )} bg-surface-light rounded-xl overflow-hidden border border-border-subtle mb-4`}
+              className="relative w-full flex-1 min-h-0 bg-surface-light rounded-xl overflow-hidden border border-border-subtle mb-4 flex items-center justify-center"
             >
               {lightboxItem.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={lightboxItem.url}
                   alt={lightboxItem.title}
-                  className="absolute inset-0 w-full h-full object-contain"
+                  className="max-w-full max-h-[80vh] object-contain"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
