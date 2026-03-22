@@ -76,45 +76,39 @@ export default function GalleryManagementPage() {
     if (pendingFiles.length === 0 || !profile || !title || !category) return;
     setUploading(true);
 
-    const supabase = createBrowserSupabaseClient();
-
-    // Ensure bucket exists as public (idempotent)
-    await supabase.storage.createBucket("media", {
-      public: true,
-      fileSizeLimit: 50 * 1024 * 1024,
-    });
+    let hasError = false;
 
     for (const file of pendingFiles) {
-      const isVideo = file.type.startsWith("video/");
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const filename = `gallery/${Date.now()}-${safeName}`;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", title);
+      formData.append("category", category);
+      formData.append("aspect_ratio", aspectRatio);
+      if (description) formData.append("description", description);
 
-      const { data: uploadData, error } = await supabase.storage
-        .from("media")
-        .upload(filename, file);
-
-      if (uploadData && !error) {
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("media").getPublicUrl(uploadData.path);
-
-        await supabase.from("gallery_items").insert({
-          title,
-          category,
-          url: publicUrl,
-          type: isVideo ? "video" : "image",
-          aspect_ratio: aspectRatio,
-          description: description || null,
-          uploaded_by: profile.id,
-          sort_order: 0,
+      try {
+        const res = await fetch("/api/gallery", {
+          method: "POST",
+          body: formData,
         });
+
+        const result = await res.json();
+        if (!res.ok) {
+          alert(`Upload failed for ${file.name}: ${result.error}`);
+          hasError = true;
+        }
+      } catch (err) {
+        alert(`Upload failed for ${file.name}: Network error`);
+        hasError = true;
       }
     }
 
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setPendingFiles([]);
+    if (!hasError) {
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setPendingFiles([]);
+    }
     setUploading(false);
     fetchItems();
   };
