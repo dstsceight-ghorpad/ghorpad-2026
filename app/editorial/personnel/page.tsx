@@ -11,8 +11,6 @@ import {
   Cake,
   Heart,
   CalendarDays,
-  Phone,
-  Mail,
   Users2,
   Camera,
 } from "lucide-react";
@@ -65,8 +63,6 @@ function EditModal({
     spouse_name: person.spouse_name || "",
     spouse_birthday: person.spouse_birthday || "",
     anniversary: person.anniversary || "",
-    whatsapp_no: person.whatsapp_no || "",
-    email: person.email || "",
   });
   const [avatarPreview, setAvatarPreview] = useState<string | null>(
     person.avatar_url
@@ -107,10 +103,6 @@ function EditModal({
       updates.spouse_birthday = form.spouse_birthday || undefined;
     if (form.anniversary !== (person.anniversary || ""))
       updates.anniversary = form.anniversary || undefined;
-    if (form.whatsapp_no !== (person.whatsapp_no || ""))
-      updates.whatsapp_no = form.whatsapp_no || undefined;
-    if (form.email !== (person.email || ""))
-      updates.email = form.email || undefined;
     if (avatarBase64) updates.avatar_url = avatarBase64;
 
     onSave(person.id, updates);
@@ -249,20 +241,6 @@ function EditModal({
                 onChange={(v) => setForm({ ...form, anniversary: v })}
                 placeholder="e.g. 24 November"
                 icon={CalendarDays}
-              />
-              <FieldInput
-                label="WhatsApp No"
-                value={form.whatsapp_no}
-                onChange={(v) => setForm({ ...form, whatsapp_no: v })}
-                placeholder="e.g. +91 9902769489"
-                icon={Phone}
-              />
-              <FieldInput
-                label="Email"
-                value={form.email}
-                onChange={(v) => setForm({ ...form, email: v })}
-                placeholder="e.g. name@gmail.com"
-                icon={Mail}
               />
             </div>
           </div>
