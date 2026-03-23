@@ -8,6 +8,18 @@ export function getPersonnelPhotoUrl(personnelId: string): string {
   return `${supabaseUrl}/storage/v1/object/public/personnel-photos/${personnelId}.jpg`;
 }
 
+// --- Service derivation from rank ---
+/** Derive the parent service from an officer's rank */
+function deriveService(rank: string): "Indian Army" | "Indian Navy" | "Indian Air Force" {
+  const r = rank.toLowerCase().trim();
+  // Navy ranks
+  if (["cdr", "capt(in)", "lt cdr", "comdt (jg)"].some((nr) => r.startsWith(nr.toLowerCase()))) return "Indian Navy";
+  // Air Force ranks
+  if (["wg cdr", "sqn ldr", "gp capt", "flt lt", "air", "gp capt(ts)"].some((ar) => r.startsWith(ar.toLowerCase()))) return "Indian Air Force";
+  // Everything else is Army (Major, Lt Col, Col, Brigadier, etc.)
+  return "Indian Army";
+}
+
 // --- Student Officer Generator ---
 
 const soFirstNames = [
@@ -30,17 +42,6 @@ const soRanks: [string, string][] = [
   ["Captain", "Capt"],
   ["Major", "Maj"],
   ["Lieutenant", "Lt"],
-];
-
-const soRegiments = [
-  "The Rajputana Rifles", "Corps of Engineers", "The Dogra Regiment", "The Sikh Regiment",
-  "Army Medical Corps", "The Jat Regiment", "The Grenadiers", "Corps of EME",
-  "Army Service Corps", "The Bihar Regiment", "Intelligence Corps", "The Mahar Regiment",
-  "The Garhwal Rifles", "The Kumaon Regiment", "Corps of Signals", "The Punjab Regiment",
-  "The Maratha Light Infantry", "Army Ordnance Corps", "The Madras Regiment", "The Assam Regiment",
-  "The Naga Regiment", "The Parachute Regiment", "The Jammu & Kashmir Rifles", "The Ladakh Scouts",
-  "Army Aviation Corps", "Corps of Artillery", "Army Air Defence", "The Rajput Regiment",
-  "The Guards", "The Mechanised Infantry",
 ];
 
 const staffDesignations = [
@@ -76,7 +77,7 @@ function generateStaffOfficers(count: number, startId: number): Personnel[] {
       designation: staffDesignations[i % staffDesignations.length],
       personnel_role: "staff_officer" as const,
       avatar_url: null,
-      unit_or_regiment: soRegiments[(i + 5) % soRegiments.length],
+      service: deriveService(rank),
       order: i + 6,
     };
   });
@@ -93,19 +94,19 @@ function generateStudentOfficers(division: Division, count: number, startId: num
       personnel_role: "student_officer" as const,
       division,
       avatar_url: null,
-      unit_or_regiment: soRegiments[i % soRegiments.length],
+      service: deriveService(rank),
       order: i + 1,
     };
   });
 }
 
-// Build student officers from real nominal roll data [name, rank, unit_or_regiment]
+// Build student officers from real nominal roll data [name, rank, unit(ignored)]
 function buildSO(
   division: Division,
   prefix: string,
   data: [string, string, string][]
 ): Personnel[] {
-  return data.map(([name, rank, unit], i) => ({
+  return data.map(([name, rank], i) => ({
     id: `pers-${prefix}-${i + 1}`,
     name,
     rank,
@@ -113,7 +114,7 @@ function buildSO(
     personnel_role: "student_officer" as const,
     division,
     avatar_url: null,
-    unit_or_regiment: unit,
+    service: deriveService(rank),
     order: i + 1,
   }));
 }
@@ -135,7 +136,7 @@ function buildSOExt(division: Division, prefix: string, data: SOProfile[]): Pers
     personnel_role: "student_officer" as const,
     division,
     avatar_url: getPersonnelPhotoUrl(id),
-    unit_or_regiment: d.unit,
+    service: deriveService(d.rank),
     order: i + 1,
     ...(d.bio && { bio: d.bio }),
     ...(d.birthday && { birthday: d.birthday }),
@@ -200,7 +201,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "commandant",
     avatar_url: "/personnel/commandant.jpeg",
     bio: "Rear Admiral V Ganapathy, NM assumed the appointment of Commandant, MILIT. A distinguished officer of the Indian Navy, he has served in various operational and staff appointments across the fleet, bringing a wealth of experience in naval strategy and technology management to the institute.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 1,
   },
   // Deputy Commandant
@@ -212,7 +213,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "deputy_commandant",
     avatar_url: null,
     bio: "Brigadier Saurabh Bhargava serves as the Deputy Commandant and Chief Instructor at MILIT. He oversees the academic and administrative functioning of the institute, ensuring the highest standards of military education and training.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 1,
   },
   // ══════════════════════════════════════════════════════════════════════════
@@ -228,7 +229,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "This ever smiling, composed Naval DS is known for his passion for golf, approachable nature, notorious for bashing the weekdays through memes and love for his family. Whether mentoring the SOs or perfecting his swing on the greens, he brings energy and warmth to the campus.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "15 Oct",
     spouse_name: "Mrs Vinita Joshi",
     spouse_birthday: "04 Mar",
@@ -245,7 +246,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A true officer and a gentleman with a repository of immense experience and knowledge. Known for his calm and composed demeanor even in most stressful situations. He is DS Coord of the Institute. His leadership bridges technological advancements with defence strategies, shaping future officers for national security challenges.",
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     birthday: "13 Jul",
     spouse_name: "Mrs Sunitha",
     spouse_birthday: "26 Oct",
@@ -259,7 +260,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Col Trg",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 3,
   },
   {
@@ -270,7 +271,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A sincere and professional Mechanised Infantry officer, he is known for his unwavering dedication and positive demeanor. Always willing to go the extra mile, he approaches every assignment with a strong sense of responsibility, ensuring both individual and team success.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "16 Jul",
     spouse_name: "Mrs Dibya",
     spouse_birthday: "02 Jun",
@@ -285,7 +286,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A tall, smart, happy and josh type officer who firmly believes that coordination and collaboration is the key to success. He serves as a Directing Staff (DS) at MILIT, where he mentors and trains future military leaders in advanced technological and strategic disciplines.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "10 Nov",
     spouse_name: "Mrs Swati",
     spouse_birthday: "11 Dec",
@@ -302,7 +303,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Col RP Singh is a 2000 batch officer who took over the mantle of HoF A Div in 2024. Besides his mandatory Army courses, the officer has acquired his M Tech from IIT Delhi, where he bagged accolades from Indian Institute of Industrial Engineers in the form of a Cash Award for securing highest CGPA amongst all the M Tech students. He has also acquired a certification from IIM Kozikode in AI & Data Science.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "15 Dec",
     spouse_name: "Mrs Neha",
     spouse_birthday: "01 Aug",
@@ -316,7 +317,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 7,
   },
   {
@@ -326,7 +327,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 8,
   },
   {
@@ -336,7 +337,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 9,
   },
   {
@@ -347,7 +348,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Lt Col Vishal Kapoor is a distinguished officer serving as directing staff at MILIT. With expertise in lasers and fiber optics, he plays a crucial role in shaping the technical acumen of defense personnel. An avid sportsman who loves to play racket sports.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "09 Sep",
     spouse_name: "Mrs Nidhi Kapoor",
     spouse_birthday: "23 Aug",
@@ -361,7 +362,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 11,
   },
   {
@@ -371,7 +372,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 12,
   },
   {
@@ -381,7 +382,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 13,
   },
 
@@ -394,7 +395,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Known to be a stickler for discipline, the officer is a third Generation defence officer and is also an alumnus of DSTSC. He has had varied experience in the Navy including some of the most challenging appointments onboard latest warships and at Naval and Command HQs.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "03 Feb",
     spouse_name: "Mrs Bindu",
     spouse_birthday: "20 Nov",
@@ -409,7 +410,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Cdr Ravi Bhardwaj is a dedicated officer who believes in working silently yet effectively. He values meaningful connections and strives to make a positive impact on those around him. Quiet in action but strong in resolve, he leads with dedication, letting his work speak louder than words.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "29 Apr",
     spouse_name: "Maj Kajri",
     spouse_birthday: "07 Jul",
@@ -423,7 +424,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 16,
   },
   {
@@ -434,7 +435,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A straightforward individual who firmly believes in the saying, 'A leader leads by example.' Soft-spoken yet assertive, he holds trustworthiness in the highest regard. As an instructor, he is committed to the idea that knowledge leads to true empowerment.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "25 May",
     spouse_name: "Mrs Shatakshi Sengar",
     spouse_birthday: "29 Jun",
@@ -448,7 +449,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 18,
   },
   {
@@ -459,7 +460,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A Para officer, armament expert, and true 'Mech Head,' he has an impressive list of key qualifications, including the OAAE, GTO, and Rescue Diver courses. A dedicated instructor, he has imparted his knowledge to both DSTSC and NTSC courses since joining MILIT.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "18 May",
     spouse_name: "Mrs Aastha Dahiya",
     spouse_birthday: "18 May",
@@ -473,7 +474,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 20,
   },
   {
@@ -483,7 +484,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 21,
   },
   {
@@ -493,7 +494,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 22,
   },
 
@@ -505,7 +506,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "HoD 'C' Division",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 23,
   },
   {
@@ -515,7 +516,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 24,
   },
   {
@@ -526,7 +527,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A Fighter Controller in the Indian Air Force, he is a highly skilled officer responsible for airspace management, directing fighter aircraft during missions. As an instructor at MILIT, he trains officers in radar operations, tactical interception, and battle management systems.",
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     birthday: "11 Dec",
     spouse_name: "Mrs Smita P Abhyankar",
     spouse_birthday: "03 Jul",
@@ -540,7 +541,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 26,
   },
   {
@@ -551,7 +552,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Lt Col Rachit Ahluwalia is known for his dynamic presence, passion for fitness and wicked sense of humor. A dedicated officer, he turns tough training sessions into engaging lessons, inspiring young Officers with both discipline and laughter. His second home is the gym, where he leads by example.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "17 May",
     spouse_name: "Dr Rajani Walia",
     spouse_birthday: "03 Jul",
@@ -565,7 +566,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Instructor",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     order: 28,
   },
 
@@ -578,7 +579,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A sincere officer with a positive outlook, he is an expert in EMI-EMC and firmly believes that every source and victim of interference can be mitigated through proper understanding and analysis. His dedication to precision and problem-solving defines his professional approach.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "03 Dec",
     spouse_name: "Mrs Priti",
     spouse_birthday: "19 Jul",
@@ -592,7 +593,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Controller of Examinations",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 30,
   },
   {
@@ -603,7 +604,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Colonel Gaurav Kumar Upadhyay joined MILIT in July 2024 as the Head of Department (IT & Studies). A tech enthusiast with a deep interest in abstract sciences, he brings a forward-thinking approach to his role.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "10 Oct",
     spouse_name: "Mrs Shivani Upadhyay",
     spouse_birthday: "20 Jun",
@@ -618,7 +619,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "An alumni of 9th Naval Engineering Course, commissioned into the Electrical branch of Indian Navy on 01 Jan 1997. He is passionate about Cyber Security and was selected to undergo the prestigious Chevening Cyber Security Fellowship conducted at Cranfield University in United Kingdom.",
-    unit_or_regiment: "Indian Navy",
+    service: "Indian Navy",
     birthday: "06 Oct",
     spouse_name: "Mrs Payal Chadha",
     spouse_birthday: "10 Feb",
@@ -633,7 +634,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A soft-spoken yet highly dedicated Signaller, he is a blend of intellect and curiosity. An avid reader of historical and technical books, he finds equal thrill in unraveling the past and decoding complex technologies. A postgraduate from IIT Madras, he is an expert in IT and Cyber domains.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "01 Dec",
     spouse_name: "Mrs Renu Rathore",
     spouse_birthday: "12 Oct",
@@ -649,7 +650,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Col Admin",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 34,
   },
   {
@@ -659,7 +660,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Col Q",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 35,
   },
   {
@@ -670,7 +671,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "A battle-hardened gunner officer, he skillfully juggles his roles as AA & QMG and Company Commander at MILIT. Since joining in July 2023, he has brought a wealth of experience from various staff and command assignments, proving that multitasking is indeed an art.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "12 Apr",
     spouse_name: "Mrs Rupali",
     spouse_birthday: "01 Nov",
@@ -685,7 +686,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "Lt Col Abhineet, from 4 Gorkhas, has been serving as the QM at MILIT since February 18, 2025. With the longest service within his regiment, he brings extensive experience and dedication to his role. Known for his appreciation of straightforward communication, he values clarity and directness in interactions.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "04 Apr",
     spouse_name: "Mrs Pratibha",
     spouse_birthday: "14 Mar",
@@ -699,7 +700,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Adjutant (Admin)",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     order: 38,
   },
 
@@ -711,7 +712,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Accounts",
     personnel_role: "staff_officer" as const,
     avatar_url: null,
-    unit_or_regiment: "Indian Air Force",
+    service: "Indian Air Force",
     order: 39,
   },
   {
@@ -722,7 +723,7 @@ const _rawPersonnel: Personnel[] = [
     personnel_role: "staff_officer" as const,
     avatar_url: null,
     bio: "The flamboyant officer joined at the start of the course, instantly making his presence known — much like his signature stiff mustache, which perfectly mirrors his personality. His commanding presence in class and engaging delivery make every session worth attending.",
-    unit_or_regiment: "Indian Army",
+    service: "Indian Army",
     birthday: "20 Feb",
     spouse_name: "Mrs Reetika Shankla",
     spouse_birthday: "08 Feb",

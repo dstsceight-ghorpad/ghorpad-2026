@@ -57,7 +57,7 @@ function EditModal({
     name: person.name,
     rank: person.rank,
     designation: person.designation,
-    unit_or_regiment: person.unit_or_regiment || "",
+    service: person.service || "",
     bio: person.bio || "",
     birthday: person.birthday || "",
     spouse_name: person.spouse_name || "",
@@ -91,8 +91,8 @@ function EditModal({
     if (form.rank !== person.rank) updates.rank = form.rank;
     if (form.designation !== person.designation)
       updates.designation = form.designation;
-    if (form.unit_or_regiment !== (person.unit_or_regiment || ""))
-      updates.unit_or_regiment = form.unit_or_regiment || undefined;
+    if (form.service !== (person.service || ""))
+      updates.service = form.service || undefined;
     if (form.bio !== (person.bio || ""))
       updates.bio = form.bio || undefined;
     if (form.birthday !== (person.birthday || ""))
@@ -201,11 +201,19 @@ function EditModal({
               value={form.designation}
               onChange={(v) => setForm({ ...form, designation: v })}
             />
-            <FieldInput
-              label="Regiment / Unit"
-              value={form.unit_or_regiment}
-              onChange={(v) => setForm({ ...form, unit_or_regiment: v })}
-            />
+            <div>
+              <label className="font-mono text-[10px] text-muted mb-1 block uppercase">Service</label>
+              <select
+                value={form.service}
+                onChange={(e) => setForm({ ...form, service: e.target.value })}
+                className="w-full bg-surface-light border border-border-subtle rounded px-3 py-2 text-sm focus:border-gold/50 focus:outline-none"
+              >
+                <option value="">Select Service</option>
+                <option value="Indian Army">Indian Army</option>
+                <option value="Indian Navy">Indian Navy</option>
+                <option value="Indian Air Force">Indian Air Force</option>
+              </select>
+            </div>
           </div>
 
           {/* Extended fields */}
@@ -375,7 +383,7 @@ export default function PersonnelPage() {
       searchQuery
         ? getDisplayName(p).toLowerCase().includes(searchQuery.toLowerCase()) ||
           p.designation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (p.unit_or_regiment || "")
+          (p.service || "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase())
         : true

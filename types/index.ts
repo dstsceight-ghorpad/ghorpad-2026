@@ -98,7 +98,7 @@ export interface Personnel {
   division?: Division;
   avatar_url: string | null;
   bio?: string;
-  unit_or_regiment?: string;
+  service?: "Indian Army" | "Indian Navy" | "Indian Air Force" | string;
   order: number;
   // Extended profile fields
   birthday?: string;

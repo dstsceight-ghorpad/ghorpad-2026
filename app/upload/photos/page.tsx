@@ -120,7 +120,7 @@ export default function PhotoUploadPage() {
     .filter((p) =>
       searchQuery
         ? getDisplayName(p).toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (p.unit_or_regiment || "")
+          (p.service || "")
             .toLowerCase()
             .includes(searchQuery.toLowerCase())
         : true
