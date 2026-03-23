@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { X, Cake, Heart, CalendarDays, Phone, Mail } from "lucide-react";
+import { X, Cake, Heart, CalendarDays } from "lucide-react";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel } from "@/types";
 import { getDisplayName } from "@/lib/personnel";
@@ -93,9 +93,7 @@ export default function PersonnelDetailOverlay({
     person.birthday ||
     person.spouse_name ||
     person.spouse_birthday ||
-    person.anniversary ||
-    person.whatsapp_no ||
-    person.email;
+    person.anniversary;
 
   return (
     <motion.div
@@ -206,23 +204,7 @@ export default function PersonnelDetailOverlay({
                   />
                 )}
 
-                {person.whatsapp_no && (
-                  <DetailRow
-                    icon={Phone}
-                    label="WHATSAPP"
-                    value={person.whatsapp_no}
-                    href={`https://wa.me/${person.whatsapp_no.replace(/[^0-9]/g, "")}`}
-                  />
-                )}
-
-                {person.email && (
-                  <DetailRow
-                    icon={Mail}
-                    label="EMAIL"
-                    value={person.email}
-                    href={`mailto:${person.email}`}
-                  />
-                )}
+                {/* Contact info removed for privacy */}
               </div>
             )}
 

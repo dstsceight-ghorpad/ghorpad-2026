@@ -238,8 +238,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Vinita Joshi",
     spouse_birthday: "04 Mar",
     anniversary: "27 May",
-    whatsapp_no: "9944479105",
-    email: "Paresh.echo@gmail.com",
     order: 1,
   },
 
@@ -257,8 +255,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Sunitha",
     spouse_birthday: "26 Oct",
     anniversary: "08 Dec",
-    whatsapp_no: "9662322910",
-    email: "gmkaero13@gmail.com",
     order: 2,
   },
   {
@@ -284,8 +280,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Dibya",
     spouse_birthday: "02 Jun",
     anniversary: "03 Jul",
-    whatsapp_no: "9622377888",
-    email: "rameshapache22@gmail.com",
     order: 4,
   },
   {
@@ -301,8 +295,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Swati",
     spouse_birthday: "11 Dec",
     anniversary: "24 Jan",
-    whatsapp_no: "8477000666",
-    email: "Tomer.alok@gmail.com",
     order: 5,
   },
 
@@ -320,8 +312,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Neha",
     spouse_birthday: "01 Aug",
     anniversary: "20 Jan",
-    whatsapp_no: "8897698788",
-    email: "rps.iitd@icloud.com",
     order: 6,
   },
   {
@@ -367,8 +357,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Nidhi Kapoor",
     spouse_birthday: "23 Aug",
     anniversary: "09 Mar",
-    whatsapp_no: "9599944163",
-    email: "kapvishal1@gmail.com",
     order: 10,
   },
   {
@@ -416,8 +404,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Bindu",
     spouse_birthday: "20 Nov",
     anniversary: "21 Jun",
-    whatsapp_no: "7400382941",
-    email: "sumitjoshi.in@gmail.com",
     order: 14,
   },
   {
@@ -433,8 +419,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Maj Kajri",
     spouse_birthday: "07 Jul",
     anniversary: "18 Feb",
-    whatsapp_no: "8308799811",
-    email: "ravikanchan1288@gmail.com",
     order: 15,
   },
   {
@@ -460,8 +444,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Shatakshi Sengar",
     spouse_birthday: "29 Jun",
     anniversary: "25 Nov",
-    whatsapp_no: "7999937679",
-    email: "nikhiltomar25@gmail.com",
     order: 17,
   },
   {
@@ -487,8 +469,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Aastha Dahiya",
     spouse_birthday: "18 May",
     anniversary: "27 Jan",
-    whatsapp_no: "9079405187",
-    email: "mannish18@yahoo.com",
     order: 19,
   },
   {
@@ -556,8 +536,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Smita P Abhyankar",
     spouse_birthday: "03 Jul",
     anniversary: "22 Apr",
-    whatsapp_no: "7028028121",
-    email: "prasanna.abhy@gmail.com",
     order: 25,
   },
   {
@@ -583,8 +561,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Dr Rajani Walia",
     spouse_birthday: "03 Jul",
     anniversary: "01 Nov",
-    whatsapp_no: "9906988110",
-    email: "majrachit79@gmail.com",
     order: 27,
   },
   {
@@ -612,8 +588,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Priti",
     spouse_birthday: "19 Jul",
     anniversary: "26 Oct",
-    whatsapp_no: "8547868361",
-    email: "rahulinamdar1974@yahoo.co.in",
     order: 29,
   },
   {
@@ -639,8 +613,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Shivani Upadhyay",
     spouse_birthday: "20 Jun",
     anniversary: "25 Jan",
-    whatsapp_no: "9589123126",
-    email: "gaurav_signals@yahoo.co.in",
     order: 31,
   },
   {
@@ -656,8 +628,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Payal Chadha",
     spouse_birthday: "10 Feb",
     anniversary: "29 Nov",
-    whatsapp_no: "8588816558",
-    email: "chadha610@yahoo.co.in",
     order: 32,
   },
   {
@@ -673,8 +643,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Renu Rathore",
     spouse_birthday: "12 Oct",
     anniversary: "18 Feb",
-    whatsapp_no: "9461297297",
-    email: "jsrathore73162@gmail.com",
     order: 33,
   },
 
@@ -712,8 +680,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Rupali",
     spouse_birthday: "01 Nov",
     anniversary: "19 Dec",
-    whatsapp_no: "8698213312",
-    email: "gnranand312@gmail.com",
     order: 36,
   },
   {
@@ -729,8 +695,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Pratibha",
     spouse_birthday: "14 Mar",
     anniversary: "26 Nov",
-    whatsapp_no: "8986609016",
-    email: "abhineet113@gmail.com",
     order: 37,
   },
   {
@@ -768,8 +732,6 @@ const _rawPersonnel: Personnel[] = [
     spouse_name: "Mrs Reetika Shankla",
     spouse_birthday: "08 Feb",
     anniversary: "28 Oct",
-    whatsapp_no: "7006645501",
-    email: "krs.shankla@gmail.com",
     order: 40,
   },
   // ══════════════════════════════════════════════════════════════════════════

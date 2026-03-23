@@ -105,8 +105,7 @@ export interface Personnel {
   spouse_name?: string;
   spouse_birthday?: string;
   anniversary?: string;
-  whatsapp_no?: string;
-  email?: string;
+  // whatsapp_no and email removed for privacy
 }
 
 // --- Alumni types ---

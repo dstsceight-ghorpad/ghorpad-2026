@@ -18,8 +18,6 @@ import {
   Cake,
   Heart,
   CalendarDays,
-  Phone,
-  Mail,
 } from "lucide-react";
 import AnimatedLogo from "./AnimatedLogo";
 import TipTapRenderer from "./TipTapRenderer";
@@ -227,9 +225,7 @@ function MagazinePersonnelDetail({
     person.birthday ||
     person.spouse_name ||
     person.spouse_birthday ||
-    person.anniversary ||
-    person.whatsapp_no ||
-    person.email;
+    person.anniversary;
 
   return (
     <motion.div
@@ -305,22 +301,7 @@ function MagazinePersonnelDetail({
                     value={person.anniversary}
                   />
                 )}
-                {person.whatsapp_no && (
-                  <DetailRow
-                    icon={Phone}
-                    label="WHATSAPP"
-                    value={person.whatsapp_no}
-                    href={`https://wa.me/${person.whatsapp_no.replace(/[^0-9]/g, "")}`}
-                  />
-                )}
-                {person.email && (
-                  <DetailRow
-                    icon={Mail}
-                    label="EMAIL"
-                    value={person.email}
-                    href={`mailto:${person.email}`}
-                  />
-                )}
+                {/* Contact info removed for privacy */}
               </div>
             )}
 
