@@ -10,12 +10,14 @@ export function getPersonnelPhotoUrl(personnelId: string): string {
 
 // --- Service derivation from rank ---
 /** Derive the parent service from an officer's rank */
-function deriveService(rank: string): "Indian Army" | "Indian Navy" | "Indian Air Force" {
+function deriveService(rank: string): "Indian Army" | "Indian Navy" | "Indian Air Force" | "Indian Coast Guard" {
   const r = rank.toLowerCase().trim();
+  // Coast Guard ranks
+  if (r.startsWith("comdt") || r.startsWith("dy comdt")) return "Indian Coast Guard";
   // Navy ranks
-  if (["cdr", "capt(in)", "lt cdr", "comdt (jg)"].some((nr) => r.startsWith(nr.toLowerCase()))) return "Indian Navy";
+  if (["cdr", "capt(in)", "lt cdr"].some((nr) => r.startsWith(nr.toLowerCase()))) return "Indian Navy";
   // Air Force ranks
-  if (["wg cdr", "sqn ldr", "gp capt", "flt lt", "air", "gp capt(ts)"].some((ar) => r.startsWith(ar.toLowerCase()))) return "Indian Air Force";
+  if (["wg cdr", "sqn ldr", "gp capt", "flt lt", "air"].some((ar) => r.startsWith(ar.toLowerCase()))) return "Indian Air Force";
   // Everything else is Army (Major, Lt Col, Col, Brigadier, etc.)
   return "Indian Army";
 }

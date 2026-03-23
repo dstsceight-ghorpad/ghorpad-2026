@@ -7,6 +7,7 @@ import {
   Pencil,
   X,
   Upload,
+  Trash2,
   Save,
   Cake,
   Heart,
@@ -83,6 +84,20 @@ function EditModal({
       // silently fail
     }
     setUploading(false);
+  };
+
+  const handleDeletePhoto = async () => {
+    if (!confirm("Delete this profile photo? This cannot be undone.")) return;
+    try {
+      const supabase = (await import("@/lib/supabase")).createBrowserSupabaseClient();
+      await supabase.storage
+        .from("personnel-photos")
+        .remove([`${person.id}.jpg`]);
+      setAvatarPreview(null);
+      setAvatarBase64(null);
+    } catch {
+      alert("Failed to delete photo");
+    }
   };
 
   const handleSave = () => {
@@ -171,6 +186,15 @@ function EditModal({
                 <Upload size={14} />
                 {uploading ? "PROCESSING..." : "UPLOAD PHOTO"}
               </button>
+              {avatarPreview && (
+                <button
+                  onClick={handleDeletePhoto}
+                  className="flex items-center gap-2 font-mono text-xs px-4 py-2 border border-red-500/50 text-red-400 rounded hover:bg-red-500/10 transition-all mt-1.5"
+                >
+                  <Trash2 size={14} />
+                  DELETE PHOTO
+                </button>
+              )}
               <p className="font-mono text-[10px] text-muted mt-1">
                 JPG/PNG, max 2MB. Will be resized.
               </p>
@@ -212,6 +236,7 @@ function EditModal({
                 <option value="Indian Army">Indian Army</option>
                 <option value="Indian Navy">Indian Navy</option>
                 <option value="Indian Air Force">Indian Air Force</option>
+                <option value="Indian Coast Guard">Indian Coast Guard</option>
               </select>
             </div>
           </div>
