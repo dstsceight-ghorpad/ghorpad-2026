@@ -1,16 +1,11 @@
 import type { Article, Profile, Personnel, TocEntry, Division, Alumni, CampusLocation, GalleryItem } from "@/types";
 
 // --- Personnel Photo URL Helper ---
-// Supabase image transform: append ?width=W&height=H to get resized version
-// This dramatically reduces egress for thumbnail views
-export function getPersonnelPhotoUrl(personnelId: string, width?: number): string {
+// Note: Supabase Free Plan does NOT support image transforms (returns 503).
+// Serve raw URLs and rely on pre-compressed uploads + browser caching.
+export function getPersonnelPhotoUrl(personnelId: string): string {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const base = `${supabaseUrl}/storage/v1/object/public/personnel-photos/${personnelId}.jpg`;
-  // Only apply transform if a width is specified (saves egress)
-  if (width) {
-    return `${base}?width=${width}&resize=contain&quality=75`;
-  }
-  return base;
+  return `${supabaseUrl}/storage/v1/object/public/personnel-photos/${personnelId}.jpg`;
 }
 
 // --- Student Officer Generator ---
@@ -139,7 +134,7 @@ function buildSOExt(division: Division, prefix: string, data: SOProfile[]): Pers
     designation: "Student Officer",
     personnel_role: "student_officer" as const,
     division,
-    avatar_url: getPersonnelPhotoUrl(id, 400),
+    avatar_url: getPersonnelPhotoUrl(id),
     unit_or_regiment: d.unit,
     order: i + 1,
     ...(d.bio && { bio: d.bio }),
@@ -968,7 +963,7 @@ const noPhotoIds = new Set([
 // Auto-fill avatar_url for all personnel from Supabase storage (skip removed photos)
 export const samplePersonnel: Personnel[] = _rawPersonnel.map((p) => ({
   ...p,
-  avatar_url: noPhotoIds.has(p.id) ? null : (p.avatar_url || getPersonnelPhotoUrl(p.id, 400)),
+  avatar_url: noPhotoIds.has(p.id) ? null : (p.avatar_url || getPersonnelPhotoUrl(p.id)),
 }));
 
 // --- Table of Contents Data ---
