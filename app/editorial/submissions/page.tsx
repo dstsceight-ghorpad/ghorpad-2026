@@ -185,9 +185,13 @@ export default function SubmissionsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { alert("Not authenticated"); return; }
 
-      // Mark submission as approved
+      // Mark submission as approved — use direct DB update to skip the API's
+      // auto-create-draft behavior (we'll create the published article ourselves below)
       if (sub.status === "pending") {
-        await updateSubmissionStatus(sub.id, "approved");
+        await supabase
+          .from("submissions")
+          .update({ status: "approved", reviewed_at: new Date().toISOString(), reviewed_by: user.email || user.id })
+          .eq("id", sub.id);
       }
 
       // ── MEME submissions go to gallery_items, not articles ──
