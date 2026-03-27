@@ -122,7 +122,7 @@ export default function SubmitPage() {
     setSubmitting(true);
     setSubmitError("");
 
-    const id = `sub-${Date.now()}`;
+    const id = `sub-${crypto.randomUUID()}`;
     const type: SubmissionType = selectedCategory === "Memes" ? "meme" : detectType(attachmentName);
     const category = selectedCategory || detectCategory(type);
 

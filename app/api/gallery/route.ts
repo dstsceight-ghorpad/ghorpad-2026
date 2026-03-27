@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
+import { verifyCsrf } from "@/lib/rate-limit";
 
 /** Helper: validate auth + editor role. Returns { user, supabase } or a Response. */
 async function authenticateEditor(request: NextRequest) {
@@ -44,6 +45,9 @@ async function authenticateEditor(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    if (!verifyCsrf(request.headers)) {
+      return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+    }
     const auth = await authenticateEditor(request);
     if ("error" in auth) return auth.error;
     const { user, supabase } = auth;
@@ -140,6 +144,9 @@ export async function POST(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    if (!verifyCsrf(request.headers)) {
+      return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+    }
     const auth = await authenticateEditor(request);
     if ("error" in auth) return auth.error;
     const { supabase } = auth;

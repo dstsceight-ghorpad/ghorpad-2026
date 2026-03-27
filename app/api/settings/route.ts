@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceRoleClient } from "@/lib/supabase";
+import { verifyCsrf } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key");
@@ -23,6 +24,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRF check
+    if (!verifyCsrf(request.headers)) {
+      return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+    }
+
     // Validate auth via Supabase session
     const { createServerClient } = await import("@supabase/ssr");
     const supabaseAuth = createServerClient(

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit, getClientIp, verifyCsrf } from "@/lib/rate-limit";
+
+/** Strip HTML tags and dangerous characters to prevent XSS */
+function sanitize(input: string): string {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;")
+    .trim();
+}
 
 /**
  * GET /api/comments?article_id=xxx — Fetch approved comments for an article
@@ -30,6 +41,11 @@ export async function GET(request: NextRequest) {
  * POST /api/comments — Submit a new comment
  */
 export async function POST(request: NextRequest) {
+  // CSRF check
+  if (!verifyCsrf(request.headers)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
+
   // Rate limit: 5 comments per minute per IP
   const ip = getClientIp(request.headers);
   const rl = rateLimit(`comments:${ip}`, 5);
@@ -51,13 +67,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Comment too long (max 500 characters)" }, { status: 400 });
   }
 
+  // Per-author rate limit: 3 comments per minute per author name
+  const authorRl = rateLimit(`comments-author:${author_name.trim().toLowerCase()}`, 3);
+  if (authorRl.limited) {
+    return NextResponse.json(
+      { error: "Too many comments from this name. Please wait." },
+      { status: 429 }
+    );
+  }
+
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
     .from("comments")
     .insert({
       article_id,
-      author_name: author_name.trim(),
-      content: content.trim(),
+      author_name: sanitize(author_name),
+      content: sanitize(content),
     })
     .select("id, author_name, content, created_at")
     .single();

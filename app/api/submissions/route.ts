@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit, getClientIp, verifyCsrf } from "@/lib/rate-limit";
+import { SUBMISSION_TYPES } from "@/types";
 
 /**
  * POST /api/submissions — Public. Creates a new submission.
  */
 export async function POST(request: NextRequest) {
   try {
+    // CSRF check
+    if (!verifyCsrf(request.headers)) {
+      return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+    }
+
     // Rate limit: 5 submissions per minute per IP
     const ip = getClientIp(request.headers);
     const rl = rateLimit(`submissions:${ip}`, 5);
@@ -41,8 +47,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validTypes = ["article", "photo", "poem", "sketch", "meme"];
-    if (!validTypes.includes(type)) {
+    if (!SUBMISSION_TYPES.includes(type)) {
       return NextResponse.json(
         { error: "Invalid submission type" },
         { status: 400 }

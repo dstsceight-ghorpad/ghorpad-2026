@@ -50,6 +50,31 @@ export function rateLimit(
 }
 
 /**
+ * Verify request origin to prevent CSRF attacks.
+ * Checks that the Origin or Referer header matches allowed domains.
+ * Returns true if the request is safe, false if it should be rejected.
+ */
+export function verifyCsrf(headers: Headers): boolean {
+  const origin = headers.get("origin");
+  const referer = headers.get("referer");
+
+  // Allow requests without Origin header (same-origin, non-browser clients)
+  if (!origin && !referer) return true;
+
+  const allowed = [
+    "https://ghorpad-2026.vercel.app",
+    "https://ghorpad.online",
+    "http://localhost:3000",
+    "http://localhost:3001",
+  ];
+
+  if (origin && allowed.some((a) => origin.startsWith(a))) return true;
+  if (referer && allowed.some((a) => referer.startsWith(a))) return true;
+
+  return false;
+}
+
+/**
  * Extract client IP from request headers.
  */
 export function getClientIp(headers: Headers): string {

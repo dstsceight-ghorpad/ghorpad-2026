@@ -1,6 +1,8 @@
 export type Role = "super_editor" | "editor" | "contributor";
+export const ROLES = ["super_editor", "editor", "contributor"] as const;
 
 export type ArticleStatus = "draft" | "review" | "published";
+export const ARTICLE_STATUSES = ["draft", "review", "published"] as const;
 
 export type MediaType = "image" | "video";
 
@@ -230,7 +232,10 @@ export interface GalleryItem {
 // --- Submission Portal types ---
 
 export type SubmissionType = "article" | "photo" | "poem" | "sketch" | "meme";
+export const SUBMISSION_TYPES = ["article", "photo", "poem", "sketch", "meme"] as const;
+
 export type SubmissionStatus = "pending" | "approved" | "rejected";
+export const SUBMISSION_STATUSES = ["pending", "approved", "rejected"] as const;
 export type ContributorType = "officer" | "family";
 
 export interface Submission {
