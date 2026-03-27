@@ -21,6 +21,7 @@
     "@tiptap/starter-kit": "^3.20.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "@vercel/analytics": "^2.0.1",
     "framer-motion": "^12.36.0",
     "lucide-react": "^0.577.0",
     "mammoth": "^1.12.0",

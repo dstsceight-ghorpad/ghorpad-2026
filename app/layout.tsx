@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import ThemeProvider from "@/components/ThemeProvider";
 import PageTransition from "@/components/PageTransition";
 import SecurityShield from "@/components/SecurityShield";
@@ -57,6 +58,7 @@ export default function RootLayout({
         <ThemeProvider>
           <PageTransition>{children}</PageTransition>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
