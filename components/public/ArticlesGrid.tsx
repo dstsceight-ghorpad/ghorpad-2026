@@ -143,7 +143,7 @@ function ArticleCard({ article }: { article: Article }) {
           className={`font-serif text-lg font-semibold mb-2 transition-colors leading-snug ${catColor.textOnDark} opacity-100 group-hover:opacity-100`}
           style={{ color: undefined }}
         >
-          <span className="text-foreground group-hover:text-[var(--cat-hex)] transition-colors duration-300">
+          <span className={`text-foreground group-hover:text-[var(--cat-hex)] transition-colors duration-300 ${/[\u0900-\u097F]/.test(article.title) ? "font-[var(--font-devanagari)]" : ""}`}>
             {article.title}
           </span>
         </h3>

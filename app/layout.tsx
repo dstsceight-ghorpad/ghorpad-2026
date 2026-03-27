@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Inter, JetBrains_Mono, Noto_Serif_Devanagari } from "next/font/google";
 import ThemeProvider from "@/components/ThemeProvider";
 import PageTransition from "@/components/PageTransition";
 import SecurityShield from "@/components/SecurityShield";
@@ -21,6 +21,13 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   subsets: ["latin"],
   display: "swap",
+});
+
+const notoDevanagari = Noto_Serif_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  display: "swap",
+  weight: ["400", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -51,7 +58,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} ${jetbrains.variable} antialiased bg-background text-foreground`}
+        className={`${playfair.variable} ${inter.variable} ${jetbrains.variable} ${notoDevanagari.variable} antialiased bg-background text-foreground`}
       >
         <SecurityShield />
         <ThemeProvider>

@@ -185,6 +185,38 @@ body {
   margin: 2rem 0;
 }
 
+/* Hindi poem styling — Devanagari script with elegant typography */
+.hindi-poem .prose-editorial p {
+  font-family: var(--font-devanagari), "Noto Serif Devanagari", serif;
+  font-size: 1.35rem;
+  line-height: 2.2;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.02em;
+}
+
+.hindi-poem .prose-editorial {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.hindi-poem .prose-editorial blockquote {
+  font-family: var(--font-devanagari), "Noto Serif Devanagari", serif;
+  font-size: 1.25rem;
+  line-height: 2;
+  text-align: center;
+  border-left: 3px solid var(--gold, #e8c84a);
+  padding: 1rem 1.5rem;
+}
+
+.hindi-poem .prose-editorial h1,
+.hindi-poem .prose-editorial h2,
+.hindi-poem .prose-editorial h3 {
+  font-family: var(--font-devanagari), "Noto Serif Devanagari", serif;
+  text-align: center;
+}
+
 /* TipTap editor styles */
 .tiptap {
   outline: none;

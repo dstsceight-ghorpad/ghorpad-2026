@@ -150,7 +150,7 @@ export default function ArticlePage() {
 
           <motion.h1
             variants={fadeUp}
-            className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight"
+            className={`font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-6 leading-tight ${/[\u0900-\u097F]/.test(article.title) ? "font-[family-name:var(--font-devanagari)]" : ""}`}
           >
             {article.title}
           </motion.h1>
@@ -211,7 +211,14 @@ export default function ArticlePage() {
       <section className="px-4 sm:px-6 pb-20">
         <div className="max-w-4xl mx-auto">
           {/* Article content — rendered from TipTap JSON */}
-          <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
+          {/* Detect Hindi/Devanagari poems and apply special styling */}
+          <div className={
+            article.category === "Poems" && /[\u0900-\u097F]/.test(article.title)
+              ? "hindi-poem"
+              : ""
+          }>
+            <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
+          </div>
 
           {/* Comments section */}
           <ArticleComments articleId={article.id} />
