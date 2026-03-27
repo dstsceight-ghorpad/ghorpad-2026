@@ -6,14 +6,12 @@ import WhoIsWho from "@/components/public/WhoIsWho";
 import ArticlesGrid from "@/components/public/ArticlesGrid";
 import PhotoGallery from "@/components/public/PhotoGallery";
 import MastheadStrip from "@/components/public/MastheadStrip";
-import CampusMap from "@/components/public/CampusMap";
 import Footer from "@/components/public/Footer";
 import MagazineTrigger from "@/components/public/MagazineTrigger";
 import SplashGate from "@/components/public/SplashGate";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import {
   samplePersonnel,
-  sampleCampusLocations,
   sampleGalleryItems,
   fixedTocEntries,
 } from "@/lib/sample-data";
@@ -104,14 +102,13 @@ export default async function HomePage() {
         <PhotoGallery items={galleryItems} />
 
         <MastheadStrip />
-        <CampusMap locations={sampleCampusLocations} />
         <Footer />
         <MagazineTrigger
           articles={articles}
           personnel={samplePersonnel}
           tocEntries={tocEntries}
           galleryItems={allGalleryItems}
-          campusLocations={sampleCampusLocations}
+          campusLocations={[]}
         />
       </main>
     </>
