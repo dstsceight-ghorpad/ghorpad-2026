@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, X, Sun, Moon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/components/ThemeProvider";
 import AnimatedLogo from "./AnimatedLogo";
@@ -20,13 +21,44 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{ title: string; slug: string; category: string }[]>([]);
+  const searchRef = useRef<HTMLInputElement>(null);
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Search: debounced query against Supabase
+  useEffect(() => {
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const { createBrowserSupabaseClient } = await import("@/lib/supabase");
+        const supabase = createBrowserSupabaseClient();
+        const { data } = await supabase
+          .from("articles")
+          .select("title, slug, category")
+          .eq("status", "published")
+          .ilike("title", `%${searchQuery}%`)
+          .limit(5);
+        setSearchResults(data || []);
+      } catch { setSearchResults([]); }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (searchOpen && searchRef.current) searchRef.current.focus();
+  }, [searchOpen]);
 
   return (
     <nav
@@ -66,6 +98,15 @@ export default function Navbar() {
 
         {/* Right section */}
         <div className="flex items-center gap-4">
+          {/* Search */}
+          <button
+            onClick={() => { setSearchOpen(!searchOpen); setSearchQuery(""); setSearchResults([]); }}
+            className="p-2 rounded-lg border border-border-subtle hover:border-gold/50 transition-all"
+            aria-label="Search articles"
+          >
+            <Search size={16} className="text-muted hover:text-gold transition-colors" />
+          </button>
+
           {/* Theme toggle */}
           <button
             onClick={toggleTheme}
@@ -142,6 +183,42 @@ export default function Navbar() {
             >
               EDITORIAL LOGIN
             </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Search overlay */}
+      {searchOpen && (
+        <div className="absolute top-full left-0 right-0 glass border-b border-gold/20">
+          <div className="max-w-2xl mx-auto px-4 py-4">
+            <input
+              ref={searchRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search articles..."
+              className="w-full bg-surface border border-border-subtle rounded-lg px-4 py-2.5 text-sm font-mono text-foreground placeholder:text-muted focus:border-gold/50 focus:outline-none"
+              onKeyDown={(e) => {
+                if (e.key === "Escape") { setSearchOpen(false); }
+              }}
+            />
+            {searchResults.length > 0 && (
+              <div className="mt-2 bg-surface border border-border-subtle rounded-lg divide-y divide-border-subtle">
+                {searchResults.map((r) => (
+                  <button
+                    key={r.slug}
+                    onClick={() => { router.push(`/articles/${r.slug}`); setSearchOpen(false); }}
+                    className="w-full px-4 py-3 text-left hover:bg-surface-light transition-colors flex items-center justify-between"
+                  >
+                    <span className="text-sm truncate">{r.title}</span>
+                    <span className="font-mono text-[9px] text-gold shrink-0 ml-2">{r.category}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {searchQuery.length >= 2 && searchResults.length === 0 && (
+              <p className="text-center text-muted text-xs mt-3 font-mono">No articles found</p>
+            )}
           </div>
         </div>
       )}
