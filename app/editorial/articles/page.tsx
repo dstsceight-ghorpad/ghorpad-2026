@@ -26,6 +26,8 @@ export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   useEffect(() => {
     async function fetchArticles() {
@@ -125,10 +127,54 @@ export default function ArticlesPage() {
       {/* Articles table */}
       {!loading && (
         <div className="bg-surface border border-border-subtle rounded-lg overflow-hidden">
+          {/* Bulk action bar */}
+          {selected.size > 0 && (
+            <div className="flex items-center gap-3 mb-4 p-3 bg-red-500/5 border border-red-500/20 rounded-lg">
+              <span className="font-mono text-xs text-foreground">{selected.size} selected</span>
+              <button
+                onClick={async () => {
+                  if (!confirm(`Delete ${selected.size} article(s)? This cannot be undone.`)) return;
+                  setBulkDeleting(true);
+                  const supabase = createBrowserSupabaseClient();
+                  const ids = Array.from(selected);
+                  await supabase.from("articles").delete().in("id", ids);
+                  setArticles((prev) => prev.filter((a) => !selected.has(a.id)));
+                  setSelected(new Set());
+                  setBulkDeleting(false);
+                }}
+                disabled={bulkDeleting}
+                className="font-mono text-[10px] text-red-400 border border-red-500/30 px-3 py-1.5 rounded hover:bg-red-500/10 transition-colors flex items-center gap-1"
+              >
+                <Trash2 size={12} />
+                {bulkDeleting ? "DELETING..." : "DELETE SELECTED"}
+              </button>
+              <button
+                onClick={() => setSelected(new Set())}
+                className="font-mono text-[10px] text-muted hover:text-foreground transition-colors"
+              >
+                CLEAR
+              </button>
+            </div>
+          )}
+
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-border-subtle">
+                  <th className="px-4 py-3 w-8">
+                    <input
+                      type="checkbox"
+                      checked={filtered.length > 0 && filtered.every((a) => selected.has(a.id))}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelected(new Set(filtered.map((a) => a.id)));
+                        } else {
+                          setSelected(new Set());
+                        }
+                      }}
+                      className="accent-gold"
+                    />
+                  </th>
                   <th className="font-mono text-[10px] text-muted tracking-widest px-4 py-3">
                     TITLE
                   </th>
@@ -155,6 +201,19 @@ export default function ArticlesPage() {
                     key={article.id}
                     className="hover:bg-surface-light/50 transition-colors"
                   >
+                    <td className="px-4 py-3 w-8">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(article.id)}
+                        onChange={(e) => {
+                          const next = new Set(selected);
+                          if (e.target.checked) next.add(article.id);
+                          else next.delete(article.id);
+                          setSelected(next);
+                        }}
+                        className="accent-gold"
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <span className="text-sm font-medium truncate block max-w-[280px]">
                         {article.title}
