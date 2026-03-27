@@ -932,10 +932,12 @@ const _rawPersonnel: Personnel[] = [
   ]),
 ];
 
-// Personnel IDs whose photos have been removed — ALL staff officers
+// Personnel IDs whose photos have been removed
 const noPhotoIds = new Set([
-  "pers-1", "pers-2",  // Commandant, Dy Commandant
-  ...Array.from({ length: 40 }, (_, i) => `pers-so-${i + 1}`),  // All staff officers
+  "pers-2",  // Dy Commandant (no photo)
+  // Staff officers — keep so-1 (RP Singh), so-4 (Manish Dahiya), so-6 (Ramesh Prakash)
+  ...Array.from({ length: 40 }, (_, i) => `pers-so-${i + 1}`)
+    .filter((id) => !["pers-so-1", "pers-so-4", "pers-so-6"].includes(id)),
 ]);
 
 // Auto-fill avatar_url for all personnel from Supabase storage (skip removed photos)
