@@ -17,7 +17,7 @@ import {
 } from "@/lib/sample-data";
 import type { Article, TocEntry, GalleryItem } from "@/types";
 
-export const revalidate = 60; // revalidate every 60 seconds
+export const revalidate = 300; // revalidate every 5 minutes (reduces Supabase egress)
 
 /**
  * Build Table of Contents entries from published articles.

@@ -61,6 +61,14 @@ export default function SubmitPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size before uploading (max 10 MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setUploadError(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 10 MB.`);
+      e.target.value = "";
+      return;
+    }
+
     setUploading(true);
     setUploadError("");
 

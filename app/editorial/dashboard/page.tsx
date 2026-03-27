@@ -56,43 +56,24 @@ export default function DashboardPage() {
     async function fetchStats() {
       const supabase = createBrowserSupabaseClient();
 
-      const [articlesRes, publishedRes, draftsRes, mediaRes, reviewRes, subsRes, pendingSubsRes] =
-        await Promise.all([
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true }),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "published"),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "draft"),
-          supabase
-            .from("media")
-            .select("id", { count: "exact", head: true }),
-          supabase
-            .from("articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "review"),
-          supabase
-            .from("submissions")
-            .select("id", { count: "exact", head: true }),
-          supabase
-            .from("submissions")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "pending"),
-        ]);
+      // Consolidated: 3 queries instead of 7
+      const [articlesRes, subsRes, mediaRes] = await Promise.all([
+        supabase.from("articles").select("status"),
+        supabase.from("submissions").select("status"),
+        supabase.from("media").select("id", { count: "exact", head: true }),
+      ]);
+
+      const articles = articlesRes.data || [];
+      const subs = subsRes.data || [];
 
       setStats({
-        totalArticles: articlesRes.count || 0,
-        published: publishedRes.count || 0,
-        drafts: draftsRes.count || 0,
+        totalArticles: articles.length,
+        published: articles.filter((a) => a.status === "published").length,
+        drafts: articles.filter((a) => a.status === "draft").length,
         mediaFiles: mediaRes.count || 0,
-        inReview: reviewRes.count || 0,
-        submissions: subsRes.count || 0,
-        pendingSubmissions: pendingSubsRes.count || 0,
+        inReview: articles.filter((a) => a.status === "review").length,
+        submissions: subs.length,
+        pendingSubmissions: subs.filter((s) => s.status === "pending").length,
       });
     }
 

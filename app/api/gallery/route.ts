@@ -1,38 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServiceRoleClient } from "@/lib/supabase";
 import { verifyCsrf } from "@/lib/rate-limit";
-
-/** Helper: validate auth + editor role. Returns { user, supabase } or a Response. */
-async function authenticateEditor(request: NextRequest) {
-  const { createServerClient } = await import("@supabase/ssr");
-  const supabaseAuth = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll(); },
-        setAll() {},
-      },
-    }
-  );
-  const { data: { user } } = await supabaseAuth.auth.getUser();
-  if (!user) {
-    return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
-  }
-
-  const supabase = createServiceRoleClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (!profile || (profile.role !== "super_editor" && profile.role !== "editor")) {
-    return { error: NextResponse.json({ error: "Insufficient permissions" }, { status: 403 }) };
-  }
-
-  return { user, supabase };
-}
+import { authenticateEditorRequest } from "@/lib/auth";
 
 /**
  * POST /api/gallery — Upload a gallery image (server-side with service role).
@@ -48,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!verifyCsrf(request.headers)) {
       return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
     }
-    const auth = await authenticateEditor(request);
+    const auth = await authenticateEditorRequest(request);
     if ("error" in auth) return auth.error;
     const { user, supabase } = auth;
 
@@ -147,7 +115,7 @@ export async function DELETE(request: NextRequest) {
     if (!verifyCsrf(request.headers)) {
       return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
     }
-    const auth = await authenticateEditor(request);
+    const auth = await authenticateEditorRequest(request);
     if ("error" in auth) return auth.error;
     const { supabase } = auth;
 

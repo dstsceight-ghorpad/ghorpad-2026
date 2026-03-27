@@ -56,6 +56,23 @@ export async function POST(request: NextRequest) {
 
     const supabase = createServiceRoleClient();
 
+    // Duplicate check: same title + author within last 5 minutes
+    const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { data: existing } = await supabase
+      .from("submissions")
+      .select("id")
+      .eq("title", title)
+      .eq("author_name", author_name)
+      .gte("created_at", fiveMinAgo)
+      .limit(1);
+
+    if (existing && existing.length > 0) {
+      return NextResponse.json(
+        { error: "A similar submission was already received. Please wait before resubmitting." },
+        { status: 409 }
+      );
+    }
+
     const { error } = await supabase.from("submissions").insert({
       id,
       type,

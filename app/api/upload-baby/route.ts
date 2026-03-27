@@ -123,7 +123,8 @@ export async function POST(request: NextRequest) {
       { success: true, id: data.id, url: publicUrl },
       { status: 201 }
     );
-  } catch {
+  } catch (err) {
+    console.error("Upload baby route error:", err);
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }

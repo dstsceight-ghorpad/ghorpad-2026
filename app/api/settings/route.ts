@@ -16,7 +16,8 @@ export async function GET(request: NextRequest) {
     .single();
 
   if (error) {
-    return NextResponse.json({ value: "false" });
+    // Key not found in settings table — return default
+    return NextResponse.json({ value: "false", _default: true });
   }
 
   return NextResponse.json({ value: data.value });
