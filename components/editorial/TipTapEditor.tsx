@@ -28,6 +28,49 @@ interface TipTapEditorProps {
   onChange: (content: Record<string, unknown>) => void;
 }
 
+/** Upload an image file to Supabase storage and insert as a proper URL (not base64) */
+async function uploadAndInsertImage(
+  file: File,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  view: any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  event?: any
+) {
+  try {
+    const { createBrowserSupabaseClient } = await import("@/lib/supabase");
+    const supabase = createBrowserSupabaseClient();
+    const ext = file.name.split(".").pop() || "jpg";
+    const filename = `article-img-${Date.now()}.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("media")
+      .upload(filename, file, { cacheControl: "86400", upsert: true });
+
+    if (error) {
+      console.error("Image upload failed:", error);
+      alert("Image upload failed: " + error.message);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(filename);
+    const url = urlData.publicUrl;
+
+    // Insert at drop position or at cursor
+    const pos = event
+      ? view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos
+      : view.state.selection.anchor;
+
+    if (pos !== undefined) {
+      const node = view.state.schema.nodes.image.create({ src: url });
+      const tr = view.state.tr.insert(pos, node);
+      view.dispatch(tr);
+    }
+  } catch (err) {
+    console.error("Image upload error:", err);
+    alert("Failed to upload image");
+  }
+}
+
 export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -52,6 +95,27 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
       attributes: {
         class: "prose-editorial min-h-[400px] p-4 focus:outline-none",
         spellcheck: "true",
+      },
+      handleDrop: (view, event, _slice, moved) => {
+        if (moved || !event.dataTransfer?.files?.length) return false;
+        const file = event.dataTransfer.files[0];
+        if (!file.type.startsWith("image/")) return false;
+        event.preventDefault();
+        uploadAndInsertImage(file, view, event);
+        return true;
+      },
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+        for (const item of Array.from(items)) {
+          if (item.type.startsWith("image/")) {
+            event.preventDefault();
+            const file = item.getAsFile();
+            if (file) uploadAndInsertImage(file, view);
+            return true;
+          }
+        }
+        return false;
       },
     },
   });
@@ -113,10 +177,17 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
   );
 
   const addImage = () => {
-    const url = window.prompt("Enter image URL:");
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
+    // Create a hidden file input to allow file upload
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        await uploadAndInsertImage(file, editor.view);
+      }
+    };
+    input.click();
   };
 
   const addLink = () => {
