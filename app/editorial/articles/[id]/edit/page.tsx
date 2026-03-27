@@ -151,6 +151,15 @@ export default function EditArticlePage() {
     [title, slug, excerpt, content, coverImageUrl, category, tags, isFeatured, contributorName, status, profile, articleId, router]
   );
 
+  // Auto-save draft every 30 seconds (only for draft/review articles)
+  useEffect(() => {
+    if (status === "published" || !title) return;
+    const interval = setInterval(() => {
+      handleSave();
+    }, 30_000);
+    return () => clearInterval(interval);
+  }, [handleSave, status, title]);
+
   const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
