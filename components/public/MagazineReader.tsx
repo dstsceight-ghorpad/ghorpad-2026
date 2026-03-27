@@ -618,17 +618,7 @@ function ArticlePage({ article }: { article: Article }) {
 }
 
 function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) {
-  const aspectClass = (ratio: string) => {
-    switch (ratio) {
-      case "portrait":
-        return "aspect-[3/4]";
-      case "landscape":
-        return "aspect-video";
-      case "square":
-      default:
-        return "aspect-square";
-    }
-  };
+  const [selected, setSelected] = useState<GalleryItem | null>(null);
 
   return (
     <div>
@@ -644,10 +634,11 @@ function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) 
         {items.map((item) => (
           <div
             key={item.id}
-            className="rounded-lg overflow-hidden border border-border-subtle bg-surface"
+            className="rounded-lg overflow-hidden border border-border-subtle bg-surface cursor-pointer hover:border-gold/40 transition-all"
+            onClick={() => setSelected(item)}
           >
             <div
-              className={`relative bg-surface-light flex items-center justify-center ${aspectClass(item.aspect_ratio)}`}
+              className="relative bg-surface-light flex items-center justify-center aspect-[3/4]"
             >
               {item.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -683,6 +674,51 @@ function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) 
           </div>
         ))}
       </div>
+
+      {/* Lightbox overlay */}
+      {selected && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setSelected(null)}
+        >
+          <button
+            onClick={() => setSelected(null)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-surface/80 border border-border-subtle text-muted hover:text-foreground z-10"
+          >
+            <X size={20} />
+          </button>
+          <div
+            className="w-full max-w-md flex flex-col items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {selected.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={selected.url}
+                alt={selected.title}
+                className="w-full max-h-[65vh] object-contain rounded-xl border border-border-subtle"
+              />
+            ) : (
+              <div className="w-full aspect-[3/4] bg-surface rounded-xl flex items-center justify-center">
+                <Camera size={40} className="text-muted/30" />
+              </div>
+            )}
+            <div className="mt-4 text-center w-full">
+              <h4 className="font-serif text-xl font-bold text-foreground">
+                {selected.title}
+              </h4>
+              {selected.description && (
+                <p className="text-sm text-muted mt-2 leading-relaxed">
+                  {selected.description}
+                </p>
+              )}
+              <span className="inline-block font-mono text-[10px] text-gold mt-3">
+                {selected.category.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
