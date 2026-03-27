@@ -447,9 +447,20 @@ function PersonnelFeaturePage({ person }: { person: Personnel }) {
             {person.designation}
           </p>
           {person.bio && (
-            <p className="text-foreground/70 text-base leading-relaxed border-l-2 border-gold/30 pl-5">
-              {person.bio}
-            </p>
+            <div className="text-foreground/70 text-base leading-relaxed border-l-2 border-gold/30 pl-5 space-y-3">
+              {person.bio.split("\n\n").map((para, i) => {
+                // Support __text__ for bold-italic
+                const boldItalicMatch = para.match(/^__(.+)__$/);
+                if (boldItalicMatch) {
+                  return (
+                    <p key={i} className="font-bold italic text-gold/90">
+                      {boldItalicMatch[1]}
+                    </p>
+                  );
+                }
+                return <p key={i}>{para}</p>;
+              })}
+            </div>
           )}
         </div>
       </div>

@@ -202,7 +202,7 @@ const _rawPersonnel: Personnel[] = [
     designation: "Commandant, MILIT",
     personnel_role: "commandant",
     avatar_url: "/personnel/commandant.jpeg",
-    bio: "Rear Admiral V Ganapathy, NM assumed the appointment of Commandant, MILIT. A distinguished officer of the Indian Navy, he has served in various operational and staff appointments across the fleet, bringing a wealth of experience in naval strategy and technology management to the institute.",
+    bio: "It is a privilege to present this edition of GHORPAD 2026, a reflection of the dynamic spirit and treasured experiences of our officers and their families during their tenure at MILIT.\n\nThis magazine encapsulates more than memories — it carries the legacy of learning, leadership, and lasting friendships. Over the past year, each of you has added to the vibrant fabric of this institution through your dedication, excellence, and sense of community. MILIT has always believed in nurturing well-rounded warriors of tomorrow, equipped with both technical prowess and emotional intelligence. I am confident that the experiences you\u2019ve had here will remain with you long after the course concludes.\n\nMy warmest wishes go out to all participants and their families as you embark on new journeys ahead. May success, resilience, and wisdom continue to guide your path. I congratulate the editorial team for curating a publication that resonates deeply with the soul of this institution.\n\nJai Hind\u2026\n\n__\"For those who serve, and those who support them \u2014 our mission continues.\"__",
     service: "Indian Navy",
     order: 1,
   },

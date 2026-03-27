@@ -214,9 +214,15 @@ export default function PersonnelDetailOverlay({
                 <span className="font-mono text-xs tracking-[0.2em] text-gold mb-4 block">
                   // ABOUT
                 </span>
-                <p className="text-muted text-base leading-relaxed">
-                  {person.bio}
-                </p>
+                <div className="text-muted text-base leading-relaxed space-y-3">
+                  {person.bio.split("\n\n").map((para, i) => {
+                    const boldItalicMatch = para.match(/^__(.+)__$/);
+                    if (boldItalicMatch) {
+                      return <p key={i} className="font-bold italic text-gold/90">{boldItalicMatch[1]}</p>;
+                    }
+                    return <p key={i}>{para}</p>;
+                  })}
+                </div>
               </div>
             )}
 
