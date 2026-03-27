@@ -92,3 +92,63 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json(data, { status: 201 });
 }
+
+/**
+ * PATCH /api/comments — Approve/reject a comment (editor only)
+ * Body: { id: string, is_approved: boolean }
+ */
+export async function PATCH(request: NextRequest) {
+  if (!verifyCsrf(request.headers)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
+
+  const { authenticateEditorRequest } = await import("@/lib/auth");
+  const auth = await authenticateEditorRequest(request);
+  if ("error" in auth) return auth.error;
+
+  const { id, is_approved } = await request.json();
+  if (!id || typeof is_approved !== "boolean") {
+    return NextResponse.json({ error: "Missing id or is_approved" }, { status: 400 });
+  }
+
+  const { error } = await auth.supabase
+    .from("comments")
+    .update({ is_approved })
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: "Failed to update comment" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+/**
+ * DELETE /api/comments — Delete a comment (editor only)
+ * Body: { id: string }
+ */
+export async function DELETE(request: NextRequest) {
+  if (!verifyCsrf(request.headers)) {
+    return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
+  }
+
+  const { authenticateEditorRequest } = await import("@/lib/auth");
+  const auth = await authenticateEditorRequest(request);
+  if ("error" in auth) return auth.error;
+
+  const { id } = await request.json();
+  if (!id) {
+    return NextResponse.json({ error: "Missing comment id" }, { status: 400 });
+  }
+
+  const { error } = await auth.supabase
+    .from("comments")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json({ error: "Failed to delete comment" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}

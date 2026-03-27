@@ -16,6 +16,7 @@ import {
   ChevronRight,
   UserCircle,
   Inbox,
+  MessageCircle,
 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { getRoleBadgeColor, getRoleLabel } from "@/lib/auth";
@@ -42,6 +43,7 @@ const sidebarLinks = [
   { label: "Articles", href: "/editorial/articles", icon: FileText },
   { label: "Gallery", href: "/editorial/gallery", icon: Camera },
   { label: "Submissions", href: "/editorial/submissions", icon: Inbox },
+  { label: "Comments", href: "/editorial/comments", icon: MessageCircle },
   { label: "Personnel", href: "/editorial/personnel", icon: Users2 },
   { label: "My Profile", href: "/editorial/profile", icon: UserCircle },
   { label: "Team", href: "/editorial/team", icon: Users, superOnly: true },
