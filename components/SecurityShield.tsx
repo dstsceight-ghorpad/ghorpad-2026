@@ -84,21 +84,8 @@ export default function SecurityShield() {
       }
     };
 
-    // ── DevTools detection via console.log image trick ──
-    let devtoolsCheckInterval: ReturnType<typeof setInterval>;
-
-    const startDevtoolsDetection = () => {
-      const threshold = 160;
-      devtoolsCheckInterval = setInterval(() => {
-        const widthDiff = window.outerWidth - window.innerWidth > threshold;
-        const heightDiff = window.outerHeight - window.innerHeight > threshold;
-        if (widthDiff || heightDiff) {
-          document.body.classList.add("security-blur");
-        } else if (!document.hidden) {
-          document.body.classList.remove("security-blur");
-        }
-      }, 1000);
-    };
+    // DevTools detection removed — unreliable and gives false sense of security.
+    // Server-side validation is the proper protection mechanism.
 
     // ── Disable image interactions globally ──
     const protectImages = () => {
@@ -122,7 +109,6 @@ export default function SecurityShield() {
     document.addEventListener("visibilitychange", handleVisibility);
 
     protectImages();
-    startDevtoolsDetection();
 
     observer.observe(document.body, {
       childList: true,
@@ -137,9 +123,7 @@ export default function SecurityShield() {
       document.removeEventListener("dragstart", blockDrag);
       document.removeEventListener("keydown", blockKeys);
       document.removeEventListener("visibilitychange", handleVisibility);
-      clearInterval(devtoolsCheckInterval);
       observer.disconnect();
-      document.body.classList.remove("security-blur");
     };
   }, []);
 

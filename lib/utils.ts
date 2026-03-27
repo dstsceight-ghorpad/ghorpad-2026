@@ -1,3 +1,4 @@
+/** Convert a title string into a URL-friendly slug (lowercase, hyphens only). */
 export function generateSlug(title: string): string {
   return title
     .toLowerCase()
@@ -5,6 +6,7 @@ export function generateSlug(title: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+/** Estimate article read time in minutes from TipTap JSON content (200 WPM). */
 export function estimateReadTime(content: Record<string, unknown> | null): number {
   if (!content) return 1;
   const text = extractTextFromTipTap(content);
@@ -12,6 +14,7 @@ export function estimateReadTime(content: Record<string, unknown> | null): numbe
   return Math.max(1, Math.ceil(words / 200));
 }
 
+/** Recursively extract plain text from a TipTap JSON node tree. */
 export function extractTextFromTipTap(node: Record<string, unknown>): string {
   let text = "";
   if (node.text && typeof node.text === "string") {
@@ -25,6 +28,7 @@ export function extractTextFromTipTap(node: Record<string, unknown>): string {
   return text;
 }
 
+/** Format an ISO date string as "Month Day, Year" (e.g. "March 27, 2026"). */
 export function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
     year: "numeric",
@@ -33,6 +37,7 @@ export function formatDate(dateString: string): string {
   });
 }
 
+/** Format an ISO date string as "Mon Day, Year" (e.g. "Mar 27, 2026"). */
 export function formatDateShort(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
     month: "short",
@@ -41,6 +46,7 @@ export function formatDateShort(dateString: string): string {
   });
 }
 
+/** Convert byte count to human-readable size string (e.g. "1.5 MB"). */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -49,6 +55,7 @@ export function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
+/** Combine CSS class names, filtering out falsy values. */
 export function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }

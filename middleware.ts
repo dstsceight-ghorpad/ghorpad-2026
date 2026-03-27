@@ -49,5 +49,8 @@ async function handleEditorialAuth(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image).*)"],
+  matcher: [
+    // Only run middleware on editorial routes (not API, static, images, favicon)
+    "/((?!_next/static|_next/image|api|favicon\\.ico|logo\\.png|videos|suggestions\\.html).*)",
+  ],
 };

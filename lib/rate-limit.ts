@@ -3,6 +3,15 @@
  * No external dependencies — uses a Map with auto-cleanup.
  */
 
+/** Configurable rate limits (override via env vars) */
+export const RATE_LIMITS = {
+  SUBMISSIONS_PER_MIN: Number(process.env.RATE_LIMIT_SUBMISSIONS) || 5,
+  COMMENTS_PER_MIN: Number(process.env.RATE_LIMIT_COMMENTS) || 5,
+  COMMENTS_PER_AUTHOR: Number(process.env.RATE_LIMIT_COMMENTS_AUTHOR) || 3,
+  UPLOADS_PER_MIN: Number(process.env.RATE_LIMIT_UPLOADS) || 10,
+  TOKEN_VALIDATIONS_PER_MIN: Number(process.env.RATE_LIMIT_TOKENS) || 20,
+} as const;
+
 interface RateLimitEntry {
   count: number;
   resetAt: number;

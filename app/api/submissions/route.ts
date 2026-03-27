@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
-import { rateLimit, getClientIp, verifyCsrf } from "@/lib/rate-limit";
+import { rateLimit, getClientIp, verifyCsrf, RATE_LIMITS } from "@/lib/rate-limit";
 import { SUBMISSION_TYPES } from "@/types";
 
 /**
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limit: 5 submissions per minute per IP
     const ip = getClientIp(request.headers);
-    const rl = rateLimit(`submissions:${ip}`, 5);
+    const rl = rateLimit(`submissions:${ip}`, RATE_LIMITS.SUBMISSIONS_PER_MIN);
     if (rl.limited) {
       return NextResponse.json(
         { error: "Too many submissions. Please wait a minute." },

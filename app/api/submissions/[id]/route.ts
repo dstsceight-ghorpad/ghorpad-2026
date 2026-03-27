@@ -149,8 +149,8 @@ export async function PATCH(
         return NextResponse.json({ success: true, articleId: null });
       }
 
-      // Determine if attachment is an image
-      const isImage = /\.(jpg|jpeg|png)$/i.test(submission.attachment_url || "");
+      // Determine if attachment is an image (check extension from URL)
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(submission.attachment_url || "");
 
       // Build article content
       const content = buildArticleContent(

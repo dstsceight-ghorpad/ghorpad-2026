@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase";
-import { rateLimit, getClientIp, verifyCsrf } from "@/lib/rate-limit";
+import { rateLimit, getClientIp, verifyCsrf, RATE_LIMITS } from "@/lib/rate-limit";
 
 /** Strip HTML tags and dangerous characters to prevent XSS */
 function sanitize(input: string): string {
@@ -46,9 +46,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request origin" }, { status: 403 });
   }
 
-  // Rate limit: 5 comments per minute per IP
   const ip = getClientIp(request.headers);
-  const rl = rateLimit(`comments:${ip}`, 5);
+  const rl = rateLimit(`comments:${ip}`, RATE_LIMITS.COMMENTS_PER_MIN);
   if (rl.limited) {
     return NextResponse.json(
       { error: "Too many comments. Please wait a minute." },
@@ -67,8 +66,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Comment too long (max 500 characters)" }, { status: 400 });
   }
 
-  // Per-author rate limit: 3 comments per minute per author name
-  const authorRl = rateLimit(`comments-author:${author_name.trim().toLowerCase()}`, 3);
+  const authorRl = rateLimit(`comments-author:${author_name.trim().toLowerCase()}`, RATE_LIMITS.COMMENTS_PER_AUTHOR);
   if (authorRl.limited) {
     return NextResponse.json(
       { error: "Too many comments from this name. Please wait." },
