@@ -102,22 +102,39 @@ export default function SubmissionsPage() {
   const [publishing, setPublishing] = useState(false);
 
   /** Build article data from a submission */
-  const buildArticleData = (sub: Submission, userId: string) => {
-    const isImage = /\.(jpg|jpeg|png)$/i.test(sub.attachment_url || "");
-
+  const buildArticleData = async (sub: Submission, userId: string) => {
+    const isImage = /\.(jpg|jpeg|png|gif)$/i.test(sub.attachment_url || "");
     const isPdf = /\.pdf$/i.test(sub.attachment_url || "");
     const isDoc = /\.(doc|docx)$/i.test(sub.attachment_url || "");
 
     // Build TipTap content
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nodes: any[] = [];
-    // For image attachments, skip adding to content — they'll be shown via cover_image_url
-    // This prevents the same image from appearing twice (once as cover, once in content)
+
+    // For docx attachments, extract text content server-side
+    if (sub.attachment_url && isDoc) {
+      try {
+        const extractRes = await fetch("/api/extract-docx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: sub.attachment_url }),
+        });
+        if (extractRes.ok) {
+          const extracted = await extractRes.json();
+          if (extracted.content?.content) {
+            nodes.push(...extracted.content.content);
+          }
+        } else {
+          // Fallback: show download link if extraction fails
+          nodes.push({ type: "paragraph", content: [{ type: "text", text: "Download Document", marks: [{ type: "link", attrs: { href: sub.attachment_url, target: "_blank" } }] }] });
+        }
+      } catch {
+        nodes.push({ type: "paragraph", content: [{ type: "text", text: "Download Document", marks: [{ type: "link", attrs: { href: sub.attachment_url, target: "_blank" } }] }] });
+      }
+    }
+
     if (sub.attachment_url && isPdf) {
       nodes.push({ type: "pdf", attrs: { src: sub.attachment_url, title: sub.title || "Document" } });
-    }
-    if (sub.attachment_url && isDoc) {
-      nodes.push({ type: "paragraph", content: [{ type: "text", text: "Download Document", marks: [{ type: "link", attrs: { href: sub.attachment_url, target: "_blank" } }] }] });
     }
     if (sub.content && !sub.content.startsWith("[See attached file:")) {
       const parsed = parsePlainText(sub.content);
@@ -132,7 +149,15 @@ export default function SubmissionsPage() {
     }
 
     const slug = `${generateSlug(sub.title)}-${Date.now()}`;
-    const plainText = sub.content || "";
+    // Extract plain text from content nodes for excerpt
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const extractPlainText = (n: any[]): string => n.map((node: any) => {
+      if (node.text) return node.text;
+      if (node.content) return extractPlainText(node.content);
+      return "";
+    }).join(" ").trim();
+    const contentText = nodes.length > 0 ? extractPlainText(nodes) : "";
+    const plainText = contentText || sub.content || "";
     const excerpt = plainText && !plainText.startsWith("[See attached file:")
       ? plainText.slice(0, 150).trim() + (plainText.length > 150 ? "…" : "")
       : `Contributed by ${sub.author_name}`;
@@ -201,7 +226,7 @@ export default function SubmissionsPage() {
       } else {
         // Create article directly as published
         const articleData = {
-          ...buildArticleData(sub, user.id),
+          ...(await buildArticleData(sub, user.id)),
           status: "published",
           published_at: new Date().toISOString(),
         };
