@@ -634,6 +634,7 @@ function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) 
         {items.map((item) => (
           <div
             key={item.id}
+            data-interactive
             className="rounded-lg overflow-hidden border border-border-subtle bg-surface cursor-pointer hover:border-gold/40 transition-all"
             onClick={() => setSelected(item)}
           >
@@ -688,7 +689,7 @@ function GalleryPage({ items, title }: { items: GalleryItem[]; title: string }) 
             <X size={20} />
           </button>
           <div
-            className="w-full max-w-md flex flex-col items-center"
+            className="w-full max-w-2xl flex flex-col items-center"
             onClick={(e) => e.stopPropagation()}
           >
             {selected.url ? (
