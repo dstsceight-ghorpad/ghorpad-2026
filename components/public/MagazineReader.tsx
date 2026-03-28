@@ -571,7 +571,7 @@ function ArticlePage({ article }: { article: Article }) {
         {article.category.toUpperCase()}
       </span>
 
-      <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-5 mb-4 text-foreground">
+      <h2 className={`font-serif text-3xl sm:text-4xl font-bold mt-5 mb-4 text-foreground ${/[\u0900-\u097F]/.test(article.title) ? "font-[family-name:var(--font-devanagari)] text-center" : ""}`}>
         {article.title}
       </h2>
 
@@ -603,13 +603,17 @@ function ArticlePage({ article }: { article: Article }) {
       )}
 
       {/* Excerpt */}
-      <p className="text-lg leading-relaxed text-foreground/80 mb-8 border-l-2 border-gold/30 pl-5 italic">
+      <p className={`text-lg leading-relaxed text-foreground/80 mb-8 border-l-2 border-gold/30 pl-5 italic ${/[\u0900-\u097F]/.test(article.title) ? "font-[family-name:var(--font-devanagari)] text-center border-l-0 pl-0" : ""}`}>
         {article.excerpt}
       </p>
 
       {/* Article content */}
       {article.content ? (
-        <div className="text-sm leading-relaxed">
+        <div className={
+          article.category === "Poems" && /[\u0900-\u097F]/.test(article.title)
+            ? "hindi-poem"
+            : "text-sm leading-relaxed"
+        }>
           <TipTapRenderer content={article.content} skipImageUrl={article.cover_image_url || undefined} />
         </div>
       ) : (

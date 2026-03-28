@@ -185,13 +185,13 @@ body {
   margin: 2rem 0;
 }
 
-/* Hindi poem styling — Devanagari script with elegant typography */
+/* Hindi poem styling — Devanagari script with elegant typography (Chicago-inspired) */
 .hindi-poem .prose-editorial p {
   font-family: var(--font-devanagari), "Noto Serif Devanagari", serif;
-  font-size: 1.35rem;
-  line-height: 2.2;
+  font-size: 1.3rem;
+  line-height: 2.1;
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.6rem;
   letter-spacing: 0.02em;
 }
 
@@ -215,6 +215,26 @@ body {
 .hindi-poem .prose-editorial h3 {
   font-family: var(--font-devanagari), "Noto Serif Devanagari", serif;
   text-align: center;
+}
+
+/* Hindi poem in magazine reader — cream background, Chicago-style verse spacing */
+.magazine-theme .hindi-poem .prose-editorial p {
+  font-size: 1.25rem;
+  line-height: 2.0;
+  color: #1A0E08;
+  margin-bottom: 0.4rem;
+}
+
+.magazine-theme .hindi-poem .prose-editorial blockquote {
+  border-left-color: #B8860B;
+  color: #3a2a1a;
+}
+
+/* Stanza separator for Hindi poems (empty paragraphs become visual breaks) */
+.hindi-poem .prose-editorial p:empty,
+.hindi-poem .prose-editorial p:has(> br:only-child) {
+  margin-bottom: 1.2rem;
+  min-height: 0.5rem;
 }
 
 /* TipTap editor styles */
