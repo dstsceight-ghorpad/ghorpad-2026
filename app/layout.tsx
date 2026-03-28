@@ -3,6 +3,7 @@ import { Playfair_Display, Inter, JetBrains_Mono, Noto_Serif_Devanagari } from "
 import ThemeProvider from "@/components/ThemeProvider";
 import PageTransition from "@/components/PageTransition";
 import SecurityShield from "@/components/SecurityShield";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -64,6 +65,7 @@ export default function RootLayout({
         <ThemeProvider>
           <PageTransition>{children}</PageTransition>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
