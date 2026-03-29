@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import PersonnelAvatar from "@/components/ui/PersonnelAvatar";
 import type { Personnel, Division } from "@/types";
 import { DIVISIONS } from "@/types";
-import { loadPersonnel, getDisplayName } from "@/lib/personnel";
+import { getDisplayName } from "@/lib/personnel";
 import PersonnelDetailOverlay from "./PersonnelDetailOverlay";
 import { RevealText, RevealLine } from "@/components/ui/RevealText";
 
@@ -389,24 +389,18 @@ function StudentOfficersDivisions({
 
 export default function WhoIsWho({ personnel }: WhoIsWhoProps) {
   const [selectedPerson, setSelectedPerson] = useState<Personnel | null>(null);
-  const [mergedPersonnel, setMergedPersonnel] = useState<Personnel[]>(personnel);
+  // Personnel comes directly from Supabase via server props — no localStorage merge needed
 
-  // Merge localStorage edits on client mount
-  useEffect(() => {
-    const merged = loadPersonnel();
-    setMergedPersonnel(merged);
-  }, []);
-
-  const commandant = mergedPersonnel.find(
+  const commandant = personnel.find(
     (p) => p.personnel_role === "commandant"
   );
-  const deputyCommandant = mergedPersonnel.find(
+  const deputyCommandant = personnel.find(
     (p) => p.personnel_role === "deputy_commandant"
   );
-  const staffOfficers = mergedPersonnel
+  const staffOfficers = personnel
     .filter((p) => p.personnel_role === "staff_officer")
     .sort((a, b) => a.order - b.order);
-  const studentOfficers = mergedPersonnel
+  const studentOfficers = personnel
     .filter((p) => p.personnel_role === "student_officer")
     .sort((a, b) => a.order - b.order);
 

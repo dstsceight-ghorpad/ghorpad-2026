@@ -1,5 +1,4 @@
 import type { ReviewComment, ReviewDecision } from "@/types";
-import { sampleArticles } from "./sample-data";
 
 const REVIEW_COMMENTS_KEY = "ghorpad_review_comments";
 const REVIEW_DECISIONS_KEY = "ghorpad_review_decisions";
@@ -66,20 +65,7 @@ export function saveReviewDecision(decision: ReviewDecision): void {
   if (typeof window === "undefined") return;
   const raw = localStorage.getItem(REVIEW_DECISIONS_KEY);
   const all: ReviewDecision[] = raw ? JSON.parse(raw) : [];
-  // Replace existing decision for same article
   const filtered = all.filter((d) => d.article_id !== decision.article_id);
   filtered.push(decision);
   localStorage.setItem(REVIEW_DECISIONS_KEY, JSON.stringify(filtered));
-}
-
-// ─── Queue helpers ───────────────────────────────────────────
-
-export function getArticlesInReview() {
-  // In demo mode, return sample articles with status "review"
-  return sampleArticles.filter((a) => a.status === "review");
-}
-
-export function getReviewQueueCount(): number {
-  // In demo mode, use a fixed count for demo display
-  return 2;
 }

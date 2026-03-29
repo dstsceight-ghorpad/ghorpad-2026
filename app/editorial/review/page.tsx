@@ -9,7 +9,8 @@ import {
   XCircle,
   Clock,
 } from "lucide-react";
-import { getArticlesInReview, loadReviewComments, loadReviewDecision } from "@/lib/review";
+import { loadReviewComments, loadReviewDecision } from "@/lib/review";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { formatDateShort } from "@/lib/utils";
 import type { Article } from "@/types";
 
@@ -20,7 +21,15 @@ export default function ReviewQueuePage() {
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
 
   useEffect(() => {
-    setArticles(getArticlesInReview());
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from("articles")
+      .select("*")
+      .eq("status", "review")
+      .order("updated_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setArticles(data as Article[]);
+      });
   }, []);
 
   const getDecisionStatus = (articleId: string) => {

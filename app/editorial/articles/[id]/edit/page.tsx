@@ -11,7 +11,6 @@ import { canPublish } from "@/lib/auth";
 import { generateSlug, estimateReadTime, extractTextFromTipTap, cn } from "@/lib/utils";
 import { CATEGORIES } from "@/types";
 import type { ArticleStatus, Article } from "@/types";
-import { sampleArticles } from "@/lib/sample-data";
 import { findSimilarArticles } from "@/lib/similarity";
 
 const TipTapEditor = dynamic(
@@ -187,7 +186,7 @@ export default function EditArticlePage() {
 
   const handlePublishClick = () => {
     const text = editorTextRef.current;
-    const existingArticles = sampleArticles
+    const existingArticles = ([] as { id: string; title: string; excerpt: string }[])
       .filter((a) => a.id !== articleId)
       .map((a) => ({
         id: a.id,

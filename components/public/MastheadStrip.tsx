@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { RevealText, RevealOnScroll } from "@/components/ui/RevealText";
 
-const STATS = [
-  { label: "Articles & Poems", value: 36 },
-  { label: "Contributors", value: 15 },
-  { label: "Photo Features", value: 19 },
-];
-
 const VISIT_KEY = "ghorpad_visit_count";
+
+interface MastheadStripProps {
+  articleCount?: number;
+  contributorCount?: number;
+  galleryCount?: number;
+}
 
 function AnimatedCounter({ value, inView }: { value: number; inView: boolean }) {
   const [count, setCount] = useState(0);
@@ -35,7 +35,11 @@ function AnimatedCounter({ value, inView }: { value: number; inView: boolean }) 
   return <span>{count.toLocaleString()}</span>;
 }
 
-export default function MastheadStrip() {
+export default function MastheadStrip({
+  articleCount = 0,
+  contributorCount = 0,
+  galleryCount = 0,
+}: MastheadStripProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-100px" });
   const [visitCount, setVisitCount] = useState(0);
@@ -47,10 +51,15 @@ export default function MastheadStrip() {
     setVisitCount(next);
   }, []);
 
+  const stats = [
+    { label: "Articles & Poems", value: articleCount },
+    { label: "Contributors", value: contributorCount },
+    { label: "Photo Features", value: galleryCount },
+  ];
+
   return (
     <section id="about" className="bg-background py-20 px-4 sm:px-6" ref={ref}>
       <div className="max-w-7xl mx-auto">
-        {/* Banner — scroll-triggered text reveal */}
         <div className="text-center mb-16">
           <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             <RevealText by="word" stagger={0.06}>WRITTEN BY STUDENTS.</RevealText>
@@ -69,9 +78,8 @@ export default function MastheadStrip() {
           </RevealOnScroll>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {STATS.map((stat, i) => (
+          {stats.map((stat, i) => (
             <RevealOnScroll
               key={stat.label}
               delay={i * 0.12}
@@ -86,7 +94,6 @@ export default function MastheadStrip() {
             </RevealOnScroll>
           ))}
 
-          {/* Visit Counter */}
           <RevealOnScroll
             delay={3 * 0.12}
             className="text-center p-6 bg-surface rounded-lg border border-border-subtle"

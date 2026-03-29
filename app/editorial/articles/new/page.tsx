@@ -12,7 +12,6 @@ import { CATEGORIES } from "@/types";
 import type { ArticleStatus } from "@/types";
 import { parseArticleFile } from "@/lib/article-parser";
 import type { ArticleTemplate } from "@/lib/article-templates";
-import { sampleArticles } from "@/lib/sample-data";
 import { findSimilarArticles } from "@/lib/similarity";
 
 const TipTapEditor = dynamic(
@@ -138,7 +137,7 @@ export default function NewArticlePage() {
   const handlePublishClick = () => {
     // Run similarity check first
     const text = editorTextRef.current;
-    const existingArticles = sampleArticles.map((a) => ({
+    const existingArticles = ([] as { id: string; title: string; excerpt: string }[]).map((a) => ({
       id: a.id,
       title: a.title,
       text: a.excerpt || "",

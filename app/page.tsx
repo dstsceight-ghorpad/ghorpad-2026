@@ -10,25 +10,30 @@ import Footer from "@/components/public/Footer";
 import MagazineTrigger from "@/components/public/MagazineTrigger";
 import SplashGate from "@/components/public/SplashGate";
 import { createServerSupabaseClient } from "@/lib/supabase";
-import {
-  sampleGalleryItems,
-  fixedTocEntries,
-} from "@/lib/sample-data";
 import type { Article, TocEntry, GalleryItem, Personnel } from "@/types";
+
+/** Fixed TOC section entries (not generated from articles) */
+const FIXED_TOC_ENTRIES: TocEntry[] = [
+  { id: "toc-1", title: "Commandant\u2019s Message", page_label: "01", category: "Leadership", type: "feature" },
+  { id: "toc-2", title: "Who is Who", page_label: "02", category: "Leadership", type: "section" },
+  { id: "toc-sk", title: "Sketches & Paintings", page_label: "\u2014", category: "Sketches & Paintings", type: "section" },
+  { id: "toc-mb", title: "MILIT Babies", page_label: "\u2014", category: "MILIT Babies", type: "section", href: "#gallery?cat=Families" },
+  { id: "toc-ev", title: "Organised Events", page_label: "\u2014", category: "Organised Events", type: "section" },
+];
 
 export const revalidate = 300; // revalidate every 5 minutes (reduces Supabase egress)
 
 /**
  * Build Table of Contents entries from published articles.
- * Fixed section entries (Leadership, Sketches, etc.) come from sample-data.
+ * Fixed section entries (Leadership, Sketches, etc.) are defined above.
  * Article/poem entries are generated dynamically from Supabase.
  */
 function buildTocEntries(articles: Article[]): TocEntry[] {
   // Start with fixed section entries
-  const entries: TocEntry[] = [...fixedTocEntries];
+  const entries: TocEntry[] = [...FIXED_TOC_ENTRIES];
 
   // Add published articles as TOC entries, grouped by category
-  let pageNum = fixedTocEntries.length + 1;
+  let pageNum = FIXED_TOC_ENTRIES.length + 1;
 
   for (const article of articles) {
     const type: TocEntry["type"] =
@@ -86,19 +91,14 @@ export default async function HomePage() {
     order: p.sort_order as number,
   })) as Personnel[];
 
-  // Fetch gallery items from database, fall back to sample data
+  // Fetch gallery items from Supabase
   const { data: galleryData } = await supabase
     .from("gallery_items")
     .select("*")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
-  const allGalleryItems: GalleryItem[] =
-    galleryData && galleryData.length > 0
-      ? (galleryData as GalleryItem[])
-      : sampleGalleryItems;
-
-  const galleryItems = allGalleryItems;
+  const galleryItems: GalleryItem[] = (galleryData || []) as GalleryItem[];
 
   return (
     <>
@@ -112,13 +112,17 @@ export default async function HomePage() {
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={galleryItems} />
 
-        <MastheadStrip />
+        <MastheadStrip
+          articleCount={articles.length}
+          contributorCount={new Set(articles.map(a => a.contributor_name || a.author?.full_name).filter(Boolean)).size}
+          galleryCount={galleryItems.length}
+        />
         <Footer />
         <MagazineTrigger
           articles={articles}
           personnel={personnel}
           tocEntries={tocEntries}
-          galleryItems={allGalleryItems}
+          galleryItems={galleryItems}
           campusLocations={[]}
         />
       </main>
