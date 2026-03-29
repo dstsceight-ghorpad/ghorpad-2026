@@ -11,11 +11,10 @@ import MagazineTrigger from "@/components/public/MagazineTrigger";
 import SplashGate from "@/components/public/SplashGate";
 import { createServerSupabaseClient } from "@/lib/supabase";
 import {
-  samplePersonnel,
   sampleGalleryItems,
   fixedTocEntries,
 } from "@/lib/sample-data";
-import type { Article, TocEntry, GalleryItem } from "@/types";
+import type { Article, TocEntry, GalleryItem, Personnel } from "@/types";
 
 export const revalidate = 300; // revalidate every 5 minutes (reduces Supabase egress)
 
@@ -75,6 +74,18 @@ export default async function HomePage() {
     return author ? `${a.title} — ${author}` : a.title;
   });
 
+  // Fetch personnel from Supabase
+  const { data: personnelData } = await supabase
+    .from("personnel")
+    .select("*")
+    .order("personnel_role", { ascending: true })
+    .order("sort_order", { ascending: true });
+
+  const personnel: Personnel[] = (personnelData || []).map((p: Record<string, unknown>) => ({
+    ...p,
+    order: p.sort_order as number,
+  })) as Personnel[];
+
   // Fetch gallery items from database, fall back to sample data
   const { data: galleryData } = await supabase
     .from("gallery_items")
@@ -97,7 +108,7 @@ export default async function HomePage() {
         <HeroSection headlines={tickerHeadlines} />
         {featuredArticle && <SpotlightSection article={featuredArticle} />}
         <TableOfContents entries={tocEntries} />
-        <WhoIsWho personnel={samplePersonnel} />
+        <WhoIsWho personnel={personnel} />
         {articles.length > 0 && <ArticlesGrid articles={articles} />}
         <PhotoGallery items={galleryItems} />
 
@@ -105,7 +116,7 @@ export default async function HomePage() {
         <Footer />
         <MagazineTrigger
           articles={articles}
-          personnel={samplePersonnel}
+          personnel={personnel}
           tocEntries={tocEntries}
           galleryItems={allGalleryItems}
           campusLocations={[]}

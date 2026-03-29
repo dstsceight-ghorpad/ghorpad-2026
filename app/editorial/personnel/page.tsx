@@ -18,11 +18,10 @@ import {
 import { useUser } from "../layout";
 import { canPublish } from "@/lib/auth";
 import {
-  loadPersonnel,
-  savePersonnelEdit,
   resizeAndConvertToBase64,
   getDisplayName,
 } from "@/lib/personnel";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import type { Personnel, PersonnelRole } from "@/types";
 
 type FilterTab = "all" | "leadership" | "staff" | "student";
@@ -366,9 +365,17 @@ export default function PersonnelPage() {
 
   const canEdit = profile?.role ? canPublish(profile.role) : false;
 
-  // Load personnel on mount
-  const refreshPersonnel = useCallback(() => {
-    setPersonnel(loadPersonnel());
+  // Load personnel from Supabase
+  const refreshPersonnel = useCallback(async () => {
+    const supabase = createBrowserSupabaseClient();
+    const { data } = await supabase
+      .from("personnel")
+      .select("*")
+      .order("personnel_role", { ascending: true })
+      .order("sort_order", { ascending: true });
+    if (data) {
+      setPersonnel(data.map((p: Record<string, unknown>) => ({ ...p, order: p.sort_order })) as Personnel[]);
+    }
   }, []);
 
   useEffect(() => {
@@ -376,7 +383,7 @@ export default function PersonnelPage() {
   }, [refreshPersonnel]);
 
   const handleSave = async (id: string, updates: Partial<Personnel>) => {
-    // If a photo was uploaded (base64), also push it to Supabase storage
+    // If a photo was uploaded (base64), push it to Supabase storage first
     if (updates.avatar_url && updates.avatar_url.startsWith("data:image")) {
       try {
         const res = await fetch("/api/upload-photo", {
@@ -385,19 +392,35 @@ export default function PersonnelPage() {
           body: JSON.stringify({
             personnelId: id,
             imageData: updates.avatar_url,
-            editorial: true, // bypass token check for authenticated editors
+            editorial: true,
           }),
         });
         if (res.ok) {
           const { url } = await res.json();
-          // Replace base64 with the persistent Supabase URL
           updates.avatar_url = url;
         }
       } catch {
-        // Fallback: keep base64 in localStorage
+        // Photo upload failed, skip avatar update
+        delete updates.avatar_url;
       }
     }
-    savePersonnelEdit(id, updates);
+
+    // Save to Supabase personnel table
+    const supabase = createBrowserSupabaseClient();
+    const dbUpdates: Record<string, unknown> = { ...updates, updated_at: new Date().toISOString() };
+    // Map 'order' back to 'sort_order' for DB
+    if ('order' in dbUpdates) {
+      dbUpdates.sort_order = dbUpdates.order;
+      delete dbUpdates.order;
+    }
+    const { error } = await supabase
+      .from("personnel")
+      .update(dbUpdates)
+      .eq("id", id);
+
+    if (error) {
+      alert("Failed to save: " + error.message);
+    }
     refreshPersonnel();
   };
 

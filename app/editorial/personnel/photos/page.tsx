@@ -12,10 +12,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../../layout";
 import { canPublish } from "@/lib/auth";
-import {
-  loadPersonnel,
-  savePersonnelEdit,
-} from "@/lib/personnel";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { getPhotoStatus, getNextWithoutPhoto } from "@/lib/photo-campaign";
 import { optimizeImage, AVATAR_PRESET } from "@/lib/image-optimize";
 import type { Personnel } from "@/types";
@@ -36,8 +33,16 @@ export default function PhotoCampaignPage() {
 
   const canEdit = profile?.role ? canPublish(profile.role) : false;
 
-  const loadData = useCallback(() => {
-    setPersonnel(loadPersonnel());
+  const loadData = useCallback(async () => {
+    const supabase = createBrowserSupabaseClient();
+    const { data } = await supabase
+      .from("personnel")
+      .select("*")
+      .order("personnel_role", { ascending: true })
+      .order("sort_order", { ascending: true });
+    if (data) {
+      setPersonnel(data.map((p: Record<string, unknown>) => ({ ...p, order: p.sort_order })) as Personnel[]);
+    }
   }, []);
 
   useEffect(() => {
@@ -94,11 +99,13 @@ export default function PhotoCampaignPage() {
       } catch {
         // Fallback to localStorage-only
       }
-      savePersonnelEdit(currentPerson.id, { avatar_url: avatarUrl });
-      loadData();
+      // Save to Supabase
+      const supabase = createBrowserSupabaseClient();
+      await supabase.from("personnel").update({ avatar_url: avatarUrl, updated_at: new Date().toISOString() }).eq("id", currentPerson.id);
+      await loadData();
 
       // Auto-advance to next
-      const updated = loadPersonnel();
+      const updated = personnel;
       const next = getNextWithoutPhoto(updated, currentPerson.id);
       if (next) {
         setCurrentPerson(next);

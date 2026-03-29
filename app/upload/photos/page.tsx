@@ -12,22 +12,18 @@ import {
   X,
   AlertTriangle,
 } from "lucide-react";
-import { samplePersonnel } from "@/lib/sample-data";
 import { resizeAndConvertToBase64, getDisplayName } from "@/lib/personnel";
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import type { Division, Personnel } from "@/types";
 
 const DIVISIONS: Division[] = ["Manekshaw", "Cariappa", "Arjan", "Pereira"];
-
-// Only student officers
-const studentOfficers = samplePersonnel.filter(
-  (p) => p.personnel_role === "student_officer"
-);
 
 export default function PhotoUploadPage() {
   const [status, setStatus] = useState<
     "loading" | "valid" | "expired" | "invalid"
   >("loading");
   const [token, setToken] = useState("");
+  const [studentOfficers, setStudentOfficers] = useState<Personnel[]>([]);
   const [uploadedIds, setUploadedIds] = useState<Set<string>>(new Set());
   const [activeDivision, setActiveDivision] = useState<Division>("Manekshaw");
   const [searchQuery, setSearchQuery] = useState("");
@@ -36,6 +32,21 @@ export default function PhotoUploadPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const pendingPersonId = useRef<string | null>(null);
+
+  // Fetch student officers from Supabase
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    supabase
+      .from("personnel")
+      .select("*")
+      .eq("personnel_role", "student_officer")
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        if (data) {
+          setStudentOfficers(data.map((p: Record<string, unknown>) => ({ ...p, order: p.sort_order })) as Personnel[]);
+        }
+      });
+  }, []);
 
   // Extract token from URL
   useEffect(() => {
