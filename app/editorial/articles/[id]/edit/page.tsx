@@ -163,24 +163,30 @@ export default function EditArticlePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const supabase = createBrowserSupabaseClient();
+    try {
+      const supabase = createBrowserSupabaseClient();
 
-    // Ensure bucket exists as public (idempotent)
-    await supabase.storage.createBucket("article-covers", {
-      public: true,
-      fileSizeLimit: 10 * 1024 * 1024,
-    });
+      // Sanitize filename and make unique
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filename = `cover-${articleId}-${Date.now()}-${safeName}`;
 
-    const filename = `${Date.now()}-${file.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("article-covers")
-      .upload(filename, file, { contentType: file.type, upsert: false, cacheControl: "86400" });
+      const { error: uploadError } = await supabase.storage
+        .from("article-covers")
+        .upload(filename, file, { contentType: file.type, upsert: true, cacheControl: "86400" });
 
-    if (!uploadError) {
+      if (uploadError) {
+        console.error("Cover upload failed:", uploadError);
+        alert("Cover image upload failed: " + uploadError.message);
+        return;
+      }
+
       const { data: { publicUrl } } = supabase.storage
         .from("article-covers")
         .getPublicUrl(filename);
       setCoverImageUrl(publicUrl);
+    } catch (err) {
+      console.error("Cover upload error:", err);
+      alert("Failed to upload cover image");
     }
   };
 

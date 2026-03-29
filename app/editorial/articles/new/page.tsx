@@ -176,24 +176,30 @@ export default function NewArticlePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const supabase = createBrowserSupabaseClient();
+    try {
+      const supabase = createBrowserSupabaseClient();
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const filename = `cover-${Date.now()}-${safeName}`;
 
-    // Ensure bucket exists as public (idempotent)
-    await supabase.storage.createBucket("article-covers", {
-      public: true,
-      fileSizeLimit: 10 * 1024 * 1024,
-    });
+      const { data, error } = await supabase.storage
+        .from("article-covers")
+        .upload(filename, file, { contentType: file.type, upsert: true, cacheControl: "86400" });
 
-    const filename = `${Date.now()}-${file.name}`;
-    const { data, error } = await supabase.storage
-      .from("article-covers")
-      .upload(filename, file, { cacheControl: "86400" });
+      if (error) {
+        console.error("Cover upload failed:", error);
+        alert("Cover image upload failed: " + error.message);
+        return;
+      }
 
-    if (data && !error) {
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("article-covers").getPublicUrl(data.path);
-      setCoverImageUrl(publicUrl);
+      if (data) {
+        const { data: { publicUrl } } = supabase.storage
+          .from("article-covers")
+          .getPublicUrl(data.path);
+        setCoverImageUrl(publicUrl);
+      }
+    } catch (err) {
+      console.error("Cover upload error:", err);
+      alert("Failed to upload cover image");
     }
   };
 
