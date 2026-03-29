@@ -365,16 +365,16 @@ export default function PersonnelPage() {
 
   const canEdit = profile?.role ? canPublish(profile.role) : false;
 
-  // Load personnel from Supabase
+  // Load personnel via API (uses service role for reliable access)
   const refreshPersonnel = useCallback(async () => {
-    const supabase = createBrowserSupabaseClient();
-    const { data } = await supabase
-      .from("personnel")
-      .select("*")
-      .order("personnel_role", { ascending: true })
-      .order("sort_order", { ascending: true });
-    if (data) {
-      setPersonnel(data.map((p: Record<string, unknown>) => ({ ...p, order: p.sort_order })) as Personnel[]);
+    try {
+      const res = await fetch("/api/personnel");
+      if (res.ok) {
+        const data = await res.json();
+        setPersonnel(data.map((p: Record<string, unknown>) => ({ ...p, order: p.sort_order })) as Personnel[]);
+      }
+    } catch (err) {
+      console.error("Failed to load personnel:", err);
     }
   }, []);
 
@@ -405,21 +405,26 @@ export default function PersonnelPage() {
       }
     }
 
-    // Save to Supabase personnel table
-    const supabase = createBrowserSupabaseClient();
-    const dbUpdates: Record<string, unknown> = { ...updates, updated_at: new Date().toISOString() };
+    // Save via API (uses service role to bypass RLS)
+    const dbUpdates: Record<string, unknown> = { ...updates };
     // Map 'order' back to 'sort_order' for DB
     if ('order' in dbUpdates) {
       dbUpdates.sort_order = dbUpdates.order;
       delete dbUpdates.order;
     }
-    const { error } = await supabase
-      .from("personnel")
-      .update(dbUpdates)
-      .eq("id", id);
 
-    if (error) {
-      alert("Failed to save: " + error.message);
+    try {
+      const res = await fetch("/api/personnel", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, updates: dbUpdates }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        alert("Failed to save: " + (err.error || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Failed to save: " + (err instanceof Error ? err.message : "Network error"));
     }
     refreshPersonnel();
   };
