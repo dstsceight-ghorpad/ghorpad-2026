@@ -164,26 +164,19 @@ export default function EditArticlePage() {
     if (!file) return;
 
     try {
-      const supabase = createBrowserSupabaseClient();
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("articleId", articleId);
 
-      // Sanitize filename and make unique
-      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-      const filename = `cover-${articleId}-${Date.now()}-${safeName}`;
+      const res = await fetch("/api/upload-cover", { method: "POST", body: formData });
+      const data = await res.json();
 
-      const { error: uploadError } = await supabase.storage
-        .from("article-covers")
-        .upload(filename, file, { contentType: file.type, upsert: true, cacheControl: "86400" });
-
-      if (uploadError) {
-        console.error("Cover upload failed:", uploadError);
-        alert("Cover image upload failed: " + uploadError.message);
+      if (!res.ok) {
+        alert("Cover image upload failed: " + (data.error || "Unknown error"));
         return;
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from("article-covers")
-        .getPublicUrl(filename);
-      setCoverImageUrl(publicUrl);
+      setCoverImageUrl(data.url);
     } catch (err) {
       console.error("Cover upload error:", err);
       alert("Failed to upload cover image");
