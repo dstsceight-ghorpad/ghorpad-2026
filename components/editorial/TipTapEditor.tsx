@@ -22,6 +22,55 @@ import {
   Redo,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Node, mergeAttributes } from "@tiptap/core";
+
+/**
+ * Custom PDF node so TipTap preserves embedded PDF content
+ * instead of silently dropping it when loading articles.
+ */
+const PdfNode = Node.create({
+  name: "pdf",
+  group: "block",
+  atom: true,
+  addAttributes() {
+    return {
+      src: { default: null },
+      title: { default: "Document" },
+    };
+  },
+  parseHTML() {
+    return [{ tag: 'iframe[data-type="pdf"]' }];
+  },
+  renderHTML({ HTMLAttributes }) {
+    return [
+      "div",
+      { class: "my-4 p-4 bg-surface-light border border-border-subtle rounded-lg" },
+      [
+        "div",
+        { class: "flex items-center gap-2 mb-2" },
+        ["span", { class: "font-mono text-xs text-gold" }, "PDF EMBED"],
+      ],
+      [
+        "iframe",
+        mergeAttributes(HTMLAttributes, {
+          "data-type": "pdf",
+          class: "w-full rounded border border-border-subtle",
+          style: "height: 500px; min-height: 400px",
+          src: HTMLAttributes.src + "#toolbar=1&navpanes=0",
+        }),
+      ],
+      [
+        "a",
+        {
+          href: HTMLAttributes.src,
+          target: "_blank",
+          class: "font-mono text-xs text-gold mt-2 inline-block",
+        },
+        "Open PDF in new tab →",
+      ],
+    ];
+  },
+});
 
 interface TipTapEditorProps {
   content: Record<string, unknown> | null;
@@ -85,6 +134,7 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
       Placeholder.configure({
         placeholder: "Start writing your article...",
       }),
+      PdfNode,
     ],
     content: content || { type: "doc", content: [{ type: "paragraph" }] },
     immediatelyRender: false,
