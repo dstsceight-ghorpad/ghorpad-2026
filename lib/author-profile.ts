@@ -1,33 +1,70 @@
+import { createBrowserSupabaseClient } from "@/lib/supabase";
 import type { AuthorProfile } from "@/types";
 
-const AUTHOR_PROFILES_KEY = "ghorpad_author_profiles";
 const PROFILE_DISMISSED_KEY = "ghorpad_profile_dismissed";
 
-type ProfileStore = Record<string, AuthorProfile>;
+/**
+ * Load an author's extended profile from Supabase.
+ */
+export async function loadAuthorProfile(
+  userId: string
+): Promise<AuthorProfile | null> {
+  const supabase = createBrowserSupabaseClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(
+      "id, full_name, display_name, short_bio, full_bio, avatar_url, batch, division, social_links, created_at, updated_at"
+    )
+    .eq("id", userId)
+    .single();
 
-export function loadAuthorProfile(userId: string): AuthorProfile | null {
-  if (typeof window === "undefined") return null;
-  const raw = localStorage.getItem(AUTHOR_PROFILES_KEY);
-  if (!raw) return null;
-  try {
-    const store: ProfileStore = JSON.parse(raw);
-    return store[userId] || null;
-  } catch {
-    return null;
+  if (error || !data) return null;
+
+  return {
+    id: `ap-${data.id}`,
+    user_id: data.id,
+    display_name: data.display_name || data.full_name || "",
+    short_bio: data.short_bio || "",
+    full_bio: data.full_bio || "",
+    avatar_url: data.avatar_url,
+    batch: data.batch || "",
+    division: data.division || "",
+    social_links: data.social_links || {},
+    created_at: data.created_at,
+    updated_at: data.updated_at || data.created_at,
+  };
+}
+
+/**
+ * Save an author's extended profile to Supabase.
+ */
+export async function saveAuthorProfile(
+  profile: AuthorProfile
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = createBrowserSupabaseClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      display_name: profile.display_name,
+      short_bio: profile.short_bio,
+      full_bio: profile.full_bio,
+      avatar_url: profile.avatar_url,
+      batch: profile.batch,
+      division: profile.division,
+      social_links: profile.social_links,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", profile.user_id);
+
+  if (error) {
+    console.error("Failed to save profile:", error.message);
+    return { success: false, error: error.message };
   }
+  return { success: true };
 }
 
-export function saveAuthorProfile(profile: AuthorProfile): void {
-  if (typeof window === "undefined") return;
-  const raw = localStorage.getItem(AUTHOR_PROFILES_KEY);
-  const store: ProfileStore = raw ? JSON.parse(raw) : {};
-  store[profile.user_id] = profile;
-  localStorage.setItem(AUTHOR_PROFILES_KEY, JSON.stringify(store));
-}
-
-export function hasCompletedProfile(userId: string): boolean {
-  if (typeof window === "undefined") return true;
-  const profile = loadAuthorProfile(userId);
+export async function hasCompletedProfile(userId: string): Promise<boolean> {
+  const profile = await loadAuthorProfile(userId);
   return profile !== null && profile.display_name.length > 0;
 }
 

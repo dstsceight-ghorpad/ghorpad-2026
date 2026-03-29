@@ -86,9 +86,9 @@ export default function EditorialLayout({
 
       if (data) {
         const p = data as Profile;
-        // If full_name is missing, check author profile (localStorage) or use email
+        // If full_name is missing, check author profile (Supabase) or use email
         if (!p.full_name) {
-          const authorProfile = loadAuthorProfile(user.id);
+          const authorProfile = await loadAuthorProfile(user.id);
           if (authorProfile?.display_name) {
             p.full_name = authorProfile.display_name;
           } else if (user.email) {

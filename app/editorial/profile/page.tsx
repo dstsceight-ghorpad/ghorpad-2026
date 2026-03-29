@@ -28,23 +28,24 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Load existing profile
+  // Load existing profile from Supabase
   useEffect(() => {
     if (!profile?.id) return;
-    const existing = loadAuthorProfile(profile.id);
-    if (existing) {
-      setDisplayName(existing.display_name);
-      setShortBio(existing.short_bio);
-      setFullBio(existing.full_bio);
-      setAvatarUrl(existing.avatar_url);
-      setBatch(existing.batch);
-      setDivision(existing.division);
-      setTwitter(existing.social_links?.twitter || "");
-      setLinkedin(existing.social_links?.linkedin || "");
-      setInstagram(existing.social_links?.instagram || "");
-    } else {
-      setDisplayName(profile.full_name || "");
-    }
+    loadAuthorProfile(profile.id).then((existing) => {
+      if (existing) {
+        setDisplayName(existing.display_name);
+        setShortBio(existing.short_bio);
+        setFullBio(existing.full_bio);
+        setAvatarUrl(existing.avatar_url);
+        setBatch(existing.batch);
+        setDivision(existing.division);
+        setTwitter(existing.social_links?.twitter || "");
+        setLinkedin(existing.social_links?.linkedin || "");
+        setInstagram(existing.social_links?.instagram || "");
+      } else {
+        setDisplayName(profile.full_name || "");
+      }
+    });
   }, [profile]);
 
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +61,7 @@ export default function ProfilePage() {
     setUploading(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!profile?.id) return;
     setSaving(true);
 
@@ -82,13 +83,15 @@ export default function ProfilePage() {
       updated_at: new Date().toISOString(),
     };
 
-    saveAuthorProfile(authorProfile);
+    const result = await saveAuthorProfile(authorProfile);
+    setSaving(false);
 
-    setTimeout(() => {
-      setSaving(false);
+    if (result.success) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    }, 300);
+    } else {
+      alert("Failed to save profile: " + (result.error || "Unknown error"));
+    }
   };
 
   return (
