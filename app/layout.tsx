@@ -4,6 +4,7 @@ import ThemeProvider from "@/components/ThemeProvider";
 import PageTransition from "@/components/PageTransition";
 import SecurityShield from "@/components/SecurityShield";
 import { Analytics } from "@vercel/analytics/next";
+import ReportIssue from "@/components/public/ReportIssue";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -65,6 +66,7 @@ export default function RootLayout({
         <ThemeProvider>
           <PageTransition>{children}</PageTransition>
         </ThemeProvider>
+        <ReportIssue />
         <Analytics />
       </body>
     </html>
