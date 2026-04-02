@@ -32,7 +32,7 @@ export default function SimilarityWarning({
             <div>
               <h3 className="font-serif text-lg font-bold">Similar Content Detected</h3>
               <p className="font-mono text-[10px] text-muted mt-0.5">
-                // PLAGIARISM CHECK WARNING
+                PLAGIARISM CHECK WARNING
               </p>
             </div>
           </div>

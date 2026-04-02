@@ -52,7 +52,7 @@ export default function SpotlightSection({ article }: SpotlightSectionProps) {
             className="font-mono text-xs tracking-widest mb-4 block"
             style={{ color: catColor.hex }}
           >
-            // {article.category.toUpperCase()} &middot;{" "}
+            {article.category.toUpperCase()} &middot;{" "}
             {article.is_featured ? "FEATURED" : "SPOTLIGHT"}
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 leading-tight">

@@ -388,7 +388,7 @@ export default function CampusMap({ locations }: CampusMapProps) {
               {/* Legend */}
               <div className="mt-4 bg-background rounded-xl border border-border-subtle p-4">
                 <h5 className="font-mono text-[10px] text-gold tracking-widest mb-3">
-                  // LEGEND
+                  LEGEND
                 </h5>
                 <div className="grid grid-cols-2 gap-2">
                   {(

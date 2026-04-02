@@ -815,7 +815,7 @@ function MediaPage() {
   return (
     <div>
       <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-        // MEDIA VAULT
+        MEDIA VAULT
       </h2>
       <div className="w-12 h-0.5 bg-gold mb-8" />
 

@@ -36,7 +36,7 @@ export default function TemplatePicker({ onSelect, onClose }: TemplatePickerProp
           <div>
             <h3 className="font-serif text-lg font-bold">Choose a Template</h3>
             <p className="font-mono text-[10px] text-muted mt-0.5">
-              // START WITH A STRUCTURE OR BEGIN FROM SCRATCH
+              START WITH A STRUCTURE OR BEGIN FROM SCRATCH
             </p>
           </div>
           <button

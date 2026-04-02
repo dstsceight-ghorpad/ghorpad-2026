@@ -178,7 +178,7 @@ export default function HeroSection({ headlines }: HeroSectionProps) {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="font-mono text-xs sm:text-sm text-muted tracking-widest mb-10"
           >
-            // MILIT &middot; DSTSC-08
+            MILIT &middot; DSTSC-08
           </motion.p>
         </motion.div>
 

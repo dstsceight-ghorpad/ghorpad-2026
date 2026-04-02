@@ -62,7 +62,7 @@ export default function PublishChecklist({
           <div>
             <h3 className="font-serif text-lg font-bold">Pre-Publish Checklist</h3>
             <p className="font-mono text-[10px] text-muted mt-0.5">
-              // VERIFY BEFORE PUBLISHING
+              VERIFY BEFORE PUBLISHING
             </p>
           </div>
           <button

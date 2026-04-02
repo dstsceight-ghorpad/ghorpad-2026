@@ -145,7 +145,7 @@ export default function ArticlePage() {
             className="font-mono text-xs tracking-widest block mb-4"
             style={{ color: getCategoryColor(article.category).hex }}
           >
-            // {article.category.toUpperCase()}
+            {article.category.toUpperCase()}
           </motion.span>
 
           <motion.h1
@@ -230,7 +230,7 @@ export default function ArticlePage() {
         <section className="px-4 sm:px-6 pb-20">
           <div className="max-w-7xl mx-auto">
             <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-8">
-              // YOU MAY ALSO LIKE
+              YOU MAY ALSO LIKE
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {relatedArticles.map((ra) => (
