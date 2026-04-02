@@ -66,7 +66,7 @@ export default function MediaVault() {
         <div className="flex items-end justify-between mb-10">
           <div>
             <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-              <RevealText>// MEDIA VAULT</RevealText>
+              <RevealText>MEDIA VAULT</RevealText>
             </h2>
             <RevealLine delay={0.2} />
           </div>

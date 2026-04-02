@@ -410,7 +410,7 @@ export default function WhoIsWho({ personnel }: WhoIsWhoProps) {
         {/* Section header — scroll-triggered reveal */}
         <div className="mb-16">
           <h2 className="font-mono text-xs tracking-[0.3em] text-gold mb-2">
-            <RevealText>// WHO IS WHO</RevealText>
+            <RevealText>WHO IS WHO</RevealText>
           </h2>
           <RevealLine delay={0.2} className="w-12 h-0.5 bg-gold mb-4" />
           <p className="font-serif text-3xl sm:text-4xl font-bold">

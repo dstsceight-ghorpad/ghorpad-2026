@@ -86,7 +86,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
   return (
     <section id="gallery" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <SectionHeading label="// PHOTO GALLERY" title="Through the Lens" />
+        <SectionHeading label="PHOTO GALLERY" title="Through the Lens" />
 
         {/* Category Filter */}
         <RevealOnScroll>

@@ -34,7 +34,7 @@ export default function ArticlesGrid({ articles }: ArticlesGridProps) {
     <section id="articles" className="bg-background py-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Section title — scroll-triggered reveal */}
-        <SectionHeading label="// LATEST DISPATCHES" className="mb-10" />
+        <SectionHeading label="LATEST DISPATCHES" className="mb-10" />
 
         {/* Filter tabs — each category gets its own accent colour */}
         <div className="flex flex-wrap gap-2 mb-10">

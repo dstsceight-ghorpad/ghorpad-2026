@@ -212,7 +212,7 @@ export default function PersonnelDetailOverlay({
             {person.bio && (
               <div className="border-t border-border-subtle pt-5 mt-5">
                 <span className="font-mono text-xs tracking-[0.2em] text-gold mb-4 block">
-                  // ABOUT
+                  ABOUT
                 </span>
                 <div className="text-muted text-base leading-relaxed space-y-3">
                   {person.bio.split("\n\n").map((para, i) => {

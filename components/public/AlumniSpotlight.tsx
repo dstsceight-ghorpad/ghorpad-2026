@@ -40,7 +40,7 @@ export default function AlumniSpotlight({ alumni }: AlumniSpotlightProps) {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <SectionHeading
-          label="// ALUMNI SPOTLIGHT"
+          label="ALUMNI SPOTLIGHT"
           title="Where Are They Now"
           className="mb-10"
         />

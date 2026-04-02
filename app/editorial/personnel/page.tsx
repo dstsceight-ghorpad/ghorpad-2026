@@ -243,7 +243,7 @@ function EditModal({
           {/* Extended fields */}
           <div className="border-t border-border-subtle pt-4">
             <span className="font-mono text-xs text-gold tracking-widest mb-3 block">
-              // PERSONAL DETAILS
+              PERSONAL DETAILS
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FieldInput

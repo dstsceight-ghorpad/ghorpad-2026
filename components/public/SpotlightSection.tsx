@@ -103,7 +103,7 @@ export default function SpotlightSection({ article }: SpotlightSectionProps) {
             )}
             <div className="absolute bottom-4 left-4 right-4">
               <div className="font-mono text-[10px] text-muted bg-background/80 backdrop-blur px-3 py-2 rounded">
-                // COVER STORY &middot; VOL. XII
+                COVER STORY &middot; VOL. XII
               </div>
             </div>
           </div>

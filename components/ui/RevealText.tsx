@@ -155,7 +155,7 @@ export function RevealOnScroll({
 // This is the main export most sections will use.
 
 interface SectionHeadingProps {
-  /** The monospace label, e.g. "// LATEST DISPATCHES" */
+  /** The monospace label, e.g. "LATEST DISPATCHES" */
   label: string;
   /** Optional serif title beneath the label */
   title?: string;

@@ -48,7 +48,7 @@ export default function CampusMap({ locations }: CampusMapProps) {
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <SectionHeading
-          label="// CAMPUS MAP"
+          label="CAMPUS MAP"
           title="Navigate the Grounds"
           className="mb-10"
         />

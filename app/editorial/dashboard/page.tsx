@@ -311,7 +311,7 @@ export default function DashboardPage() {
       {/* Recent Activity — live data */}
       <div>
         <h2 className="font-mono text-xs text-gold tracking-[0.2em] mb-4">
-          // RECENT ACTIVITY
+          RECENT ACTIVITY
         </h2>
         <div className="bg-surface border border-border-subtle rounded-lg divide-y divide-border-subtle">
           {recentActivity.length === 0 ? (

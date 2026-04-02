@@ -56,7 +56,7 @@ export default function MemesCorner({ items }: MemesCornerProps) {
     return (
       <section id="memes" className="py-20 sm:py-28 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <SectionHeading label="// MEMES CORNER" title="Campus Humor" />
+          <SectionHeading label="MEMES CORNER" title="Campus Humor" />
           <RevealOnScroll>
             <div className="text-center py-16 border border-dashed border-border-subtle rounded-xl">
               <Smile size={40} className="mx-auto text-lime-500/30 mb-4" />
@@ -79,7 +79,7 @@ export default function MemesCorner({ items }: MemesCornerProps) {
   return (
     <section id="memes" className="py-20 sm:py-28 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <SectionHeading label="// MEMES CORNER" title="Campus Humor" />
+        <SectionHeading label="MEMES CORNER" title="Campus Humor" />
 
         {/* Meme Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

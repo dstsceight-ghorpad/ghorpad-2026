@@ -78,7 +78,7 @@ export default function ArticlesPage() {
             <h1 className="font-serif text-2xl font-bold">Articles</h1>
           </div>
           <p className="font-mono text-xs text-muted">
-            // ALL ARTICLES &middot; {articles.length} total
+            ALL ARTICLES &middot; {articles.length} total
           </p>
         </div>
         <Link

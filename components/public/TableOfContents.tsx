@@ -26,7 +26,7 @@ export default function TableOfContents({ entries }: TableOfContentsProps) {
       <div className="max-w-7xl mx-auto">
         {/* Section header — scroll-triggered reveal */}
         <SectionHeading
-          label="// INDEX"
+          label="INDEX"
           title="Table of Contents"
           className="mb-12"
         />

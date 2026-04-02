@@ -101,7 +101,7 @@ export default function ProfilePage() {
         <div>
           <h1 className="font-serif text-2xl font-bold">Author Profile</h1>
           <p className="font-mono text-xs text-muted mt-1">
-            // YOUR PUBLIC AUTHOR IDENTITY
+            YOUR PUBLIC AUTHOR IDENTITY
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -247,7 +247,7 @@ export default function ProfilePage() {
         {/* Social Links */}
         <div>
           <span className="font-mono text-xs text-gold tracking-widest mb-4 block">
-            // SOCIAL LINKS
+            SOCIAL LINKS
           </span>
           <div className="space-y-3">
             <div className="relative">
