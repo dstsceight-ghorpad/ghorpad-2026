@@ -90,8 +90,8 @@ export default function PhotoUploadPage() {
     setSuccessId(null);
 
     try {
-      // Client-side optimize to 800x1000 JPEG (high-res for enlarged views)
-      const dataUrl = await resizeAndConvertToBase64(file, 800, 1000, 0.82);
+      // Client-side optimize — keep high resolution for sharp display
+      const dataUrl = await resizeAndConvertToBase64(file, 1200, 1500, 0.85);
 
       // Upload via API
       const res = await fetch("/api/upload-photo", {

@@ -35,9 +35,9 @@ export function stripRankFromName(name: string): string {
 
 export function resizeAndConvertToBase64(
   file: File,
-  maxWidth = 400,
-  maxHeight = 500,
-  quality = 0.7
+  maxWidth = 1200,
+  maxHeight = 1500,
+  quality = 0.85
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
