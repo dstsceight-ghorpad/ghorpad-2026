@@ -35,3 +35,4 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 // deploy trigger 1774631630
+// revalidate 1776028815
