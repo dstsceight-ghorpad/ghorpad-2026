@@ -147,12 +147,12 @@ export default function GalleryManagementPage() {
     handleFilesSelected(e.dataTransfer.files);
   };
 
-  const pendingCount = items.filter((i) => (i as Record<string,unknown>).status === "pending").length;
+  const pendingCount = items.filter((i) => i.status === "pending").length;
 
   const filtered = items
     .filter((item) => filterCategory === "All" || item.category === filterCategory)
     .filter((item) => {
-      const s = (item as Record<string, unknown>).status as string;
+      const s = item.status as string;
       if (filterStatus === "all") return true;
       return s === filterStatus;
     });
@@ -346,7 +346,7 @@ export default function GalleryManagementPage() {
       {pendingCount > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           {(["all", "pending", "approved", "rejected"] as const).map((s) => {
-            const count = s === "all" ? items.length : items.filter((i) => (i as Record<string,unknown>).status === s).length;
+            const count = s === "all" ? items.length : items.filter((i) => i.status === s).length;
             if (count === 0 && s !== "all") return null;
             return (
               <button
@@ -412,14 +412,14 @@ export default function GalleryManagementPage() {
                 </div>
 
                 {/* Status badge */}
-                {(item as Record<string,unknown>).status === "pending" && (
+                {item.status === "pending" && (
                   <div className="absolute top-2 right-2">
                     <span className="font-mono text-[8px] bg-yellow-500 text-background px-1.5 py-0.5 rounded flex items-center gap-1">
                       <Clock size={8} /> PENDING
                     </span>
                   </div>
                 )}
-                {(item as Record<string,unknown>).status === "rejected" && (
+                {item.status === "rejected" && (
                   <div className="absolute top-2 right-2">
                     <span className="font-mono text-[8px] bg-red-500 text-white px-1.5 py-0.5 rounded">
                       REJECTED
@@ -454,7 +454,7 @@ export default function GalleryManagementPage() {
                 </div>
 
                 {/* Approve/Reject buttons for pending items */}
-                {canManage && (item as Record<string,unknown>).status === "pending" && (
+                {canManage && item.status === "pending" && (
                   <div className="flex gap-1.5">
                     <button
                       onClick={() => handleUpdateStatus(item.id, "approved")}
@@ -470,7 +470,7 @@ export default function GalleryManagementPage() {
                     </button>
                   </div>
                 )}
-                {canManage && (item as Record<string,unknown>).status === "rejected" && (
+                {canManage && item.status === "rejected" && (
                   <button
                     onClick={() => handleUpdateStatus(item.id, "approved")}
                     className="w-full flex items-center justify-center gap-1 font-mono text-[9px] text-green-400 border border-green-500/30 py-1.5 rounded hover:bg-green-500/10 transition-colors"

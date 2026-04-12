@@ -227,6 +227,7 @@ export interface GalleryItem {
   uploaded_by?: string;
   created_at?: string;
   sort_order?: number;
+  status?: "pending" | "approved" | "rejected";
 }
 
 // --- Submission Portal types ---
