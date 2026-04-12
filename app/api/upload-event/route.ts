@@ -93,17 +93,18 @@ export async function POST(request: NextRequest) {
   descParts.push(`${event} — DSTSC-08`);
   const description = descParts.join(" | ");
 
-  // Insert gallery_items record
+  // Insert gallery_items record — status "pending" for editorial review
   const { error: dbError } = await supabase.from("gallery_items").insert({
     title: caption.trim() || `${event} Photo`,
     category,
     type: "image",
     url: publicUrl,
-    thumbnail: publicUrl, // same URL — transforms applied at render time
+    thumbnail: publicUrl,
     aspect_ratio: "landscape",
     description,
     sort_order: 500,
     uploaded_by: EDITOR_ID,
+    status: "pending",
   });
 
   if (dbError) {

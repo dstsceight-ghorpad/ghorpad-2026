@@ -7,6 +7,9 @@ import {
   Loader2,
   Camera,
   Image as ImageIcon,
+  Check,
+  XCircle,
+  Clock,
 } from "lucide-react";
 import { createBrowserSupabaseClient } from "@/lib/supabase";
 import { useUser } from "../layout";
@@ -39,6 +42,7 @@ export default function GalleryManagementPage() {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [filterCategory, setFilterCategory] = useState<GalleryCategory | "All">("All");
+  const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "approved" | "rejected">("all");
 
   // Upload form state
   const [title, setTitle] = useState("");
@@ -130,16 +134,29 @@ export default function GalleryManagementPage() {
     setItems((prev) => prev.filter((i) => i.id !== item.id));
   };
 
+  const handleUpdateStatus = async (itemId: string, newStatus: string) => {
+    const supabase = createBrowserSupabaseClient();
+    await supabase.from("gallery_items").update({ status: newStatus }).eq("id", itemId);
+    setItems((prev) =>
+      prev.map((i) => (i.id === itemId ? { ...i, status: newStatus } as GalleryItem : i))
+    );
+  };
+
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
     handleFilesSelected(e.dataTransfer.files);
   };
 
-  const filtered =
-    filterCategory === "All"
-      ? items
-      : items.filter((item) => item.category === filterCategory);
+  const pendingCount = items.filter((i) => (i as Record<string,unknown>).status === "pending").length;
+
+  const filtered = items
+    .filter((item) => filterCategory === "All" || item.category === filterCategory)
+    .filter((item) => {
+      const s = (item as Record<string, unknown>).status as string;
+      if (filterStatus === "all") return true;
+      return s === filterStatus;
+    });
 
   const canManage = profile?.role && canManageGallery(profile.role);
 
@@ -148,7 +165,7 @@ export default function GalleryManagementPage() {
       <div className="mb-8">
         <h1 className="font-serif text-2xl font-bold mb-1">Photo Gallery</h1>
         <p className="font-mono text-xs text-muted">
-          // UPLOAD PHOTOS &middot; MILIT BABIES &middot; EVENTS &middot; CAMPUS
+          UPLOAD PHOTOS &middot; MILIT BABIES &middot; EVENTS &middot; CAMPUS
           LIFE
         </p>
       </div>
@@ -157,7 +174,7 @@ export default function GalleryManagementPage() {
       {canManage && (
         <div className="bg-surface border border-border-subtle rounded-xl p-6 mb-8">
           <h2 className="font-mono text-xs text-gold tracking-widest mb-4">
-            // ADD TO GALLERY
+            ADD TO GALLERY
           </h2>
 
           {/* Form fields */}
@@ -326,6 +343,35 @@ export default function GalleryManagementPage() {
         })}
       </div>
 
+      {/* Status filter */}
+      {pendingCount > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {(["all", "pending", "approved", "rejected"] as const).map((s) => {
+            const count = s === "all" ? items.length : items.filter((i) => (i as Record<string,unknown>).status === s).length;
+            if (count === 0 && s !== "all") return null;
+            return (
+              <button
+                key={s}
+                onClick={() => setFilterStatus(s)}
+                className={`font-mono text-[10px] px-3 py-1.5 rounded transition-all flex items-center gap-1.5 ${
+                  filterStatus === s
+                    ? s === "pending" ? "bg-yellow-500 text-background font-semibold" :
+                      s === "approved" ? "bg-green-500 text-background font-semibold" :
+                      s === "rejected" ? "bg-red-500 text-white font-semibold" :
+                      "bg-gold text-background font-semibold"
+                    : "text-muted border border-border-subtle hover:border-gold/50"
+                }`}
+              >
+                {s === "pending" && <Clock size={10} />}
+                {s === "approved" && <Check size={10} />}
+                {s === "rejected" && <XCircle size={10} />}
+                {s.toUpperCase()} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Gallery items grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filtered.map((item) => {
@@ -366,9 +412,25 @@ export default function GalleryManagementPage() {
                   </span>
                 </div>
 
+                {/* Status badge */}
+                {(item as Record<string,unknown>).status === "pending" && (
+                  <div className="absolute top-2 right-2">
+                    <span className="font-mono text-[8px] bg-yellow-500 text-background px-1.5 py-0.5 rounded flex items-center gap-1">
+                      <Clock size={8} /> PENDING
+                    </span>
+                  </div>
+                )}
+                {(item as Record<string,unknown>).status === "rejected" && (
+                  <div className="absolute top-2 right-2">
+                    <span className="font-mono text-[8px] bg-red-500 text-white px-1.5 py-0.5 rounded">
+                      REJECTED
+                    </span>
+                  </div>
+                )}
+
                 {/* Delete overlay */}
                 {canManage && (
-                  <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-background/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <button
                       onClick={() => handleDelete(item)}
                       className="p-2 bg-surface rounded-lg border border-border-subtle hover:border-red-accent/50 text-muted hover:text-red-accent transition-all"
@@ -380,17 +442,43 @@ export default function GalleryManagementPage() {
                 )}
               </div>
 
-              {/* Info */}
+              {/* Info + approval actions */}
               <div className="p-3">
                 <p className="text-xs font-medium truncate mb-1">
                   {item.title}
                 </p>
-                <div className="flex items-center justify-between font-mono text-[10px] text-muted">
+                <div className="flex items-center justify-between font-mono text-[10px] text-muted mb-2">
                   <span>{item.aspect_ratio}</span>
                   <span>
                     {item.created_at ? formatDateShort(item.created_at) : ""}
                   </span>
                 </div>
+
+                {/* Approve/Reject buttons for pending items */}
+                {canManage && (item as Record<string,unknown>).status === "pending" && (
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => handleUpdateStatus(item.id, "approved")}
+                      className="flex-1 flex items-center justify-center gap-1 font-mono text-[9px] text-green-400 border border-green-500/30 py-1.5 rounded hover:bg-green-500/10 transition-colors"
+                    >
+                      <Check size={10} /> APPROVE
+                    </button>
+                    <button
+                      onClick={() => handleUpdateStatus(item.id, "rejected")}
+                      className="flex-1 flex items-center justify-center gap-1 font-mono text-[9px] text-red-400 border border-red-500/30 py-1.5 rounded hover:bg-red-500/10 transition-colors"
+                    >
+                      <XCircle size={10} /> REJECT
+                    </button>
+                  </div>
+                )}
+                {canManage && (item as Record<string,unknown>).status === "rejected" && (
+                  <button
+                    onClick={() => handleUpdateStatus(item.id, "approved")}
+                    className="w-full flex items-center justify-center gap-1 font-mono text-[9px] text-green-400 border border-green-500/30 py-1.5 rounded hover:bg-green-500/10 transition-colors"
+                  >
+                    <Check size={10} /> APPROVE
+                  </button>
+                )}
               </div>
             </div>
           );

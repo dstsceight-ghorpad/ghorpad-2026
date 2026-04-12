@@ -91,10 +91,11 @@ export default async function HomePage() {
     order: p.sort_order as number,
   })) as Personnel[];
 
-  // Fetch gallery items from Supabase
+  // Fetch gallery items from Supabase (only approved)
   const { data: galleryData } = await supabase
     .from("gallery_items")
     .select("*")
+    .eq("status", "approved")
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
