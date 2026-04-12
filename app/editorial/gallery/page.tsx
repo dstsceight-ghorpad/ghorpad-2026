@@ -55,8 +55,7 @@ export default function GalleryManagementPage() {
     const supabase = createBrowserSupabaseClient();
     const { data } = await supabase
       .from("gallery_items")
-      .select("*")
-      .order("sort_order", { ascending: true })
+      .select("id, title, category, type, url, thumbnail, aspect_ratio, description, uploaded_by, created_at, sort_order, status")
       .order("created_at", { ascending: false });
 
     if (data) setItems(data as GalleryItem[]);
