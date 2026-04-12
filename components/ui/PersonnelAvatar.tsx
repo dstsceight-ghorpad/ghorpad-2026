@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { User } from "lucide-react";
+import { getTransformedUrl, IMAGE_PRESETS, type TransformOptions } from "@/lib/image-url";
 
 interface PersonnelAvatarProps {
   src: string | null;
@@ -9,10 +10,13 @@ interface PersonnelAvatarProps {
   className?: string;
   iconSize?: number;
   iconLabel?: string;
+  /** Image transform preset — defaults to avatar (400x500) */
+  transform?: TransformOptions;
 }
 
 /**
  * Renders a personnel photo with graceful fallback.
+ * Uses Supabase image transforms for optimized delivery.
  * If the image URL returns 404 (not uploaded yet), shows a placeholder icon.
  */
 export default function PersonnelAvatar({
@@ -21,6 +25,7 @@ export default function PersonnelAvatar({
   className = "w-full h-full object-cover object-top",
   iconSize = 32,
   iconLabel,
+  transform = IMAGE_PRESETS.avatar,
 }: PersonnelAvatarProps) {
   const [failed, setFailed] = useState(false);
 
@@ -39,7 +44,7 @@ export default function PersonnelAvatar({
 
   return (
     <img
-      src={src}
+      src={getTransformedUrl(src, transform)}
       alt={alt}
       className={className}
       onError={() => setFailed(true)}

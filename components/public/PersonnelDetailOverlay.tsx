@@ -132,6 +132,7 @@ export default function PersonnelDetailOverlay({
             className="w-full h-full object-cover object-top"
             iconSize={120}
             iconLabel="PHOTO"
+            transform={{ width: 800, height: 1000, quality: 85 }}
           />
 
           {/* Rank is shown in display name */}

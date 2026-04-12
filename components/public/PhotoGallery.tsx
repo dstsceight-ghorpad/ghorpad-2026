@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { X, Camera, Play } from "lucide-react";
+import { X, Camera, Play, Download } from "lucide-react";
 import { SectionHeading, RevealOnScroll } from "@/components/ui/RevealText";
+import { getTransformedUrl, getHdUrl, IMAGE_PRESETS } from "@/lib/image-url";
 import type { GalleryItem, GalleryCategory } from "@/types";
 
 const ALL_CATEGORIES: GalleryCategory[] = [
@@ -169,7 +170,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
                   {item.url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={item.url}
+                      src={getTransformedUrl(item.url, IMAGE_PRESETS.galleryThumb)}
                       alt={item.title}
                       className="absolute inset-0 w-full h-full object-cover"
                       loading="lazy"
@@ -251,7 +252,7 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
               {lightboxItem.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  src={lightboxItem.url}
+                  src={getTransformedUrl(lightboxItem.url, IMAGE_PRESETS.lightbox)}
                   alt={lightboxItem.title}
                   className="max-w-full max-h-[80vh] object-contain"
                 />
@@ -277,9 +278,22 @@ export default function PhotoGallery({ items }: PhotoGalleryProps) {
               <h3 className="font-serif text-xl font-bold mb-1">
                 {lightboxItem.title}
               </h3>
-              <span className="font-mono text-[10px] text-gold">
-                {lightboxItem.category.toUpperCase()}
-              </span>
+              <div className="flex items-center justify-center gap-3 mt-1">
+                <span className="font-mono text-[10px] text-gold">
+                  {lightboxItem.category.toUpperCase()}
+                </span>
+                {lightboxItem.url && (
+                  <a
+                    href={getHdUrl(lightboxItem.url)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-mono text-[10px] text-muted hover:text-gold border border-border-subtle px-2 py-0.5 rounded transition-colors"
+                  >
+                    <Download size={10} />
+                    HD
+                  </a>
+                )}
+              </div>
               {lightboxItem.description && (
                 <p className="text-sm text-muted mt-2 leading-relaxed">
                   {lightboxItem.description}
